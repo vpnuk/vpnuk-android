@@ -7,14 +7,23 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 
-fun Completable.doOnIoSubscribeOnMain() =
+fun Completable.doOnIoObserveOnMain() =
     this.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOnMain()
 
-fun <T> Single<T>.doOnIoSubscribeOnMain() =
+fun <T> Single<T>.doOnIoObserveOnMain() =
     this.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOnMain()
 
-fun <T> Observable<T>.doOnIoSubscribeOnMain() =
+fun <T> Observable<T>.doOnIoObserveOnMain() =
     this.subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOnMain()
+
+fun Completable.observeOnMain() =
+    this.observeOn(AndroidSchedulers.mainThread())
+
+fun <T> Single<T>.observeOnMain() =
+    this.observeOn(AndroidSchedulers.mainThread())
+
+fun <T> Observable<T>.observeOnMain() =
+    this.observeOn(AndroidSchedulers.mainThread())

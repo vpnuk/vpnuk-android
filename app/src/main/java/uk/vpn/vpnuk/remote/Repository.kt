@@ -8,6 +8,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,6 +34,9 @@ class Repository(context: Context) {
         .baseUrl("https://www.vpnuk.info/serverlist/")
         .client(
             OkHttpClient.Builder()
+                .addInterceptor(HttpLoggingInterceptor().apply {
+                    this.level = HttpLoggingInterceptor.Level.BODY
+                })
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .build()
         )
@@ -42,7 +46,7 @@ class Repository(context: Context) {
     private val api = retrofit.create(Requests::class.java)
     private val gson = Gson()
 
-    private val currentServer = BehaviorSubject.create<Wrapper>().apply {
+    private val currentServer = BehaviorSubject.create<Wrapper>().toSerialized().apply {
         onNext(Wrapper(null))
     }
 
@@ -56,7 +60,7 @@ class Repository(context: Context) {
         prefs.getString("settings", null)?.let { gson.fromJson(it, Settings::class.java) }
             ?: Settings(SocketType.UDP.value, SocketType.UDP.ports.first(), null)
 
-    fun getSelectedServer() = currentServer.value?.server
+    fun getSelectedServer(): Server? = currentServer.blockingFirst()?.server
 
     fun getCurrentServerObservable(): Observable<Wrapper> = currentServer
 
@@ -74,6 +78,7 @@ class Repository(context: Context) {
         return getServersCache()
             .map { list -> Wrapper(list.find { getCurrentServerId() == it.address }) }
             .doOnSuccess {
+                Log.e("subscribe", "put new $it")
                 currentServer.onNext(it)
             }
             .ignoreElement()
@@ -105,7 +110,8 @@ class Repository(context: Context) {
             .andThen(updateCurrentServer())
             .onErrorResumeNext { throwable ->
                 updateCurrentServer().andThen(Completable.error(throwable))
-            }.doOnComplete {
+            }
+            .doOnComplete {
                 serversUpdated = true
             }
 

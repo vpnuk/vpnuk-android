@@ -11,7 +11,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.remote.Repository
-import uk.vpn.vpnuk.remote.Server
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
 
@@ -54,7 +53,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
 
         if (!repository.serversUpdated) {
             repository.updateServers()
-                .doOnIoSubscribeOnMain()
+                .doOnIoObserveOnMain()
                 .addProgressTracking()
                 .subscribe({}, {
                     showMessage(getString(R.string.err_unable_to_update_servers))
@@ -94,11 +93,12 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             val socket = tabsSocketType.selectedTab().text.toString()
             val port = tabsPort.selectedTab().text.toString()
 
+            val address = repository.getSelectedServer()!!.address
             repository.updateSettings(Settings(socket, port, credentials))
             vpnConnector.startVpn(
                 login,
                 password,
-                repository.getSelectedServer()!!.address,
+                address,
                 socket,
                 port
             )
@@ -108,34 +108,30 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }
 
         repository.getCurrentServerObservable()
-            .doOnIoSubscribeOnMain()
-            .subscribe({ server ->
+            .observeOnMain()
+            .subscribe { server ->
+                Log.e("subscribe", "$server")
                 server.server?.let {
                     tvAddress.text = it.address
                     tvDns.text = it.dns
                     tvCity.text = it.location.city
                     fabSelectAddress.setImageResource(it.getIconResourceName(this))
                 }
-            }, { throw it }).addToDestroySubscriptions()
+            }.addToDestroySubscriptions()
 
-        Observable.zip(
+        Observable.combineLatest(
             etPassword.textEmpty(),
-            etLogin.textEmpty().doOnNext { Log.e("asdasd", "login change") },
-            repository.getCurrentServerObservable()
-                .doOnIoSubscribeOnMain(),
-            Function3<Boolean, Boolean, Wrapper, Boolean> { _, _, server ->
-                btConnectState(server.server)
+            etLogin.textEmpty(),
+            repository.getCurrentServerObservable(),
+            Function3<Boolean, Boolean, Wrapper, Boolean> { passwordEmpty, loginEmpty, server ->
+                Log.e("subscribe", "enabled $server")
+                !passwordEmpty && !loginEmpty && server.server != null
             })
-            .subscribe({
+            .observeOnMain()
+            .subscribe {
                 btConnect.isEnabled = it
-            }, {
-                throw it
-            }).addToDestroySubscriptions()
+            }.addToDestroySubscriptions()
     }
-
-
-    private fun btConnectState(server: Server?) =
-        etLogin.text.isNotEmpty() && etPassword.text.isNotEmpty() && server != null
 
     override fun onStart() {
         super.onStart()

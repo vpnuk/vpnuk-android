@@ -6,7 +6,7 @@ import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_server_list.*
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.utils.ServerType
-import uk.vpn.vpnuk.utils.doOnIoSubscribeOnMain
+import uk.vpn.vpnuk.utils.doOnIoObserveOnMain
 import uk.vpn.vpnuk.utils.setTabListener
 import uk.vpn.vpnuk.utils.setTabs
 import uk.vpn.vpnuk.view.ServersAdapter
@@ -32,7 +32,7 @@ class ServerListActivity : BaseActivity() {
         }
         serversAdapter = ServersAdapter(this) {
             repository.setServerId(it.address)
-                .doOnIoSubscribeOnMain()
+                .doOnIoObserveOnMain()
                 .subscribe {
                     finish()
                 }
@@ -45,7 +45,7 @@ class ServerListActivity : BaseActivity() {
         repository
             .getServersCache()
             .map { servers -> servers.filter { it.type == serverType.value } }
-            .doOnIoSubscribeOnMain()
+            .doOnIoObserveOnMain()
             .addProgressTracking()
             .subscribe(Consumer {
                 serversAdapter.updateData(it)
