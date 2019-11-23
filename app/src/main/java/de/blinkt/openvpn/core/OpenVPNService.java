@@ -31,19 +31,13 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
 import android.system.OsConstants;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import uk.vpn.vpnuk.BuildConfig;
-import uk.vpn.vpnuk.Data;
-import uk.vpn.vpnuk.MainActivity;
-import uk.vpn.vpnuk.R;
-
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -59,11 +53,16 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
-
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
-import uk.vpn.vpnuk.utils.ImageUtilsKt;
+import uk.vpn.vpnuk.BuildConfig;
+import uk.vpn.vpnuk.Data;
+import uk.vpn.vpnuk.MainActivity;
+import uk.vpn.vpnuk.R;
+import uk.vpn.vpnuk.remote.Repository;
+import uk.vpn.vpnuk.remote.Server;
+import uk.vpn.vpnuk.utils.ModelUtilsKt;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -109,7 +108,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     String PREF_USAGE = "daily_usage", TODAY, WEEK, MONTH, YEAR;
     SharedPreferences sp_settings;
     int Random;
-    String City, Image;
 
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
@@ -133,6 +131,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Handler guiHandler;
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
+    private Repository instance;
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     public static String humanReadableByteCount(long bytes, boolean speed, Resources res) {
@@ -208,12 +207,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
 
-
     private boolean runningOnAndroidTV() {
         UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
         return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
     }
-
 
 
     PendingIntent getGraphPendingIntent() {
@@ -268,11 +265,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public boolean stopVPN(boolean replaceConnection) throws RemoteException {
-        if (getManagement() != null){
+        if (getManagement() != null) {
             ConnectionTimer.cancel();
             return getManagement().stopVPN(replaceConnection);
-        }
-        else return false;
+        } else return false;
     }
 
     @Override
@@ -281,15 +277,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
-
-
-        SharedPreferences ConnectionDetails = getSharedPreferences("connection_data", 0);
-        City = ConnectionDetails.getString("city", "Select a City");
-        Image = ConnectionDetails.getString("image", "unitedstates");
-
         try {
             startForeground(App.NOTIFICATION_ID, getMyActivityNotification("Tap to open the app"));
-        } catch (Exception e){
+        } catch (Exception e) {
             Bundle params = new Bundle();
             params.putString("device_id", App.device_id);
             params.putString("exception", "OVPS1" + e.toString());
@@ -306,8 +296,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         sp_settings = getSharedPreferences(PREF_USAGE, 0);
         long_usage_today = sp_settings.getLong(TODAY, 0);
-        long_usage_week = sp_settings.getLong(WEEK+YEAR, 0);
-        long_usage_month = sp_settings.getLong(MONTH+YEAR, 0);
+        long_usage_week = sp_settings.getLong(WEEK + YEAR, 0);
+        long_usage_month = sp_settings.getLong(MONTH + YEAR, 0);
         long_usage_time_today = sp_settings.getLong(TODAY + "_time", 0);
         long_usage_time_total = sp_settings.getLong("total_time", 0);
 
@@ -321,23 +311,23 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 public void onTick(long millisUntilFinished) {
                     //Data.StringCountDown =  "remaining " + millisUntilFinished / 1000 + " seconds";
                     long_milli_seconds = long_milli_seconds + 1000;
-                    Data.StringCountDown = String.format(getString(R.string.string_of_two_number),  (long_milli_seconds / (1000*60*60)) % 24) + ":" +
-                            String.format(getString(R.string.string_of_two_number), TimeUnit.MILLISECONDS.toMinutes( long_milli_seconds) % 60) + ":" +
+                    Data.StringCountDown = String.format(getString(R.string.string_of_two_number), (long_milli_seconds / (1000 * 60 * 60)) % 24) + ":" +
+                            String.format(getString(R.string.string_of_two_number), TimeUnit.MILLISECONDS.toMinutes(long_milli_seconds) % 60) + ":" +
                             String.format(getString(R.string.string_of_two_number), (TimeUnit.MILLISECONDS.toSeconds(long_milli_seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(long_milli_seconds))));
-                    int time = Random*1000;
+                    int time = Random * 1000;
                     if ((long_milli_seconds % time) == 0) {
                         SharedPreferences.Editor editor = sp_settings.edit();
                         editor.putLong(TODAY, long_usage_today + long_usage_now);
-                        editor.putLong(WEEK+YEAR, long_usage_week + long_usage_now);
-                        editor.putLong(MONTH+YEAR, long_usage_month + long_usage_now);
+                        editor.putLong(WEEK + YEAR, long_usage_week + long_usage_now);
+                        editor.putLong(MONTH + YEAR, long_usage_month + long_usage_now);
                         editor.putLong(TODAY + "_time", long_usage_time_today + long_milli_seconds);
                         editor.putLong("total_time", long_usage_time_total + long_milli_seconds);
                         editor.apply();
-                        Log.e("random", Random + " " + Random*1000);
+                        Log.e("random", Random + " " + Random * 1000);
 
                     }
 
-                    if(abortConnectionVPN){
+                    if (abortConnectionVPN) {
                         try {
                             ConnectionTimer.cancel();
                         } catch (Exception e) {
@@ -350,6 +340,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
                 }
+
                 public void onFinish() {
 
                 }
@@ -360,11 +351,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }
 
 
-
-
-
-
-        if (intent != null && intent.getBooleanExtra(ALWAYS_SHOW_NOTIFICATION, false)) mNotificationAlwaysVisible = true;
+        if (intent != null && intent.getBooleanExtra(ALWAYS_SHOW_NOTIFICATION, false))
+            mNotificationAlwaysVisible = true;
         VpnStatus.addStateListener(this);
         VpnStatus.addByteCountListener(this);
         guiHandler = new Handler(getMainLooper());
@@ -417,23 +405,23 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     // TODO
-    private Notification getMyActivityNotification(String Description){
+    private Notification getMyActivityNotification(String Description) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
-        int int_temp = ImageUtilsKt.getImageResByName(this, "au1");
-
-
+        Server currentServer = instance.getSelectedServer();
+        int int_temp = ModelUtilsKt.getIconResourceName(currentServer, this);
+        String city = currentServer.getLocation().getCity();
         String Title;
-        if(App.connection_status == 0){
-            Title = "Tap to connect " + City;
-        } else if(App.connection_status == 1){
-            Title = "Connecting " + City;
-        } else if(App.connection_status == 2){
-            Title = "Connected " + City;
-        } else{
-            Title = "Tap to open Buzz VPN";
+        if (App.connection_status == 0) {
+            Title = "Tap to connect " + city;
+        } else if (App.connection_status == 1) {
+            Title = "Connecting " + city;
+        } else if (App.connection_status == 2) {
+            Title = "Connected " + city;
+        } else {
+            Title = "Tap to open " + getString(R.string.app_name);
         }
 
         return new NotificationCompat.Builder(this, App.CHANNEL_ID)
@@ -567,6 +555,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = Repository.Companion.instance(this);
     }
 
     @Override
@@ -665,7 +654,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         ipAddress multicastRange = new ipAddress(new CIDRIP("224.0.0.0", 3), true);
         for (NetworkSpace.ipAddress route : positiveIPv4Routes) {
             try {
-                if (multicastRange.containsNet(route)) VpnStatus.logDebug(R.string.ignore_multicast_route, route.toString());
+                if (multicastRange.containsNet(route))
+                    VpnStatus.logDebug(R.string.ignore_multicast_route, route.toString());
                 else builder.addRoute(route.getIPv4Address(), route.networkMask);
             } catch (IllegalArgumentException ia) {
                 VpnStatus.logError(getString(R.string.route_rejected) + route + " " + ia.getLocalizedMessage());
@@ -688,8 +678,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             setAllowedVpnPackages(builder);
         }
         String session = mProfile.mConnections[0].mServerName;
-        if (mLocalIP != null && mLocalIPv6 != null) session = getString(R.string.session_ipv6string, session, mLocalIP, mLocalIPv6);
-        else if (mLocalIP != null) session = getString(R.string.session_ipv4string, session, mLocalIP);
+        if (mLocalIP != null && mLocalIPv6 != null)
+            session = getString(R.string.session_ipv6string, session, mLocalIP, mLocalIPv6);
+        else if (mLocalIP != null)
+            session = getString(R.string.session_ipv4string, session, mLocalIP);
         builder.setSession(session);
         // No DNS Server, log a warning
         if (mDnslist.size() == 0) VpnStatus.logInfo(R.string.warn_no_dns);
@@ -705,7 +697,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         try {
             //Debug.stopMethodTracing();
             ParcelFileDescriptor tun = builder.establish();
-            if (tun == null) throw new NullPointerException("Android establish() method returned null (Really broken network configuration?)");
+            if (tun == null)
+                throw new NullPointerException("Android establish() method returned null (Really broken network configuration?)");
             return tun;
         } catch (Exception e) {
             VpnStatus.logError(R.string.tun_open_error);
@@ -731,7 +724,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             String intf = localRoutes[i];
             String ipAddr = localRoutes[i + 1];
             String netMask = localRoutes[i + 2];
-            if (intf == null || intf.equals("lo") || intf.startsWith("tun") || intf.startsWith("rmnet")) continue;
+            if (intf == null || intf.equals("lo") || intf.startsWith("tun") || intf.startsWith("rmnet"))
+                continue;
             if (ipAddr == null || netMask == null) {
                 VpnStatus.logError("Local routes are broken?! (Report to author) " + TextUtils.join("|", localRoutes));
                 continue;
@@ -739,7 +733,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             if (ipAddr.equals(mLocalIP.mIp)) continue;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT && !mProfile.mAllowLocalLAN) {
                 mRoutes.addIPSplit(new CIDRIP(ipAddr, netMask), true);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && mProfile.mAllowLocalLAN) mRoutes.addIP(new CIDRIP(ipAddr, netMask), false);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && mProfile.mAllowLocalLAN)
+                mRoutes.addIP(new CIDRIP(ipAddr, netMask), false);
         }
     }
 
@@ -801,11 +796,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }
         NetworkSpace.ipAddress localNet = new NetworkSpace.ipAddress(mLocalIP, true);
         if (localNet.containsNet(gatewayIP)) include = true;
-        if (gateway != null && (gateway.equals("255.255.255.255") || gateway.equals(mRemoteGW))) include = true;
+        if (gateway != null && (gateway.equals("255.255.255.255") || gateway.equals(mRemoteGW)))
+            include = true;
         if (route.len == 32 && !mask.equals("255.255.255.255")) {
             VpnStatus.logWarning(R.string.route_not_cidr, dest, mask);
         }
-        if (route.normalise()) VpnStatus.logWarning(R.string.route_not_netip, dest, route.len, route.mIp);
+        if (route.normalise())
+            VpnStatus.logWarning(R.string.route_not_netip, dest, route.len, route.mIp);
         mRoutes.addIP(route, include);
     }
 
@@ -855,7 +852,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 mLocalIP.len = masklen;
             } else {
                 mLocalIP.len = 32;
-                if (!"p2p".equals(mode)) VpnStatus.logWarning(R.string.ip_not_cidr, local, netmask, mode);
+                if (!"p2p".equals(mode))
+                    VpnStatus.logWarning(R.string.ip_not_cidr, local, netmask, mode);
             }
         }
         if (("p2p".equals(mode) && mLocalIP.len < 32) || ("net30".equals(mode) && mLocalIP.len < 30)) {
@@ -902,7 +900,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             //showNotification(VpnStatus.getLastCleanLogMessage(this), VpnStatus.getLastCleanLogMessage(this), channel, 0, level);
 
 
-
         }
     }
 
@@ -924,30 +921,30 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (mDisplayBytecount) {
             final long Total = in + out;
             String StringDown, StringUp;
-            if(diffIn < 1000){
+            if (diffIn < 1000) {
                 StringDown = diffIn + " byte/s";
-            }  else if ((diffIn >= 1000) && (diffIn <= 1000_000)) {
-                StringDown = diffIn/1000 +  " kb/s";
+            } else if ((diffIn >= 1000) && (diffIn <= 1000_000)) {
+                StringDown = diffIn / 1000 + " kb/s";
             } else {
-                StringDown = diffIn/1000_000 + " mb/s";
+                StringDown = diffIn / 1000_000 + " mb/s";
             }
 
-            if(diffOut < 1000){
+            if (diffOut < 1000) {
                 StringUp = diffOut + " byte/s";
-            }  else if ((diffOut >= 1000) && (diffOut <= 1000_000)) {
-                StringUp = diffOut/1000 + " kb/s";
+            } else if ((diffOut >= 1000) && (diffOut <= 1000_000)) {
+                StringUp = diffOut / 1000 + " kb/s";
             } else {
-                StringUp = diffOut/1000_000 + " mb/s";
+                StringUp = diffOut / 1000_000 + " mb/s";
             }
 
             // save data
             long_usage_now = Total;
 //            LongDataUsage = Total;
 
-            String Stat = "Down: " +  StringDown + " Up: " + StringUp;
-            try{
+            String Stat = "Down: " + StringDown + " Up: " + StringUp;
+            try {
                 updateNotification(Stat);
-            } catch (Exception e){
+            } catch (Exception e) {
                 Bundle params = new Bundle();
                 params.putString("device_id", App.device_id);
                 params.putString("exception", "OVPS3" + e.toString());

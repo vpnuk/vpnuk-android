@@ -8,7 +8,18 @@ enum class SocketType(
     TCP("tcp", listOf("443", "8008", "80"));
 
     companion object {
-        fun byValue(value: String) : SocketType? {
+        fun byValue(value: String): SocketType? {
+            return values().find { it.value.equals(value, ignoreCase = true) }
+        }
+    }
+}
+
+enum class ServerType(val value: String) {
+    SHARED("shared"),
+    DEDICATED("dedicated");
+
+    companion object {
+        fun byValue(value: String): ServerType? {
             return values().find { it.value.equals(value, ignoreCase = true) }
         }
     }

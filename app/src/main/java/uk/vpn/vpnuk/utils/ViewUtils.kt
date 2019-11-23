@@ -2,7 +2,7 @@ package uk.vpn.vpnuk.utils
 
 import android.widget.EditText
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_main.*
+import com.jakewharton.rxbinding3.widget.textChanges
 
 fun TabLayout.setTabs(list: List<String>) {
     removeAllTabs()
@@ -12,6 +12,9 @@ fun TabLayout.setTabs(list: List<String>) {
         })
     }
 }
+
+fun TabLayout.select(position: Int) =
+    getTabAt(position)!!.select()
 
 fun TabLayout.selectedTab() = getTabAt(selectedTabPosition)!!
 
@@ -31,3 +34,6 @@ fun TabLayout.setTabListener(listener: (String) -> Unit) {
 
     })
 }
+
+fun EditText.textEmpty() = this.textChanges().map { it.isEmpty() }
+

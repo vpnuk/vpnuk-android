@@ -1,85 +1,122 @@
 package uk.vpn.vpnuk.remote
 
 import android.content.Context
-import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
+import android.util.Log
+import com.google.gson.Gson
+import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
-import okhttp3.Response
-import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
-import org.xml.sax.InputSource
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-//import retrofit2.converter.jaxb.JaxbConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import java.io.OutputStream
-import java.io.StringReader
-import java.io.StringWriter
-
-//import javax.xml.bind.JAXBContext
-//import javax.xml.bind.Marshaller
+import uk.vpn.vpnuk.local.Settings
+import uk.vpn.vpnuk.utils.SocketType
+import java.util.concurrent.TimeUnit
 
 interface Requests {
-    @GET("servers.xml")
+    @GET("servers.json")
     fun getServers(): Single<Servers>
+
+    @GET("versions.json")
+    fun getServerVersion(): Single<ServerVersion>
 }
 
-class Repository(val context: Context) {
-    val prefs = context.getSharedPreferences("servers", Context.MODE_PRIVATE)
-    val retrofit = Retrofit.Builder()
+data class Wrapper(val server: Server?)
+class Repository(context: Context) {
+    var serversUpdated: Boolean = false
+        private set
+    private val prefs = context.getSharedPreferences("servers", Context.MODE_PRIVATE)
+    private val retrofit = Retrofit.Builder()
         .baseUrl("https://www.vpnuk.info/serverlist/")
-        .client(OkHttpClient.Builder()/*.addInterceptor(HttpLoggingInterceptor())*/.build())
+        .client(
+            OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .build()
+        )
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .addConverterFactory(TikXmlConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
-    //    Convertr
-    val api = retrofit.create(Requests::class.java)
-//    val jaxbContext = JAXBContext.newInstance(Servers::class.java)
-//    val createMarshaller = jaxbContext.createMarshaller().apply {
-//        setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-//    }
-//    val unmarshaller = jaxbContext.createUnmarshaller()
+    private val api = retrofit.create(Requests::class.java)
+    private val gson = Gson()
 
-    fun setServerId(id: String) {
-        prefs.edit()
-            .putString("id", id)
-            .apply()
+    private val currentServer = BehaviorSubject.create<Wrapper>().apply {
+        onNext(Wrapper(null))
     }
 
-    fun getCurrentServer() = getServers().find { prefs.getString("id", null) == it.address }
+    fun updateSettings(settings: Settings) {
+        prefs.edit()
+            .putString("settings", gson.toJson(settings))
+            .commit()
+    }
 
-    fun getServers() =
-        listOf(
-            Server("shared", "78.129.194.131", "shared61.vpnuk.net", "UK", "Maidenhead", "UK 61"),
-            Server("shared", "107.150.40.26", "shared8-us.vpnuk.net", "US", "Kansas", "US 8"),
-            Server("shared", "67.215.4.146", "shared1-ca.vpnuk.net", "CA", "Montreal", "CA 1"),
-            Server("shared", "67.215.4.170", "shared2-ca.vpnuk.net", "CA", "Montreal", "CA 2"),
-            Server("shared", "80.74.131.84", "shared1-ch.vpnuk.net", "CH", "Zurich", "CH 1")
-        )
+    fun getSettings() =
+        prefs.getString("settings", null)?.let { gson.fromJson(it, Settings::class.java) }
+            ?: Settings(SocketType.UDP.value, SocketType.UDP.ports.first(), null)
 
+    fun getSelectedServer() = currentServer.value?.server
 
-//        api.getServers()
-//        .map {
-//            it.string()
-//        }
-//        .doOnSuccess {
-//            prefs.edit()
-//                .putString("servers", it)
-//                .apply()
+    fun getCurrentServerObservable(): Observable<Wrapper> = currentServer
 
-//            val stringWriter = StringWriter()
-//            createMarshaller.marshal(it, stringWriter)
-//            prefs.edit()
-//                .putString("servers", stringWriter.toString())
-//        }
-//        .map {
-//            val servers = unmarshaller.unmarshal(InputSource(StringReader(it)))
-//            return@map (servers as Servers).servers
-//        }
+    fun setServerId(id: String): Completable {
+        return Single.fromCallable {
+            prefs.edit()
+                .putString("id", id)
+                .commit()
+        }.flatMapCompletable {
+            updateCurrentServer()
+        }
+    }
+
+    private fun updateCurrentServer(): Completable {
+        return getServersCache()
+            .map { list -> Wrapper(list.find { getCurrentServerId() == it.address }) }
+            .doOnSuccess {
+                currentServer.onNext(it)
+            }
+            .ignoreElement()
+    }
+
+    fun getServersCache(): Single<List<Server>> =
+        Single.fromCallable {
+            prefs.getString("servers", null)?.let {
+                gson.fromJson(it, Servers::class.java)?.servers
+            } ?: emptyList()
+        }
+
+    fun updateServers(): Completable =
+        api.getServerVersion()
+            .flatMapCompletable { version ->
+                if (getCurrentServerVersion() != version.servers) {
+                    api.getServers()
+                        .doOnSuccess { servers ->
+                            prefs.edit()
+                                .putString("servers", gson.toJson(servers))
+                                .putString("version", version.servers)
+                                .commit()
+                        }
+                        .ignoreElement()
+                } else {
+                    Completable.complete()
+                }
+            }
+            .andThen(updateCurrentServer())
+            .onErrorResumeNext { throwable ->
+                updateCurrentServer().andThen(Completable.error(throwable))
+            }.doOnComplete {
+                serversUpdated = true
+            }
+
+    private fun getCurrentServerId() =
+        prefs.getString("id", null)
+
+    private fun getCurrentServerVersion() =
+        prefs.getString("version", null)
 
     companion object {
-        var repository: Repository? = null
+        private var repository: Repository? = null
         fun instance(context: Context): Repository {
             if (repository == null) {
                 repository = Repository(context.applicationContext)

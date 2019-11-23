@@ -2,142 +2,148 @@ package uk.vpn.vpnuk
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.widget.addTextChangedListener
-import de.blinkt.openvpn.LaunchVPN
-import de.blinkt.openvpn.core.App
-import de.blinkt.openvpn.core.ConfigParser
-import de.blinkt.openvpn.core.ProfileManager
+import android.util.Log
+import android.view.View
+import io.reactivex.Observable
+import io.reactivex.functions.Function3
 import kotlinx.android.synthetic.main.activity_main.*
+import uk.vpn.vpnuk.local.Credentials
+import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.remote.Repository
+import uk.vpn.vpnuk.remote.Server
+import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
-import java.io.BufferedReader
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStreamReader
-import java.nio.charset.Charset
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var repository: Repository
+    private lateinit var vpnConnector: VpnConnector
+
+    override fun onStateChanged(state: ConnectionState) {
+        tvStatus.text = state.name
+        when (state) {
+            ConnectionState.LEVEL_NOTCONNECTED -> {
+                btConnect.visibility = View.VISIBLE
+                btDisconnect.visibility = View.GONE
+            }
+            else -> {
+                btConnect.visibility = View.GONE
+                btDisconnect.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    override fun showProgress() {
+        content.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
+    }
+
+    override fun hideProgress() {
+        content.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
+    }
 
     @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         repository = Repository.instance(this)
+        vpnConnector = VpnConnector(this)
+        initViews()
+        applySettings()
+
+        if (!repository.serversUpdated) {
+            repository.updateServers()
+                .doOnIoSubscribeOnMain()
+                .addProgressTracking()
+                .subscribe({}, {
+                    showMessage(getString(R.string.err_unable_to_update_servers))
+                })
+        }
+    }
+
+    private fun applySettings() {
+        val settings = repository.getSettings()
+
+        val socketType = SocketType.byValue(settings.socket)!!
+        val portIndex = socketType.ports.indexOf(settings.port)
+        val socketIndex = SocketType.values().indexOf(socketType)
+        tabsSocketType.select(socketIndex)
+        tabsPort.select(portIndex)
+        settings.credentials?.let {
+            etLogin.setText(it.login)
+            etPassword.setText(it.password)
+        }
+        cbSaveCredentials.isChecked = settings.credentials != null
+    }
+
+    private fun initViews() {
         tabsSocketType.setTabs(SocketType.values().map { it.value })
         tabsSocketType.setTabListener {
             tabsPort.setTabs(SocketType.byValue(it)!!.ports)
         }
-        tabsSocketType.getTabAt(0)!!.select()
         fabSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
         }
-        etLogin.addTextChangedListener {
-            updateBtConnectState()
-        }
-        etPassword.addTextChangedListener {
-            updateBtConnectState()
-        }
-        if (BuildConfig.DEBUG) {
-            etLogin.setText("stan")
-            etPassword.setText("stan")
-        }
+
         btConnect.setOnClickListener {
-            val currentServer = repository.getCurrentServer()!!
-            startVpn(
-                etLogin.text.toString(),
-                etPassword.text.toString(),
-                currentServer.address!!,
-                tabsSocketType.selectedTab().text.toString(),
-                tabsPort.selectedTab().text.toString()
+            val login = etLogin.text.toString()
+            val password = etPassword.text.toString()
+            val credentials: Credentials? =
+                if (cbSaveCredentials.isChecked) Credentials(login, password) else null
+            val socket = tabsSocketType.selectedTab().text.toString()
+            val port = tabsPort.selectedTab().text.toString()
+
+            repository.updateSettings(Settings(socket, port, credentials))
+            vpnConnector.startVpn(
+                login,
+                password,
+                repository.getSelectedServer()!!.address,
+                socket,
+                port
             )
         }
+        btDisconnect.setOnClickListener {
+            vpnConnector.stopVpn()
+        }
 
+        repository.getCurrentServerObservable()
+            .doOnIoSubscribeOnMain()
+            .subscribe({ server ->
+                server.server?.let {
+                    tvAddress.text = it.address
+                    tvDns.text = it.dns
+                    tvCity.text = it.location.city
+                    fabSelectAddress.setImageResource(it.getIconResourceName(this))
+                }
+            }, { throw it }).addToDestroySubscriptions()
+
+        Observable.zip(
+            etPassword.textEmpty(),
+            etLogin.textEmpty().doOnNext { Log.e("asdasd", "login change") },
+            repository.getCurrentServerObservable()
+                .doOnIoSubscribeOnMain(),
+            Function3<Boolean, Boolean, Wrapper, Boolean> { _, _, server ->
+                btConnectState(server.server)
+            })
+            .subscribe({
+                btConnect.isEnabled = it
+            }, {
+                throw it
+            }).addToDestroySubscriptions()
     }
 
-    private fun updateBtConnectState() {
-        btConnect.isEnabled =
-            etLogin.text.isNotEmpty() && etPassword.text.isNotEmpty() && repository.getCurrentServer() != null
-    }
+
+    private fun btConnectState(server: Server?) =
+        etLogin.text.isNotEmpty() && etPassword.text.isNotEmpty() && server != null
 
     override fun onStart() {
         super.onStart()
-        repository.getCurrentServer()?.let {
-            tvAddress.text = it.address
-            tvDns.text = it.dns
-            tvCity.text = it.location!!.city
-            fabSelectAddress.setImageResource(getImageResByName("${it.location!!.icon!!.toLowerCase()}1"))
-        }
-        updateBtConnectState()
+        vpnConnector.startListen(this)
     }
 
-    @Throws(IOException::class)
-    private fun getTextFromAsset(): String {
-        var reader: BufferedReader? = null
-        val stringBuilder = StringBuilder()
-        try {
-            reader = BufferedReader(
-                InputStreamReader(assets.open("openvpn.txt"), "UTF-8")
-            )
-
-            // do reading, usually loop until end of file reading
-            reader.readLines().forEach {
-                stringBuilder.append(it)
-                stringBuilder.append('\n')
-            }
-        } catch (e: IOException) {
-            //log the exception
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close()
-                } catch (e: IOException) {
-                    //log the exception
-                }
-
-            }
-        }
-        return stringBuilder.toString()
+    override fun onStop() {
+        vpnConnector.removeListener()
+        super.onStop()
     }
-
-    private fun startVpn(userName: String, password: String, ip: String, socket: String, port: String) {
-        App.connection_status = 1
-        var inputStream: ByteArrayInputStream? = null
-        var bufferedReader: BufferedReader? = null
-        inputStream =
-            ByteArrayInputStream(prepareConfig(ip, socket, port))
-        bufferedReader =
-            BufferedReader(InputStreamReader(inputStream))
-
-        val cp = ConfigParser()
-        cp.parseConfig(bufferedReader)
-
-        var vp = cp.convertProfile()
-
-        vp.mName = Build.MODEL
-        vp.mUsername = userName
-        vp.mPassword = password
-
-        val pm = ProfileManager.getInstance(this@MainActivity)
-        pm.addProfile(vp)
-        pm.saveProfileList(this@MainActivity)
-        pm.saveProfile(this@MainActivity, vp)
-        vp = pm.getProfileByName(Build.MODEL)
-        val intent = Intent(applicationContext, LaunchVPN::class.java)
-        intent.putExtra(LaunchVPN.EXTRA_KEY, vp.getUUID().toString())
-        intent.action = Intent.ACTION_MAIN
-        startActivity(intent)
-        App.isStart = false
-    }
-
-    private fun prepareConfig(ip: String, socket: String, port: String) =
-        getTextFromAsset()
-            .replace("<ip>", ip)
-            .replace("<port>", port)
-            .replace("<socket>", socket)
-            .toByteArray(Charset.forName("UTF-8"))
 }

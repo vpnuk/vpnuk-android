@@ -41,6 +41,10 @@ public class VpnStatus {
     private static ConnectionStatus mLastLevel = ConnectionStatus.LEVEL_NOTCONNECTED;
     private static LogFileHandler mLogFileHandler;
 
+    public static ConnectionStatus connectionStatus() {
+        return mLastLevel;
+    }
+
     static {
         logbuffer = new LinkedList<>();
         logListener = new Vector<>();

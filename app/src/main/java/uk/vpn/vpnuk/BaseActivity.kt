@@ -1,0 +1,50 @@
+package uk.vpn.vpnuk
+
+import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+
+@SuppressLint("Registered")
+open class BaseActivity : AppCompatActivity() {
+    private val destroySubscription = CompositeDisposable()
+
+    fun Disposable.addToDestroySubscriptions() {
+        destroySubscription.add(this)
+    }
+
+    override fun onDestroy() {
+        destroySubscription.clear()
+        super.onDestroy()
+    }
+
+    open fun showProgress() {
+
+    }
+
+    open fun hideProgress() {
+
+    }
+
+    fun showMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun <T> Single<T>.addProgressTracking() =
+        doOnSubscribe {
+            showProgress()
+        }.doOnEvent { _, _ ->
+            hideProgress()
+        }
+
+    fun Completable.addProgressTracking() =
+        doOnSubscribe {
+            showProgress()
+        }.doOnEvent {
+            hideProgress()
+        }
+}

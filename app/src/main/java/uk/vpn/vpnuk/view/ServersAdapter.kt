@@ -9,13 +9,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.remote.Server
-import uk.vpn.vpnuk.utils.getImageResByName
+import uk.vpn.vpnuk.utils.getIconResourceName
 
-class ServersAdapter(context: Context, val listener : (Server) -> Unit) : RecyclerView.Adapter<ServerViewHolder>() {
+class ServersAdapter(context: Context, val listener: (Server) -> Unit) :
+    RecyclerView.Adapter<ServerViewHolder>() {
     val inflater = LayoutInflater.from(context)
     private val servers = mutableListOf<Server>()
 
-    fun updateData(list: List<Server>){
+    fun updateData(list: List<Server>) {
         servers.clear()
         servers.addAll(list)
         notifyDataSetChanged()
@@ -44,8 +45,8 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val ivCountry: ImageView = itemView.findViewById(R.id.ivCountry)
 
     fun bind(server: Server) {
-        ivCountry.setImageResource(itemView.context.getImageResByName("${server.location!!.icon!!.toLowerCase()}1"))
-        tvCity.text = server.location!!.city
+        ivCountry.setImageResource(server.getIconResourceName(itemView.context))
+        tvCity.text = server.location.city
         tvAddress.text = "${server.dns}/${server.address}"
     }
 
