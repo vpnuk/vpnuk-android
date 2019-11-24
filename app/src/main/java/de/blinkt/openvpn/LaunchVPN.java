@@ -102,6 +102,7 @@ public class LaunchVPN extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Log.e("vpn1uk", "oncreate");
         startVpnFromIntent();
     }
 

@@ -2,6 +2,7 @@ package uk.vpn.vpnuk;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
@@ -33,14 +34,14 @@ public class VpnConnector implements VpnStatus.StateListener {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.e("asdasd", "connected");
+            Log.e("vpn1uk", "connected");
             mService = IOpenVPNServiceInternal.Stub.asInterface(service);
 
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.e("asdasd", "disconnected");
+            Log.e("vpn1uk", "disconnected");
             mService = null;
         }
     };
@@ -130,14 +131,16 @@ public class VpnConnector implements VpnStatus.StateListener {
     }
 
     public void startListen(ConnectionStateListener listener) {
+        Log.e("vpn1uk", "start");
         this.listener = listener;
         VpnStatus.addStateListener(this);
-//        Intent intent = new Intent(activity, OpenVPNService.class);
-//        intent.setAction(OpenVPNService.START_SERVICE);
-//        activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(activity, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     public void removeListener() {
+        Log.e("vpn1uk", "stop");
         disconnectService();
         VpnStatus.removeStateListener(this);
         listener = null;
@@ -145,7 +148,7 @@ public class VpnConnector implements VpnStatus.StateListener {
 
     private void disconnectService() {
 //        if (mService != null) {
-//            activity.unbindService(mConnection);
+            activity.unbindService(mConnection);
 //        }
     }
 
@@ -168,7 +171,7 @@ public class VpnConnector implements VpnStatus.StateListener {
     public void stopVpn() {
         App.connection_status = 0;
         OpenVPNService.abortConnectionVPN = true;
-//        ProfileManager.setConntectedVpnProfileDisconnected(this);
+        ProfileManager.setConntectedVpnProfileDisconnected(activity);
 
         if (mService != null) {
 
@@ -176,7 +179,6 @@ public class VpnConnector implements VpnStatus.StateListener {
                 mService.stopVPN(false);
                 ProfileManager pm = ProfileManager.getInstance(activity);
                 pm.removeProfile(activity, pm.getProfileByName(Build.MODEL));
-                disconnectService();
             } catch (Exception e) {
 
             }

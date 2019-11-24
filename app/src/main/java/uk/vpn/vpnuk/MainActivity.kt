@@ -133,13 +133,13 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             }.addToDestroySubscriptions()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         vpnConnector.startListen(this)
     }
 
-    override fun onStop() {
+    override fun onPause() {
         vpnConnector.removeListener()
-        super.onStop()
+        super.onPause()
     }
 }

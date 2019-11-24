@@ -560,6 +560,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public void onDestroy() {
+        Log.e("vpn1uk", "service destroy");
         synchronized (mProcessLock) {
             if (mProcessThread != null) {
                 mManagement.stopVPN(true);
