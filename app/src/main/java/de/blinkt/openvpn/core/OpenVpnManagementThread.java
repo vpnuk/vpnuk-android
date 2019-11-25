@@ -10,6 +10,8 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import uk.vpn.vpnuk.R;
@@ -195,6 +197,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     private void processCommand(String command) {
         //Log.i(TAG, "Line from managment" + command);
+        Log.e("asdasd", "process " + command);
         if (command.startsWith(">") && command.contains(":")) {
             String[] parts = command.split(":", 2);
             String cmd = parts[0].substring(1);
@@ -509,6 +512,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     }
 
     public void reconnect() {
+        Log.e("network", "resume");
         signalusr1();
         releaseHold();
     }
@@ -528,12 +532,14 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     @Override
     public void pause(pauseReason reason) {
+        Log.e("network", "pause " + reason);
         lastPauseReason = reason;
         signalusr1();
     }
 
     @Override
     public void resume() {
+        Log.e("network", "resume");
         releaseHold();
         /* Reset the reason why we are disconnected */
         lastPauseReason = pauseReason.noNetwork;
@@ -541,6 +547,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     @Override
     public boolean stopVPN(boolean replaceConnection) {
+        Log.e("network", "stopvpn " + replaceConnection);
         boolean stopSucceed = stopOpenVPN();
         if (stopSucceed) {
             mShuttingDown = true;

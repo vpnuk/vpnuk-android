@@ -168,8 +168,8 @@ public class VpnProfile implements Serializable, Cloneable {
     private int mProfileVersion;
 
 
-    public VpnProfile(String name) {
-        mUuid = UUID.randomUUID();
+    public VpnProfile(String name, UUID mUuid) {
+        this.mUuid = mUuid;
         mName = name;
         mProfileVersion = CURRENT_PROFILE_VERSION;
         mConnections = new Connection[1];

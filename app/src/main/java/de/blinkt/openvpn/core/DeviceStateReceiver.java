@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.Handler;
+import android.util.Log;
 
 import uk.vpn.vpnuk.R;
 
@@ -37,7 +38,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             network = connectState.DISCONNECTED;
             // Set screen state to be disconnected if disconnect pending
             if (screen == connectState.PENDINGDISCONNECT) screen = connectState.DISCONNECTED;
-            mManagement.pause(getPauseReason());
+            mManagement.stopVPN(false);//pause(getPauseReason());
         }
     };
     private NetworkInfo lastConnectedNetwork;
@@ -127,7 +128,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
     public void networkStateChange(Context context) {
         NetworkInfo networkInfo = getCurrentNetworkInfo(context);
         SharedPreferences prefs = Preferences.getDefaultSharedPreferences(context);
-        boolean sendusr1 = prefs.getBoolean("netchangereconnect", true);
+        boolean sendusr1 = true;//false;//prefs.getBoolean("netchangereconnect", true);
         String netstatestring;
         if (networkInfo == null) {
             netstatestring = "not connected";
@@ -146,7 +147,9 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             netstatestring = String.format("%2$s %4$s to %1$s %3$s", networkInfo.getTypeName(), networkInfo.getDetailedState(), extrainfo, subtype);
         }
         int lastNetwork = -1;
+        Log.e("network", "start " + netstatestring);
         if (networkInfo != null && networkInfo.getState() == State.CONNECTED) {
+            Log.e("network", "network connected");
             int newnet = networkInfo.getType();
             boolean pendingDisconnect = (network == connectState.PENDINGDISCONNECT);
             network = connectState.SHOULDBECONNECTED;
@@ -154,27 +157,35 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             sameNetwork = !(lastConnectedNetwork == null || lastConnectedNetwork.getType() != networkInfo.getType() || !equalsObj(lastConnectedNetwork.getExtraInfo(), networkInfo.getExtraInfo()));
             /* Same network, connection still 'established' */
             if (pendingDisconnect && sameNetwork) {
+                Log.e("network", "pending and same");
                 mDisconnectHandler.removeCallbacks(mDelayDisconnectRunnable);
                 // Reprotect the sockets just be sure
                 mManagement.networkChange(true);
             } else {
                 /* Different network or connection not established anymore */
                 if (screen == connectState.PENDINGDISCONNECT) screen = connectState.DISCONNECTED;
+                Log.e("network1", "different network should be connected" + shouldBeConnected());
                 if (shouldBeConnected()) {
                     mDisconnectHandler.removeCallbacks(mDelayDisconnectRunnable);
-                    if (pendingDisconnect || !sameNetwork) mManagement.networkChange(sameNetwork);
-                    else mManagement.resume();
+                    if (pendingDisconnect || !sameNetwork) {
+                        Log.e("network1", "network change");
+                        mManagement.networkChange(sameNetwork);
+                    } else {
+                        Log.e("network1", "network resume");
+                        mManagement.resume();
+                    }
                 }
                 lastNetwork = newnet;
                 lastConnectedNetwork = networkInfo;
             }
         } else if (networkInfo == null) {
+            Log.e("network", "network null");
             // Not connected, stop openvpn, set last connected network to no network
             lastNetwork = -1;
             if (sendusr1) {
                 network = connectState.PENDINGDISCONNECT;
                 // Time to wait after network disconnect to pause the VPN
-                int DISCONNECT_WAIT = 20;
+                int DISCONNECT_WAIT = 5;
                 mDisconnectHandler.postDelayed(mDelayDisconnectRunnable, DISCONNECT_WAIT * 1000);
             }
         }

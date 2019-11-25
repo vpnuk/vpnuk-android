@@ -262,6 +262,7 @@ public class VpnStatus {
     public synchronized static void updateStateString(String state, String msg, int resid, ConnectionStatus level) {
         // Workound for OpenVPN doing AUTH and wait and being connected
         // Simply ignore these state
+        Log.e("asdasd", "level " + level + " " + state + " " + msg);
         if (mLastLevel == ConnectionStatus.LEVEL_CONNECTED && (state.equals("WAIT") || state.equals("AUTH"))) {
             newLogItem(new LogItem((LogLevel.DEBUG), String.format("Ignoring OpenVPN Status in CONNECTED state (%s->%s): %s", state, level.toString(), msg)));
             return;

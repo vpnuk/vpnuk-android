@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -284,7 +285,7 @@ public class ConfigParser {
     @SuppressWarnings("ConstantConditions")
     public VpnProfile convertProfile() throws ConfigParseError, IOException {
         boolean noauthtypeset = true;
-        VpnProfile np = new VpnProfile(CONVERTED_PROFILE);
+        VpnProfile np = new VpnProfile(CONVERTED_PROFILE, UUID.fromString("ca33df36-b6af-495d-8b63-8f52c9426472"));
         // Pull, client, tls-client
         np.clearDefaults();
         if (options.containsKey("client") || options.containsKey("pull")) {

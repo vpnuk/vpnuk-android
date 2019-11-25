@@ -16,7 +16,8 @@ enum class SocketType(
 
 enum class ServerType(val value: String) {
     SHARED("shared"),
-    DEDICATED("dedicated");
+    DEDICATED("dedicated"),
+    DEDICATED_11("dedicated11");
 
     companion object {
         fun byValue(value: String): ServerType? {

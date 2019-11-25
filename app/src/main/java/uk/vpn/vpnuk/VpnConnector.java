@@ -160,7 +160,7 @@ public class VpnConnector implements VpnStatus.StateListener {
                 listener.onStateChanged(ConnectionState.valueOf(level.name()));
             }
         });
-        Log.e("asdasd", "updateState " + state + " " + level);
+//        Log.e("asdasd", "updateState " + state + " " + level);
     }
 
     @Override
