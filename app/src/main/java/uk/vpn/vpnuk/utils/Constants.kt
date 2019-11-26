@@ -1,5 +1,8 @@
 package uk.vpn.vpnuk.utils
 
+import androidx.annotation.StringRes
+import uk.vpn.vpnuk.R
+
 enum class SocketType(
     val value: String,
     val ports: List<String>
@@ -14,10 +17,10 @@ enum class SocketType(
     }
 }
 
-enum class ServerType(val value: String) {
-    SHARED("shared"),
-    DEDICATED("dedicated"),
-    DEDICATED_11("dedicated11");
+enum class ServerType(val value: String, @StringRes val nameRes: Int) {
+    SHARED("shared", R.string.server_type_shared),
+    DEDICATED("dedicated", R.string.server_type_dedicated),
+    DEDICATED_11("dedicated11", R.string.server_type_11);
 
     companion object {
         fun byValue(value: String): ServerType? {

@@ -190,4 +190,7 @@
     <string name="open_for_details">Open VPNUK for details</string>
     <string name="connected_to">Connected to %s</string>
     <string name="connecting_to">Connecting to %s</string>
+    <string name="server_type_shared">Shared</string>
+    <string name="server_type_dedicated">Dedicated</string>
+    <string name="server_type_11">1:1</string>
 </resources>

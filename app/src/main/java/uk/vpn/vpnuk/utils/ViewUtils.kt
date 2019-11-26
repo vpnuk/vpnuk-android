@@ -18,18 +18,18 @@ fun TabLayout.select(position: Int) =
 
 fun TabLayout.selectedTab() = getTabAt(selectedTabPosition)!!
 
-fun TabLayout.setTabListener(listener: (String) -> Unit) {
+fun TabLayout.setTabListener(listener: (String, Int) -> Unit) {
     addOnTabSelectedListener(object :
         TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
         override fun onTabReselected(p0: TabLayout.Tab) {
-            listener.invoke(p0.text.toString())
+            listener.invoke(p0.text.toString(), selectedTabPosition)
         }
 
         override fun onTabUnselected(p0: TabLayout.Tab) {
         }
 
         override fun onTabSelected(p0: TabLayout.Tab) {
-            listener.invoke(p0.text.toString())
+            listener.invoke(p0.text.toString(), selectedTabPosition)
         }
 
     })

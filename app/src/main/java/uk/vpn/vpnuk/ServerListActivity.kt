@@ -26,16 +26,16 @@ class ServerListActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        tabTypes.setTabs(ServerType.values().map { it.value })
-        tabTypes.setTabListener {
-            loadServers(ServerType.byValue(it)!!)
+        tabTypes.setTabs(ServerType.values().map { getString(it.nameRes) })
+        tabTypes.setTabListener { _, position ->
+            loadServers(ServerType.values()[position])
         }
         serversAdapter = ServersAdapter(this) {
             repository.setServerId(it.address)
                 .doOnIoObserveOnMain()
                 .subscribe {
                     finish()
-                }
+                }.addToDestroySubscriptions()
         }
         rvList.layoutManager = LinearLayoutManager(this)
         rvList.adapter = serversAdapter

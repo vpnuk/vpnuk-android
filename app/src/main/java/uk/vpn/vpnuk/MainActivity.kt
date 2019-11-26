@@ -80,8 +80,8 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun initViews() {
         tabsSocketType.setTabs(SocketType.values().map { it.value })
-        tabsSocketType.setTabListener {
-            tabsPort.setTabs(SocketType.byValue(it)!!.ports)
+        tabsSocketType.setTabListener { text, _ ->
+            tabsPort.setTabs(SocketType.byValue(text)!!.ports)
         }
         fabSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
