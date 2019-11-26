@@ -176,4 +176,18 @@
     <string name="select_country">Select country</string>
     <string name="err_unable_to_update_servers">Unable to update servers</string>
     <string name="reconnect_after_network_change">Reconnect after network change</string>
+    <string name="status_level_connected">Connected</string>
+    <string name="status_level_vpnpaused">Vpn is paused</string>
+    <string name="status_level_connecting_server_replied">Server replied</string>
+    <string name="status_level_connecting_no_server_reply_yet">Waiting for server reply</string>
+    <string name="status_level_nonetwork">No network</string>
+    <string name="status_level_notconnected">Disconnected</string>
+    <string name="status_level_start">Starting connect</string>
+    <string name="status_level_auth_failed">Authorization is failed</string>
+    <string name="status_level_waiting_for_user_input">Waiting for user input</string>
+    <string name="status_unknown_level">Unknown state</string>
+    <string name="tap_to_open_app">Tap to open VPNUK</string>
+    <string name="open_for_details">Open VPNUK for details</string>
+    <string name="connected_to">Connected to %s</string>
+    <string name="connecting_to">Connecting to %s</string>
 </resources>

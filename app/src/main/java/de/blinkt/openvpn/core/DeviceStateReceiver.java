@@ -16,7 +16,6 @@ import android.util.Log;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.local.Settings;
-import uk.vpn.vpnuk.remote.Repository;
 
 import static de.blinkt.openvpn.core.OpenVPNManagement.pauseReason;
 
@@ -36,17 +35,19 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             if (settings.getReconnect()) {
                 mManagement.pause(getPauseReason());
             } else {
-                mManagement.stopVPN(false);
+                tryToStopVpn();
             }
         }
     };
     private NetworkInfo lastConnectedNetwork;
+    private Context context;
 
-    public DeviceStateReceiver(OpenVPNManagement magnagement, Repository instance) {
+    public DeviceStateReceiver(Context context, OpenVPNManagement magnagement, Settings settings) {
         super();
+        this.context = context;
         Log.e("network", "create new receiver");
         mManagement = magnagement;
-        settings = instance.getSettings();
+        this.settings = settings;
         mManagement.setPauseCallback(this);
         mDisconnectHandler = new Handler();
     }
@@ -135,8 +136,8 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
                             mManagement.networkChange(sameNetwork);
                         } else {
                             network = connectState.PENDINGDISCONNECT;
-                            boolean b = mManagement.stopVPN(false);//
-                            Log.e("network", "stop succeed " + b + " lsat network " + lastConnectedNetwork);
+                            boolean isSuccessfull = tryToStopVpn();
+                            Log.e("network", "stop succeed " + isSuccessfull + " lsat network " + lastConnectedNetwork);
                         }
                     } else {
                         Log.e("network1", "network resume");
@@ -159,6 +160,15 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             VpnStatus.logInfo(R.string.netstatus, netstatestring);
         VpnStatus.logDebug(String.format("Debug state info: %s, pause: %s, shouldbeconnected: %s, network: %s ", netstatestring, getPauseReason(), shouldBeConnected(), network));
         lastStateMsg = netstatestring;
+    }
+
+    private boolean tryToStopVpn() {
+        boolean isSuccessfull = mManagement.stopVPN(false);//
+        if (isSuccessfull) {
+            OpenVPNService.abortConnectionVPN = true;
+            ProfileManager.setConntectedVpnProfileDisconnected(context);
+        }
+        return isSuccessfull;
     }
 
     private boolean shouldBeConnected() {

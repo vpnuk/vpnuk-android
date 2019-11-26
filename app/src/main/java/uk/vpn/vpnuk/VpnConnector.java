@@ -58,7 +58,6 @@ public class VpnConnector implements VpnStatus.StateListener {
             String port
     ) {
         try {
-            App.connection_status = 1;
             ByteArrayInputStream inputStream;
             BufferedReader bufferedReader;
             inputStream =
@@ -169,7 +168,6 @@ public class VpnConnector implements VpnStatus.StateListener {
     }
 
     public void stopVpn() {
-        App.connection_status = 0;
         OpenVPNService.abortConnectionVPN = true;
         ProfileManager.setConntectedVpnProfileDisconnected(activity);
 
@@ -183,10 +181,6 @@ public class VpnConnector implements VpnStatus.StateListener {
 
             }
         }
-    }
-
-    public boolean isDisconnected() {
-        return VpnStatus.connectionStatus() == ConnectionStatus.LEVEL_NOTCONNECTED;
     }
 }
 

@@ -19,7 +19,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var vpnConnector: VpnConnector
 
     override fun onStateChanged(state: ConnectionState) {
-        tvStatus.text = state.name
+        tvStatus.setText(state.nameId)
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
                 btConnect.visibility = View.VISIBLE

@@ -38,4 +38,10 @@ public enum ConnectionStatus implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
+    public boolean connectingStatus() {
+        return this == LEVEL_CONNECTING_SERVER_REPLIED ||
+                this == LEVEL_CONNECTING_NO_SERVER_REPLY_YET ||
+                this == LEVEL_START;
+    }
 }

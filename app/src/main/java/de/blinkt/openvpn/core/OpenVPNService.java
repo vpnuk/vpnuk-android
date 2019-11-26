@@ -235,7 +235,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
-        mDeviceStateReceiver = new DeviceStateReceiver(magnagement, instance);
+        mDeviceStateReceiver = new DeviceStateReceiver(this, magnagement, instance.getSettings());
         // Fetch initial network state
         mDeviceStateReceiver.networkStateChange(this);
         registerReceiver(mDeviceStateReceiver, filter);
@@ -278,11 +278,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 0, notificationIntent, 0);
 
         try {
-            startForeground(App.NOTIFICATION_ID, getMyActivityNotification("Tap to open the app"));
+            startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)));
         } catch (Exception e) {
-            Bundle params = new Bundle();
-            params.putString("device_id", App.device_id);
-            params.putString("exception", "OVPS1" + e.toString());
+//            Bundle params = new Bundle();
+//            params.putString("device_id", App.device_id);
+//            params.putString("exception", "OVPS1" + e.toString());
 
         }
 
@@ -331,9 +331,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                         try {
                             ConnectionTimer.cancel();
                         } catch (Exception e) {
-                            Bundle params = new Bundle();
-                            params.putString("device_id", App.device_id);
-                            params.putString("exception", "OVPS2" + e.toString());
 
                         }
                     }
@@ -405,37 +402,47 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     // TODO
-    private Notification getMyActivityNotification(String Description) {
+    private Notification getMyActivityNotification(String description) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
         Server currentServer = instance.getSelectedServer();
-        int int_temp = ModelUtilsKt.getIconResourceName(currentServer, this);
+        int serverIcon = ModelUtilsKt.getIconResourceName(currentServer, this);
         String city = currentServer.getLocation().getCity();
-        String Title;
-        if (App.connection_status == 0) {
-            Title = "Tap to connect " + city;
-        } else if (App.connection_status == 1) {
-            Title = "Connecting " + city;
-        } else if (App.connection_status == 2) {
-            Title = "Connected " + city;
+        String title;
+
+        ConnectionStatus status = VpnStatus.connectionStatus();
+        if (status == ConnectionStatus.LEVEL_CONNECTED) {
+            title = getString(R.string.connected_to, city);
+        } else if (status.connectingStatus()) {
+            title = getString(R.string.connecting_to, city);
         } else {
-            Title = "Tap to open " + getString(R.string.app_name);
+            title = getString(R.string.open_for_details);
         }
 
+//        if (App.connection_status == 0) {
+//            Title = "Tap to connect " + city;
+//        } else if (App.connection_status == 1) {
+//            Title = "Connecting " + city;
+//        } else if (App.connection_status == 2) {
+//            Title = "Connected " + city;
+//        } else {
+//            Title = "Tap to open " + getString(R.string.app_name);
+//        }
+
         return new NotificationCompat.Builder(this, App.CHANNEL_ID)
-                .setContentTitle(Title)
-                .setContentText(Description)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), int_temp))
-                .setSmallIcon(int_temp)
+                .setContentTitle(title)
+                .setContentText(description)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setSmallIcon(serverIcon)
                 .setContentIntent(pendingIntent)
                 .build();
 
     }
 
-    private void updateNotification(String Description) {
-        Notification notification = getMyActivityNotification(Description);
+    private void updateNotification(String description) {
+        Notification notification = getMyActivityNotification(description);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(App.NOTIFICATION_ID, notification);
     }
@@ -947,8 +954,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 updateNotification(Stat);
             } catch (Exception e) {
                 Bundle params = new Bundle();
-                params.putString("device_id", App.device_id);
-                params.putString("exception", "OVPS3" + e.toString());
+//                params.putString("device_id", App.device_id);
+//                params.putString("exception", "OVPS3" + e.toString());
 
             }
         }

@@ -21,14 +21,9 @@ import java.util.Random;
 
 public class App extends /*com.orm.SugarApp*/ Application {
     public static boolean isStart;
-    public static int connection_status = 0;
-    public static boolean hasFile = false;
     public static boolean abortConnection = false;
-    public static long CountDown;
-    public static boolean ShowDailyUsage = true;
-    public static String device_id;
-    public static long device_created;
-    public static final String CHANNEL_ID = "COM.BUZZ.VPN";
+    public static final String CHANNEL_ID = "uk.vpn.vpnuk";
+    public static final String CHANNEL_NAME = "vpn state";
     public static final int NOTIFICATION_ID = new Random().nextInt(601) + 200;
     NotificationManager manager;
 
@@ -36,20 +31,6 @@ public class App extends /*com.orm.SugarApp*/ Application {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
-
-
-
-        SharedPreferences sp_settings = getSharedPreferences("settings_data", 0);
-        device_id = sp_settings.getString("device_id", "NULL");
-
-        if(device_id.equals("NULL")){
-            device_id = getUniqueKey();
-            SharedPreferences.Editor Editor = sp_settings.edit();
-            Editor.putString("device_id", device_id);
-            Editor.putString("device_created", String.valueOf(System.currentTimeMillis()));
-            Editor.apply();
-
-        }
 
         PRNGFixes.apply();
         StatusListener mStatus = new StatusListener();
@@ -62,7 +43,7 @@ public class App extends /*com.orm.SugarApp*/ Application {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel serviceChannel = new NotificationChannel(
                         CHANNEL_ID,
-                        "COMBUZZVPN",
+                        CHANNEL_NAME,
                         NotificationManager.IMPORTANCE_LOW
                 );
 
