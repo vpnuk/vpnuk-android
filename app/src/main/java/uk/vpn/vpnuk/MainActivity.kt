@@ -58,6 +58,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 .subscribe({}, {
                     showMessage(getString(R.string.err_unable_to_update_servers))
                 })
+                .addToDestroySubscriptions()
         }
     }
 
@@ -74,6 +75,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             etPassword.setText(it.password)
         }
         cbSaveCredentials.isChecked = settings.credentials != null
+        cbReconnect.isChecked = settings.reconnect
     }
 
     private fun initViews() {
@@ -92,9 +94,10 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 if (cbSaveCredentials.isChecked) Credentials(login, password) else null
             val socket = tabsSocketType.selectedTab().text.toString()
             val port = tabsPort.selectedTab().text.toString()
+            val reconnect = cbReconnect.isChecked
 
             val address = repository.getSelectedServer()!!.address
-            repository.updateSettings(Settings(socket, port, credentials))
+            repository.updateSettings(Settings(socket, port, reconnect, credentials))
             vpnConnector.startVpn(
                 login,
                 password,

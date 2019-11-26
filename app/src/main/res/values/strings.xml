@@ -175,4 +175,5 @@
     <string name="string_of_two_number">%02d</string>
     <string name="select_country">Select country</string>
     <string name="err_unable_to_update_servers">Unable to update servers</string>
+    <string name="reconnect_after_network_change">Reconnect after network change</string>
 </resources>

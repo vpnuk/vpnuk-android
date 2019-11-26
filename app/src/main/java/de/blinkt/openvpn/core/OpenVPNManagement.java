@@ -21,7 +21,6 @@ public interface OpenVPNManagement {
     enum pauseReason {
         noNetwork,
         userPause,
-        screenOff,
     }
     interface PausedStateCallback {
         boolean shouldBeRunning();

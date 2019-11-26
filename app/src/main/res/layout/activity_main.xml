@@ -53,6 +53,13 @@
             android:layout_marginTop="8dp"
             android:text="@string/save_credentials" />
 
+        <CheckBox
+            android:id="@+id/cbReconnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/reconnect_after_network_change" />
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsSocketType"
             android:layout_width="match_parent"
