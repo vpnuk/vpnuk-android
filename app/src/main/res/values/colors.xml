@@ -27,23 +27,25 @@
     <color name="iconUp">#bf71ff</color>
 
 
-    <color name="colorPrimary">#0543FF</color> //303030 0b0c1b 039be5
-    <color name="colorLightPrimary">#206AFF</color> //303030 0b0c1b 38C0F8
-    <color name="colorSecondary">#E9E9E9</color> //9193a8 CECECE
+    <color name="colorPrimary">#007aff</color>
+    //303030 0b0c1b 039be5
+    <color name="colorLightPrimary">#007aff</color>
+    //303030 0b0c1b 38C0F8
+    <color name="colorSecondary">#E9E9E9</color>
+    //9193a8 CECECE
     <color name="colorBackground">#ffffff</color>
+    <color name="colorAccent">#00caff</color>
 
-
-    <color name="colorSelectItem">#447FFF</color> //303030 0b0c1b 38C0F8
-    <color name="colorBubble">#3676FF</color> //303030 0b0c1b 38C0F8
-    <color name="colorConnecting">#3676FF</color> //303030 0b0c1b 38C0F8
-    <color name="colorConnectingLight">#4E86FF</color> //303030 0b0c1b 38C0F8
-    <color name="colorDisconnect">#FF2525</color> //303030 0b0c1b 039be5
-    <color name="colorDisconnectLight">#FF4040</color> //303030 0b0c1b 38C0F8
+    <color name="colorAccent2">#FF2D55</color>
+    //303030 0b0c1b 039be5
+    //303030 0b0c1b 38C0F8
 
     <color name="colorText">#000000</color>
 
-    <color name="colorStatsBlue">#4E86FF</color> //303030 0b0c1b 38C0F8
-    <color name="colorStatsGray">#818181</color> //303030 0b0c1b 38C0F8
+    <color name="colorStatsBlue">#4E86FF</color>
+    //303030 0b0c1b 38C0F8
+    <color name="colorStatsGray">#818181</color>
+    //303030 0b0c1b 38C0F8
 
     <color name="colorTextStats">#FFFFFF</color>
 
@@ -78,8 +80,9 @@
     <color name="colorWhite">#FFFFFF</color>
 
 
-
     <color name="colorTextPrimary">#303030</color>
+    <color name="accent">#0f0</color>
+    <color name="colorOtherStatus">#ffcc00</color>
 
 
     <!-- Button -->

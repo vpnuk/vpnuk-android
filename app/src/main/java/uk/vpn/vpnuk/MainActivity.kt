@@ -20,6 +20,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
 
     override fun onStateChanged(state: ConnectionState) {
         tvStatus.setText(state.nameId)
+        tvStatus.setTextColor(state.color(this))
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
                 btConnect.visibility = View.VISIBLE
@@ -83,7 +84,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         tabsSocketType.setTabListener { text, _ ->
             tabsPort.setTabs(SocketType.byValue(text)!!.ports)
         }
-        fabSelectAddress.setOnClickListener {
+        vSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
         }
 
@@ -116,9 +117,14 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 Log.e("subscribe", "$server")
                 server.server?.let {
                     tvAddress.text = it.address
-                    tvDns.text = it.dns
+                    tvAddress.visibility = View.VISIBLE
+//                    tvDns.text = it.dns
                     tvCity.text = it.location.city
-                    fabSelectAddress.setImageResource(it.getIconResourceName(this))
+                    ivCountry.setImageResource(it.getIconResourceName(this))
+                }?:run {
+                    tvAddress.visibility = View.GONE
+                    ivCountry.setImageResource(R.drawable.ic_country)
+                    tvCity.setText(R.string.select_city)
                 }
             }.addToDestroySubscriptions()
 
