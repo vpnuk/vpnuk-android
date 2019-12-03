@@ -99,7 +99,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:textColor="@color/colorTextPrimary"
+                android:includeFontPadding="false"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toTopOf="@+id/tvAddress"
                 app:layout_constraintStart_toEndOf="@id/ivCountry"
@@ -111,7 +112,8 @@
                 android:id="@+id/tvAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorText"
+                android:includeFontPadding="false"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="10sp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -178,8 +180,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:gravity="center_horizontal"
             android:layout_marginBottom="16dp"
+            android:gravity="center_horizontal"
             android:orientation="horizontal">
 
             <TextView

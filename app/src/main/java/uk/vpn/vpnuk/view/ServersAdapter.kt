@@ -46,8 +46,9 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(server: Server) {
         ivCountry.setImageResource(server.getIconResourceName(itemView.context))
-        tvCity.text = server.location.city
-        tvAddress.text = "${server.dns}/${server.address}"
+        tvCity.text = "${server.location.city}"
+
+        tvAddress.text = "${server.dns}"
     }
 
 }

@@ -25,10 +25,12 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             ConnectionState.LEVEL_NOTCONNECTED -> {
                 btConnect.visibility = View.VISIBLE
                 btDisconnect.visibility = View.GONE
+                vSelectAddress.isEnabled = true
             }
             else -> {
                 btConnect.visibility = View.GONE
                 btDisconnect.visibility = View.VISIBLE
+                vSelectAddress.isEnabled = false
             }
         }
     }
@@ -116,7 +118,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             .subscribe { server ->
                 Log.e("subscribe", "$server")
                 server.server?.let {
-                    tvAddress.text = it.address
+                    tvAddress.text = it.dns
                     tvAddress.visibility = View.VISIBLE
 //                    tvDns.text = it.dns
                     tvCity.text = it.location.city
