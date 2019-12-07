@@ -14,6 +14,7 @@ import android.os.Build;
 import android.util.Log;
 
 import uk.vpn.vpnuk.R;
+import uk.vpn.vpnuk.utils.Logger;
 
 import java.util.Calendar;
 import java.util.Random;
@@ -52,7 +53,7 @@ public class App extends /*com.orm.SugarApp*/ Application {
                 manager.createNotificationChannel(serviceChannel);
             }
         } catch (Exception e){
-            //Log.e("error", e.getStackTrace()[0].getMethodName());
+            //Logger.e("error", e.getStackTrace()[0].getMethodName());
         }
     }
 
@@ -78,7 +79,7 @@ public class App extends /*com.orm.SugarApp*/ Application {
             version = "00";
         }
 
-        Log.e("key", Time + str_manufacturer+str_api+str_model+version);
+        Logger.INSTANCE.e("key", Time + str_manufacturer+str_api+str_model+version);
         return Time + str_manufacturer+str_api+str_model+version;
     }
 

@@ -59,12 +59,12 @@ public class OpenVPNThread implements Runnable {
     @Override
     public void run() {
         try {
-//            Log.e(TAG, "Starting openvpn");
+//            Logger.e(TAG, "Starting openvpn");
             startOpenVPNThreadArgs(mArgv);
-//            Log.e(TAG, "OpenVPN process exited");
+//            Logger.e(TAG, "OpenVPN process exited");
         } catch (Exception e) {
             VpnStatus.logException("Starting OpenVPN Thread", e);
-//            Log.e(TAG, "OpenVPNThread Got " + e.toString());
+//            Logger.e(TAG, "OpenVPNThread Got " + e.toString());
         } finally {
             int exitvalue = 0;
             try {
@@ -105,7 +105,7 @@ public class OpenVPNThread implements Runnable {
                 }
             }
             mService.processDied();
-//            Log.e(TAG, "Exiting");
+//            Logger.e(TAG, "Exiting");
         }
     }
 

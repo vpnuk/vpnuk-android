@@ -20,6 +20,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import uk.vpn.vpnuk.local.Settings
+import uk.vpn.vpnuk.utils.Logger
 import uk.vpn.vpnuk.utils.SocketType
 import java.util.concurrent.TimeUnit
 
@@ -84,7 +85,7 @@ class Repository(context: Context) {
         return getServersCache()
             .map { list -> Wrapper(list.find { getCurrentServerId() == it.address }) }
             .doOnSuccess {
-                Log.e("subscribe", "put new $it")
+                Logger.e("subscribe", "put new $it")
                 currentServer.onNext(it)
             }
             .ignoreElement()

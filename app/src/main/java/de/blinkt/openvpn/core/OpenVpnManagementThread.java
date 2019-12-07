@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
+import uk.vpn.vpnuk.utils.Logger;
 
 public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     private static final String TAG = "openvpn";
@@ -197,7 +198,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     private void processCommand(String command) {
         //Log.i(TAG, "Line from managment" + command);
-        Log.e("asdasd", "process " + command);
+        Logger.INSTANCE.e("asdasd", "process " + command);
         if (command.startsWith(">") && command.contains(":")) {
             String[] parts = command.split(":", 2);
             String cmd = parts[0].substring(1);
@@ -415,7 +416,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
                 // This not nice or anything but setFileDescriptors accepts only FilDescriptor class :(
                 break;
             default:
-                //Log.e(TAG, "Unknown needok command " + argument);
+                //Logger.e(TAG, "Unknown needok command " + argument);
                 return;
         }
         String cmd = String.format("needok '%s' %s\n", needed, status);
@@ -512,7 +513,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     }
 
     public void reconnect() {
-        Log.e("network", "resume");
+        Logger.INSTANCE.e("network", "resume");
         signalusr1();
         releaseHold();
     }
@@ -532,14 +533,14 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     @Override
     public void pause(pauseReason reason) {
-        Log.e("network", "pause " + reason);
+        Logger.INSTANCE.e("network", "pause " + reason);
         lastPauseReason = reason;
         signalusr1();
     }
 
     @Override
     public void resume() {
-        Log.e("network", "resume");
+        Logger.INSTANCE.e("network", "resume");
         releaseHold();
         /* Reset the reason why we are disconnected */
         lastPauseReason = pauseReason.noNetwork;
@@ -547,7 +548,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     @Override
     public boolean stopVPN(boolean replaceConnection) {
-        Log.e("network", "stopvpn " + replaceConnection);
+        Logger.INSTANCE.e("network", "stopvpn " + replaceConnection);
         boolean stopSucceed = stopOpenVPN();
         if (stopSucceed) {
             mShuttingDown = true;

@@ -54,7 +54,7 @@ public class ExternalOpenVPNService extends Service implements StateListener {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            //Log.e("ExternalOpenVPN", "ExternalOpenVPN");
+            //Logger.e("ExternalOpenVPN", "ExternalOpenVPN");
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             mService = (IOpenVPNServiceInternal) (service);
         }

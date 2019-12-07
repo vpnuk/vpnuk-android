@@ -16,6 +16,7 @@ import android.util.Log;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.local.Settings;
+import uk.vpn.vpnuk.utils.Logger;
 
 import static de.blinkt.openvpn.core.OpenVPNManagement.pauseReason;
 
@@ -45,7 +46,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
     public DeviceStateReceiver(Context context, OpenVPNManagement magnagement, Settings settings) {
         super();
         this.context = context;
-        Log.e("network", "create new receiver");
+        Logger.INSTANCE.e("network", "create new receiver");
         mManagement = magnagement;
         this.settings = settings;
         mManagement.setPauseCallback(this);
@@ -83,7 +84,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e("intent", "action " + intent.getAction());
+        Logger.INSTANCE.e("intent", "action " + intent.getAction());
         if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             networkStateChange(context);
         }
@@ -109,7 +110,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
 			}*/
             netstatestring = String.format("%2$s %4$s to %1$s %3$s", networkInfo.getTypeName(), networkInfo.getDetailedState(), extrainfo, subtype);
         }
-//        Log.e("network", "start ("+ network + ") " + netstatestring);
+//        Logger.e("network", "start ("+ network + ") " + netstatestring);
         if (networkInfo != null && networkInfo.getState() == State.CONNECTED) {
             boolean pendingDisconnect = (network == connectState.PENDINGDISCONNECT);
             network = connectState.SHOULDBECONNECTED;
@@ -117,37 +118,37 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             sameNetwork = lastConnectedNetwork != null && lastConnectedNetwork.getType() == networkInfo.getType()
                     && equalsObj(lastConnectedNetwork.getExtraInfo(), networkInfo.getExtraInfo());
             /* Same network, connection still 'established' */
-//            Log.e("network", "network connected same network = (" + sameNetwork+")");
+//            Logger.e("network", "network connected same network = (" + sameNetwork+")");
             if (pendingDisconnect && sameNetwork) {
-                Log.e("network", "pending and same");
+                Logger.INSTANCE.e("network", "pending and same");
                 mDisconnectHandler.removeCallbacks(mDelayDisconnectRunnable);
                 // Reprotect the sockets just be sure
                 mManagement.networkChange(true);
             } else {
                 /* Different network or connection not established anymore */
 //                if (screen == connectState.PENDINGDISCONNECT) screen = connectState.DISCONNECTED;
-//                Log.e("network1", "different network should be connected =(" + shouldBeConnected()+")");
-//                Log.e("network1", "different network same network= ("+sameNetwork+") pendingDisconnect =(" + pendingDisconnect +")" );
+//                Logger.e("network1", "different network should be connected =(" + shouldBeConnected()+")");
+//                Logger.e("network1", "different network same network= ("+sameNetwork+") pendingDisconnect =(" + pendingDisconnect +")" );
                 if (shouldBeConnected()) {
                     mDisconnectHandler.removeCallbacks(mDelayDisconnectRunnable);
                     if (pendingDisconnect || !sameNetwork) {
-                        Log.e("network1", "network change " + lastConnectedNetwork);
+                        Logger.INSTANCE.e("network1", "network change " + lastConnectedNetwork);
                         if (settings.getReconnect() || lastConnectedNetwork == null) {
                             mManagement.networkChange(sameNetwork);
                         } else {
                             network = connectState.PENDINGDISCONNECT;
                             boolean isSuccessfull = tryToStopVpn();
-                            Log.e("network", "stop succeed " + isSuccessfull + " lsat network " + lastConnectedNetwork);
+                            Logger.INSTANCE.e("network", "stop succeed " + isSuccessfull + " lsat network " + lastConnectedNetwork);
                         }
                     } else {
-                        Log.e("network1", "network resume");
+                        Logger.INSTANCE.e("network1", "network resume");
                         mManagement.resume();
                     }
                 }
                 lastConnectedNetwork = networkInfo;
             }
         } else if (networkInfo == null) {
-            Log.e("network", "network null");
+            Logger.INSTANCE.e("network", "network null");
             // Not connected, stop openvpn, set last connected network to no network
             if (sendusr1) {
                 network = connectState.PENDINGDISCONNECT;

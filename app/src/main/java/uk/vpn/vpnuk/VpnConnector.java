@@ -30,6 +30,7 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
+import uk.vpn.vpnuk.utils.Logger;
 
 public class VpnConnector implements VpnStatus.StateListener {
     private Activity activity;
@@ -40,14 +41,14 @@ public class VpnConnector implements VpnStatus.StateListener {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.e("vpn1uk", "connected");
+            Logger.INSTANCE.e("vpn1uk", "connected");
             mService = IOpenVPNServiceInternal.Stub.asInterface(service);
 
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Log.e("vpn1uk", "disconnected");
+            Logger.INSTANCE.e("vpn1uk", "disconnected");
             mService = null;
         }
     };
@@ -136,7 +137,7 @@ public class VpnConnector implements VpnStatus.StateListener {
     }
 
     public void startListen(ConnectionStateListener listener) {
-        Log.e("vpn1uk", "start");
+        Logger.INSTANCE.e("vpn1uk", "start");
         this.listener = listener;
         VpnStatus.addStateListener(this);
         Intent intent = new Intent(activity, OpenVPNService.class);
@@ -145,7 +146,7 @@ public class VpnConnector implements VpnStatus.StateListener {
     }
 
     public void removeListener() {
-        Log.e("vpn1uk", "stop");
+        Logger.INSTANCE.e("vpn1uk", "stop");
         disconnectService();
         VpnStatus.removeStateListener(this);
         listener = null;
@@ -165,7 +166,7 @@ public class VpnConnector implements VpnStatus.StateListener {
                 listener.onStateChanged(ConnectionState.valueOf(level.name()));
             }
         });
-//        Log.e("asdasd", "updateState " + state + " " + level);
+//        Logger.e("asdasd", "updateState " + state + " " + level);
     }
 
     @Override

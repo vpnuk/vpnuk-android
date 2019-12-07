@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import uk.vpn.vpnuk.R;
+import uk.vpn.vpnuk.utils.Logger;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -259,7 +260,7 @@ public class VpnStatus {
     public synchronized static void updateStateString(String state, String msg, int resid, ConnectionStatus level) {
         // Workound for OpenVPN doing AUTH and wait and being connected
         // Simply ignore these state
-        Log.e("asdasd", "level " + level + " " + state + " " + msg);
+        Logger.INSTANCE.e("asdasd", "level " + level + " " + state + " " + msg);
         if (mLastLevel == ConnectionStatus.LEVEL_CONNECTED && (state.equals("WAIT") || state.equals("AUTH"))) {
             newLogItem(new LogItem((LogLevel.DEBUG), String.format("Ignoring OpenVPN Status in CONNECTED state (%s->%s): %s", state, level.toString(), msg)));
             return;
@@ -341,7 +342,7 @@ public class VpnStatus {
 
     public static synchronized void updateByteCount(long in, long out) {
         TrafficHistory.LastDiff diff = trafficHistory.add(in, out);
-        Log.e("Some", String.valueOf(in) + " " +  out);
+        Logger.INSTANCE.e("Some", String.valueOf(in) + " " +  out);
         for (ByteCountListener bcl : byteCountListener) {
             bcl.updateByteCount(in, out, diff.getDiffIn(), diff.getDiffOut());
         }
@@ -478,7 +479,7 @@ public class VpnStatus {
             case LEVEL_CONNECTED:
                 String[] parts = mLaststatemsg.split(",");
                 message = parts[2]; */
-                //Log.e("Parts", parts[0] + parts[1] + parts[2]);
+                //Logger.e("Parts", parts[0] + parts[1] + parts[2]);
                 /*
                    (a) the integer unix date/time,
                    (b) the state name,

@@ -62,6 +62,7 @@ import uk.vpn.vpnuk.MainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
 import uk.vpn.vpnuk.remote.Server;
+import uk.vpn.vpnuk.utils.Logger;
 import uk.vpn.vpnuk.utils.ModelUtilsKt;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
@@ -323,7 +324,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                         editor.putLong(TODAY + "_time", long_usage_time_today + long_milli_seconds);
                         editor.putLong("total_time", long_usage_time_total + long_milli_seconds);
                         editor.apply();
-                        Log.e("random", Random + " " + Random * 1000);
+                        Logger.INSTANCE.e("random", Random + " " + Random * 1000);
 
                     }
 
@@ -567,7 +568,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public void onDestroy() {
-        Log.e("vpn1uk", "service destroy");
+        Logger.INSTANCE.e("vpn1uk", "service destroy");
         synchronized (mProcessLock) {
             if (mProcessThread != null) {
                 mManagement.stopVPN(true);

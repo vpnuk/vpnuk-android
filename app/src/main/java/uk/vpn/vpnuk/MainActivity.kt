@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
 import kotlinx.android.synthetic.main.activity_main.*
@@ -19,6 +20,8 @@ import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
+import java.lang.IllegalArgumentException
+import java.lang.RuntimeException
 
 class MainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var repository: Repository
@@ -59,7 +62,6 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         vpnConnector = VpnConnector(this)
         initViews()
         applySettings()
-
         if (!repository.serversUpdated) {
             repository.updateServers()
                 .doOnIoObserveOnMain()
@@ -122,7 +124,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         repository.getCurrentServerObservable()
             .observeOnMain()
             .subscribe { server ->
-                Log.e("subscribe", "$server")
+                Logger.e("subscribe", "$server")
                 server.server?.let {
                     tvAddress.text = it.dns
                     tvAddress.visibility = View.VISIBLE
@@ -141,7 +143,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             etLogin.textEmpty(),
             repository.getCurrentServerObservable(),
             Function3<Boolean, Boolean, Wrapper, Boolean> { passwordEmpty, loginEmpty, server ->
-                Log.e("subscribe", "enabled $server")
+                Logger.e("subscribe", "enabled $server")
                 !passwordEmpty && !loginEmpty && server.server != null
             })
             .observeOnMain()

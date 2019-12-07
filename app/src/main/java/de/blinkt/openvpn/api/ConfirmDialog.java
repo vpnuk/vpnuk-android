@@ -69,7 +69,7 @@ public class ConfirmDialog extends Activity implements CompoundButton.OnCheckedC
             //setCloseOnTouchOutside(false);
             mAlert.show();
         } catch (Exception e) {
-            //Log.e(TAG, "onResume", e);
+            //Logger.e(TAG, "onResume", e);
             finish();
         }
     }

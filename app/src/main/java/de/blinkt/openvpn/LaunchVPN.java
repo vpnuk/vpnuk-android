@@ -43,6 +43,7 @@ import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
+import uk.vpn.vpnuk.utils.Logger;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -102,7 +103,7 @@ public class LaunchVPN extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        Log.e("vpn1uk", "oncreate");
+        Logger.INSTANCE.e("vpn1uk", "oncreate");
         startVpnFromIntent();
     }
 
@@ -190,7 +191,7 @@ public class LaunchVPN extends Activity {
 
     @Override
     protected void onDestroy() {
-        Log.e("asdasd", "destroy launch vpn");
+        Logger.INSTANCE.e("asdasd", "destroy launch vpn");
         super.onDestroy();
     }
 
