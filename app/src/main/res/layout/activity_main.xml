@@ -74,6 +74,7 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsPort"
+            android:nextFocusDown="@id/vSelectAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -86,6 +87,7 @@
             android:id="@+id/vSelectAddress"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:focusable="true"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/bg_select_country"
             android:paddingLeft="16dp"

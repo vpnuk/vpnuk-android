@@ -41,6 +41,7 @@ class ServersAdapter(context: Context, val listener: (Server) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
+        holder.itemView.isFocusable = true
         holder.bind(servers[position])
     }
 }
