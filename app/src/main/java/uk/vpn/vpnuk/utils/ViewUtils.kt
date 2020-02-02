@@ -6,9 +6,26 @@
 
 package uk.vpn.vpnuk.utils
 
+import android.text.SpannableString
+import android.text.style.URLSpan
 import android.widget.EditText
+import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
 import com.jakewharton.rxbinding3.widget.textChanges
+import uk.vpn.vpnuk.URLSpanNoUnderline
+
+fun TextView.stripUnderlines() {
+    val s = SpannableString(text)
+    val spans = s.getSpans(0, s.length, URLSpan::class.java)
+    for (span in spans) {
+        val start = s.getSpanStart(span)
+        val end = s.getSpanEnd(span)
+        s.removeSpan(span)
+        val newSpan = URLSpanNoUnderline(span.url)
+        s.setSpan(newSpan, start, end, 0)
+    }
+    text = s
+}
 
 fun TabLayout.setTabs(list: List<String>) {
     removeAllTabs()

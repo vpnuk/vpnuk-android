@@ -194,4 +194,5 @@
     <string name="server_type_dedicated">Dedicated</string>
     <string name="server_type_11">1:1</string>
     <string name="status">"Status: "</string>
+    <string name="get_trial"><a href="https://www.vpnuk.net/product-category/free-trial/">Get a free trial account</a></string>
 </resources>

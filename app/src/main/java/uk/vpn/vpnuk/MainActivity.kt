@@ -9,6 +9,7 @@ package uk.vpn.vpnuk
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import com.crashlytics.android.Crashlytics
@@ -90,6 +91,8 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun initViews() {
+        tvLinkTrial.movementMethod = LinkMovementMethod.getInstance()
+        tvLinkTrial.stripUnderlines()
         tabsSocketType.setTabs(SocketType.values().map { it.value })
         tabsSocketType.setTabListener { text, _ ->
             tabsPort.setTabs(SocketType.byValue(text)!!.ports)

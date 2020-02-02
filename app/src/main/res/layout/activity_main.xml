@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2019 VPNUK
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   ~
@@ -30,6 +29,11 @@
         android:orientation="vertical"
         android:paddingTop="16dp">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/logo" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -40,6 +44,15 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_login" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvLinkTrial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/get_trial"
+            android:textColor="@color/colorPrimary"
+            android:textSize="12dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -57,14 +70,14 @@
             android:id="@+id/cbSaveCredentials"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="2dp"
             android:text="@string/save_credentials" />
 
         <CheckBox
             android:id="@+id/cbReconnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="2dp"
             android:text="@string/reconnect_after_network_change" />
 
         <com.google.android.material.tabs.TabLayout
@@ -74,9 +87,9 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsPort"
-            android:nextFocusDown="@id/vSelectAddress"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:nextFocusDown="@id/vSelectAddress" />
 
         <View
             android:layout_width="0dp"
@@ -87,9 +100,9 @@
             android:id="@+id/vSelectAddress"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:focusable="true"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/bg_select_country"
+            android:focusable="true"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 
