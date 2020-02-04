@@ -38,12 +38,12 @@ class Repository(context: Context) {
         private set
     private val prefs = context.getSharedPreferences("servers", Context.MODE_PRIVATE)
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://www.vpnuk.info/serverlist/")
+        .baseUrl("https://www.serverlistvault.com/")
         .client(
             OkHttpClient.Builder()
-                .addInterceptor(HttpLoggingInterceptor().apply {
-                    this.level = HttpLoggingInterceptor.Level.BODY
-                })
+//                .addInterceptor(HttpLoggingInterceptor().apply {
+//                    this.level = HttpLoggingInterceptor.Level.BODY
+//                })
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .build()
         )
