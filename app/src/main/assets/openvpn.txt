@@ -120,4 +120,5 @@ fe0c999cfa25cd75eb31e4e2c7796383
 proto <socket>
 ### proto is udp or tcp
 remote <ip> <port>
+mtu <mtu>
 ### remote is server ip and port number udp = 1194, 55194 or 65194 - tcp is 443, 8008 or 80

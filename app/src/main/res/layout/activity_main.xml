@@ -25,14 +25,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dp"
+        android:paddingTop="@dimen/padding_top_main"
         android:layout_marginRight="32dp"
-        android:orientation="vertical"
-        android:paddingTop="16dp">
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/logo_black" />
+            android:layout_height="40dp"
+            android:src="@drawable/vpnuk_logo_large" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -50,6 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:focusable="true"
             android:text="@string/get_trial"
             android:textColor="@color/colorPrimary"
             android:textSize="12dp" />
@@ -70,15 +71,19 @@
             android:id="@+id/cbSaveCredentials"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:text="@string/save_credentials" />
 
         <CheckBox
             android:id="@+id/cbReconnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:text="@string/reconnect_after_network_change" />
+
+        <CheckBox
+            android:id="@+id/cbMtu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mtu_settings" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsSocketType"

@@ -62,13 +62,14 @@ public class VpnConnector implements VpnStatus.StateListener {
             String password,
             String ip,
             String socket,
-            String port
+            String port,
+            String mtu
     ) {
         try {
             ByteArrayInputStream inputStream;
             BufferedReader bufferedReader;
             inputStream =
-                    new ByteArrayInputStream(prepareConfig(activity, ip, socket, port));
+                    new ByteArrayInputStream(prepareConfig(activity, ip, socket, port, mtu));
             bufferedReader =
                     new BufferedReader(new InputStreamReader(inputStream));
 
@@ -128,11 +129,14 @@ public class VpnConnector implements VpnStatus.StateListener {
             Activity context,
             String ip,
             String socket,
-            String port) throws IOException {
+            String port,
+            String mtu
+    ) throws IOException {
         return getTextFromAsset(context)
                 .replace("<ip>", ip)
                 .replace("<port>", port)
                 .replace("<socket>", socket)
+                .replace("<mtu>", mtu)
                 .getBytes(Charset.forName("UTF-8"));
     }
 

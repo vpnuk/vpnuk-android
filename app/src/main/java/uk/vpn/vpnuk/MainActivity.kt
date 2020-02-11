@@ -10,27 +10,27 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.View
-import com.crashlytics.android.Crashlytics
+import androidx.appcompat.app.AlertDialog
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.vpn.vpnuk.local.Credentials
-import uk.vpn.vpnuk.local.Settings
+import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
-import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
+
 
 class MainActivity : BaseActivity(), ConnectionStateListener {
+    private var dialog: AlertDialog? = null
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
 
     override fun onStateChanged(state: ConnectionState) {
         tvStatus.setText(state.nameId)
         tvStatus.setTextColor(state.color(this))
+
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
                 btConnect.visibility = View.VISIBLE
@@ -88,6 +88,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }
         cbSaveCredentials.isChecked = settings.credentials != null
         cbReconnect.isChecked = settings.reconnect
+        cbMtu.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
     }
 
     private fun initViews() {
@@ -100,6 +101,31 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         vSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
         }
+        cbMtu.post {
+            cbMtu.setOnCheckedChangeListener { button, checked ->
+                if (checked) {
+                    dialog = AlertDialog.Builder(this)
+                        .setItems(
+                            DefaultSettings.MTU_LIST
+                        ) { _, i ->
+                            repository.updateSettings(
+                                repository.getSettings().copy(
+                                    mtu = DefaultSettings.MTU_LIST[i]
+                                )
+                            )
+                        }
+                        .setTitle(getString(R.string.custom_mtu))
+                        .setOnCancelListener {
+                            cbMtu.isChecked = false
+                        }
+                        .create().apply {
+                            show()
+                        }
+                } else {
+                    removeMtu()
+                }
+            }
+        }
 
         btConnect.setOnClickListener {
             val login = etLogin.text.toString()
@@ -111,13 +137,22 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             val reconnect = cbReconnect.isChecked
 
             val address = repository.getSelectedServer()!!.address
-            repository.updateSettings(Settings(socket, port, reconnect, credentials))
+            val settings = repository.getSettings()
+            repository.updateSettings(
+                settings.copy(
+                    socket = socket,
+                    port = port,
+                    reconnect = reconnect,
+                    credentials = credentials
+                )
+            )
             vpnConnector.startVpn(
                 login,
                 password,
                 address,
                 socket,
-                port
+                port,
+                settings.mtu ?: DefaultSettings.MTU_DEFAULT
             )
         }
         btDisconnect.setOnClickListener {
@@ -134,7 +169,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
 //                    tvDns.text = it.dns
                     tvCity.text = it.location.city
                     ivCountry.setImageResource(it.getIconResourceName(this))
-                }?:run {
+                } ?: run {
                     tvAddress.visibility = View.GONE
                     ivCountry.setImageResource(R.drawable.ic_country)
                     tvCity.setText(R.string.select_city)
@@ -155,6 +190,14 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             }.addToDestroySubscriptions()
     }
 
+    private fun removeMtu() {
+        repository.updateSettings(
+            repository.getSettings().copy(
+                mtu = null
+            )
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         vpnConnector.startListen(this)
@@ -163,5 +206,10 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     override fun onPause() {
         vpnConnector.removeListener()
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        dialog?.dismiss()
+        super.onDestroy()
     }
 }

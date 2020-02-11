@@ -1,12 +1,8 @@
 package uk.vpn.vpnuk
 
 import org.junit.Test
-
-import org.xml.sax.InputSource
-import uk.vpn.vpnuk.remote.Server
-import uk.vpn.vpnuk.remote.Servers
-import java.io.StringReader
 import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * Example local unit test, which will execute on the development machine (host).

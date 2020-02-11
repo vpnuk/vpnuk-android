@@ -195,4 +195,6 @@
     <string name="server_type_11">1:1</string>
     <string name="status">"Status: "</string>
     <string name="get_trial"><a href="https://www.vpnuk.net/product-category/free-trial/">Get a free trial account</a></string>
+    <string name="mtu_settings">Enable custom MTU</string>
+    <string name="custom_mtu">Custom MTU values</string>
 </resources>
