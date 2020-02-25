@@ -83,6 +83,7 @@
     <color name="colorTextPrimary">#303030</color>
     <color name="accent">#0f0</color>
     <color name="colorOtherStatus">#ffcc00</color>
+    <color name="black">#000</color>
 
 
     <!-- Button -->

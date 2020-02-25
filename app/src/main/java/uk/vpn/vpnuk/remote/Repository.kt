@@ -64,8 +64,9 @@ class Repository(context: Context) {
     }
 
     fun getSettings() =
-        prefs.getString("settings", null)?.let { gson.fromJson(it, Settings::class.java) }
-            ?: Settings(SocketType.UDP.value, SocketType.UDP.ports.first(), false, null, null)
+        prefs.getString("settings", null)?.let {
+            gson.fromJson(it, Settings::class.java)
+        } ?: Settings(SocketType.UDP.value, SocketType.UDP.ports.first(), false, null, null)
 
     fun getSelectedServer(): Server? = currentServer.blockingFirst()?.server
 

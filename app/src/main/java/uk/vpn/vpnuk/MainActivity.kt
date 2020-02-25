@@ -74,57 +74,12 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
-    private fun applySettings() {
-        val settings = repository.getSettings()
-
-        val socketType = SocketType.byValue(settings.socket)!!
-        val portIndex = socketType.ports.indexOf(settings.port)
-        val socketIndex = SocketType.values().indexOf(socketType)
-        tabsSocketType.select(socketIndex)
-        tabsPort.select(portIndex)
-        settings.credentials?.let {
-            etLogin.setText(it.login)
-            etPassword.setText(it.password)
-        }
-        cbSaveCredentials.isChecked = settings.credentials != null
-        cbReconnect.isChecked = settings.reconnect
-        cbMtu.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
-    }
-
     private fun initViews() {
         tvLinkTrial.movementMethod = LinkMovementMethod.getInstance()
         tvLinkTrial.stripUnderlines()
-        tabsSocketType.setTabs(SocketType.values().map { it.value })
-        tabsSocketType.setTabListener { text, _ ->
-            tabsPort.setTabs(SocketType.byValue(text)!!.ports)
-        }
+
         vSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
-        }
-        cbMtu.post {
-            cbMtu.setOnCheckedChangeListener { button, checked ->
-                if (checked) {
-                    dialog = AlertDialog.Builder(this)
-                        .setItems(
-                            DefaultSettings.MTU_LIST
-                        ) { _, i ->
-                            repository.updateSettings(
-                                repository.getSettings().copy(
-                                    mtu = DefaultSettings.MTU_LIST[i]
-                                )
-                            )
-                        }
-                        .setTitle(getString(R.string.custom_mtu))
-                        .setOnCancelListener {
-                            cbMtu.isChecked = false
-                        }
-                        .create().apply {
-                            show()
-                        }
-                } else {
-                    removeMtu()
-                }
-            }
         }
 
         btConnect.setOnClickListener {
@@ -132,20 +87,18 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             val password = etPassword.text.toString()
             val credentials: Credentials? =
                 if (cbSaveCredentials.isChecked) Credentials(login, password) else null
-            val socket = tabsSocketType.selectedTab().text.toString()
-            val port = tabsPort.selectedTab().text.toString()
-            val reconnect = cbReconnect.isChecked
-
             val address = repository.getSelectedServer()!!.address
             val settings = repository.getSettings()
+
+            val socket = settings.socket
+            val port = settings.port
+
             repository.updateSettings(
                 settings.copy(
-                    socket = socket,
-                    port = port,
-                    reconnect = reconnect,
                     credentials = credentials
                 )
             )
+
             vpnConnector.startVpn(
                 login,
                 password,
@@ -154,6 +107,9 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 port,
                 settings.mtu ?: DefaultSettings.MTU_DEFAULT
             )
+        }
+        btSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
         btDisconnect.setOnClickListener {
             vpnConnector.stopVpn()
@@ -190,12 +146,13 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             }.addToDestroySubscriptions()
     }
 
-    private fun removeMtu() {
-        repository.updateSettings(
-            repository.getSettings().copy(
-                mtu = null
-            )
-        )
+    private fun applySettings() {
+        val settings = repository.getSettings()
+        settings.credentials?.let {
+            etLogin.setText(it.login)
+            etPassword.setText(it.password)
+        }
+        cbSaveCredentials.isChecked = settings.credentials != null
     }
 
     override fun onResume() {

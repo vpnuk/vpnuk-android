@@ -73,33 +73,18 @@
             android:layout_height="wrap_content"
             android:text="@string/save_credentials" />
 
-        <CheckBox
-            android:id="@+id/cbReconnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/reconnect_after_network_change" />
-
-        <CheckBox
-            android:id="@+id/cbMtu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/mtu_settings" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabsSocketType"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabsPort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nextFocusDown="@id/vSelectAddress" />
-
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/btSettings"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:layout_marginBottom="@dimen/lo_10dpGrid"
+            android:background="@android:drawable/ic_menu_manage" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/vSelectAddress"

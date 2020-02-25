@@ -8,11 +8,17 @@ package uk.vpn.vpnuk.utils
 
 import android.util.Log
 import uk.vpn.vpnuk.BuildConfig
+import uk.vpn.vpnuk.SettingsActivity
 
 object Logger {
+    val vpnLogs = mutableListOf<String>()
+
     fun e(tag: String, message: String) {
         if (BuildConfig.DEBUG) {
             Log.e(tag, message)
+        }
+        if(tag == "asdasd"){
+            vpnLogs.add(message)
         }
     }
 }
