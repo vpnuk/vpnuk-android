@@ -93,7 +93,7 @@ public class VpnConnector implements VpnStatus.StateListener {
             activity.startActivity(intent);
             App.isStart = false;
         } catch (Exception e) {
-
+            Log.d("kek", e.getMessage());
         }
     }
 
@@ -113,12 +113,14 @@ public class VpnConnector implements VpnStatus.StateListener {
             }
         } catch (IOException e) {
             //log the exception
+            Log.d("kek", e.getMessage());
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
                     //log the exception
+                    Log.d("kek", e.getMessage());
                 }
             }
         }

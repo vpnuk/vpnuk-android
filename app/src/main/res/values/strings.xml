@@ -175,7 +175,7 @@
     <string name="string_of_two_number">%02d</string>
     <string name="select_city">Select city</string>
     <string name="err_unable_to_update_servers">Unable to update servers</string>
-    <string name="reconnect_after_network_change">Reconnect after network change</string>
+    <string name="reconnect_after_network_change">Kill Switch</string>
     <string name="status_level_connected">Connected</string>
     <string name="status_level_vpnpaused">Vpn is paused</string>
     <string name="status_level_connecting_server_replied">Server replied</string>
@@ -197,4 +197,6 @@
     <string name="get_trial"><a href="https://www.vpnuk.net/product-category/free-trial/">Get a free trial account</a></string>
     <string name="mtu_settings">Enable custom MTU</string>
     <string name="custom_mtu">Custom MTU values</string>
+    <string name="Settings">Settings</string>
+    <string name="log">Log:</string>
 </resources>

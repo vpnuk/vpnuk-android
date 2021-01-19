@@ -10,6 +10,9 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import io.reactivex.Observable
@@ -59,20 +62,36 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.show()
+        supportActionBar?.title = ""
+
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
+
         initViews()
         applySettings()
+
         if (!repository.serversUpdated) {
             repository.updateServers()
                 .doOnIoObserveOnMain()
                 .addProgressTracking()
-                .subscribe({}, {
+                .subscribe({}, { error ->
                     showMessage(getString(R.string.err_unable_to_update_servers))
                 })
                 .addToDestroySubscriptions()
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_action_bar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        startActivity(Intent(this, SettingsActivity::class.java))
+        return super.onOptionsItemSelected(item)
+    }
+
 
     private fun initViews() {
         tvLinkTrial.movementMethod = LinkMovementMethod.getInstance()
@@ -85,8 +104,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         btConnect.setOnClickListener {
             val login = etLogin.text.toString()
             val password = etPassword.text.toString()
-            val credentials: Credentials? =
-                if (cbSaveCredentials.isChecked) Credentials(login, password) else null
+            val credentials: Credentials? = if (cbSaveCredentials.isChecked) Credentials(login, password) else null
             val address = repository.getSelectedServer()!!.address
             val settings = repository.getSettings()
 
@@ -108,9 +126,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 settings.mtu ?: DefaultSettings.MTU_DEFAULT
             )
         }
-        btSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
+
         btDisconnect.setOnClickListener {
             vpnConnector.stopVpn()
         }

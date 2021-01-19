@@ -6,11 +6,11 @@
             <corners android:radius="25dp" />
         </shape>
     </item>
+
+
     <item>
-
-        <ripple android:color="#46005A81">
+        <ripple android:color="#5E000000" android:radius="100dp">
             <item>
-
                 <shape>
                     <solid android:color="@color/colorAccent" />
                     <corners android:radius="25dp" />

@@ -8,6 +8,7 @@ package uk.vpn.vpnuk.remote
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Observable

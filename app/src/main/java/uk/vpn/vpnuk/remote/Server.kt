@@ -18,7 +18,7 @@ data class Server(
     val type: String,
     val address: String,
     val dns: String,
-    val speed: String,
+    //val speed: String,
     val location: Location
 )
 

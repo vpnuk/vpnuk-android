@@ -174,6 +174,7 @@ public class LaunchVPN extends Activity {
                 } else {
                     mTransientCertOrPCKS12PW = entry.getText().toString();
                 }
+
                 Intent intent = new Intent(LaunchVPN.this, OpenVPNStatusService.class);
                 bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             }

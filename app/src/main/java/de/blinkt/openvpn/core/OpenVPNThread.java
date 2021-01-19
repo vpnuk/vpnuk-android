@@ -5,11 +5,13 @@
 package de.blinkt.openvpn.core;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import uk.vpn.vpnuk.R;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +62,7 @@ public class OpenVPNThread implements Runnable {
     public void run() {
         try {
 //            Logger.e(TAG, "Starting openvpn");
+            Log.d("kek", "----");
             startOpenVPNThreadArgs(mArgv);
 //            Logger.e(TAG, "OpenVPN process exited");
         } catch (Exception e) {

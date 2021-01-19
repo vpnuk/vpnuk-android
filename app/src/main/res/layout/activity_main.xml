@@ -29,12 +29,9 @@
         android:layout_marginRight="32dp"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:src="@drawable/vpnuk_logo_large" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -77,14 +74,6 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/btSettings"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="end"
-            android:layout_marginBottom="@dimen/lo_10dpGrid"
-            android:background="@android:drawable/ic_menu_manage" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/vSelectAddress"

@@ -28,6 +28,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        supportActionBar?.title = getString(R.string.Settings)
 
         repository = Repository(this)
 

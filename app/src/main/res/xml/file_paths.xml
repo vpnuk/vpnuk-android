@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021 VPNUK
+  ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
+  ~
+  -->
+
+<paths>
+    <cache-path
+        name="Chache"
+        path="/data/user/0/uk.vpn.vpnuk/cache"/>
+    <external-cache-path
+        name="Chache1"
+        path="/data/user/0/uk.vpn.vpnuk/cache"/>
+    <external-path
+        name="Chache2"
+        path="/data/user/0/uk.vpn.vpnuk/cache"/>
+    <external-files-path
+        name="Chache3"
+        path="/data/user/0/uk.vpn.vpnuk/cache"/>
+    <files-path
+        name="Chache4"
+        path="/data/user/0/uk.vpn.vpnuk/cache"/>
+</paths>

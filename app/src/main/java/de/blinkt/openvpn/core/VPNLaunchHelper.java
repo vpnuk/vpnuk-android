@@ -24,6 +24,8 @@ public class VPNLaunchHelper {
     private static final String MININONPIEVPN = "nopie_openvpn";
     private static final String MINIPIEVPN = "pie_openvpn";
     private static final String OVPNCONFIGFILE = "android.conf";
+
+
     private static String writeMiniVPN(Context context) {
         String[] abis;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
