@@ -169,7 +169,9 @@ public class VpnConnector implements VpnStatus.StateListener {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                listener.onStateChanged(ConnectionState.valueOf(level.name()));
+                try{
+                    listener.onStateChanged(ConnectionState.valueOf(level.name()));
+                }catch (Exception e){}
             }
         });
 //        Logger.e("asdasd", "updateState " + state + " " + level);

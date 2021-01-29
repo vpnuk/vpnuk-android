@@ -32,21 +32,9 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var vpnConnector: VpnConnector
 
 
-    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quick_launch)
-
-
-        //TODO
-        this.requestPermissions(
-            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            444
-        )
-        this.requestPermissions(
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            4455
-        )
 
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
@@ -70,10 +58,10 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         switch_connect.setOnCheckedChangeListener { view, isChecked ->
             if(isChecked){
                 if(checkData()){
-                    val address = repository.getSelectedServer()!!.address
+                    val address = repository.getSelectedServer()?.address
                     val settings = repository.getSettings()
-                    val login = settings.credentials!!.login
-                    val password = settings.credentials!!.password
+                    val login = settings.credentials?.login
+                    val password = settings.credentials?.password
 
                     val socket = settings.socket
                     val port = settings.port

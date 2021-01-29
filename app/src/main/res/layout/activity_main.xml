@@ -39,6 +39,7 @@
                 android:id="@+id/etLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="text|textEmailAddress"
                 android:hint="@string/hint_login" />
         </com.google.android.material.textfield.TextInputLayout>
 
