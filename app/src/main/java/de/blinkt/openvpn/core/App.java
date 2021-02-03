@@ -13,10 +13,18 @@ import android.os.Build;
 
 import android.util.Log;
 
+import com.amazon.device.iap.PurchasingListener;
+import com.amazon.device.iap.PurchasingService;
+import com.amazon.device.iap.model.ProductDataResponse;
+import com.amazon.device.iap.model.PurchaseResponse;
+import com.amazon.device.iap.model.PurchaseUpdatesResponse;
+import com.amazon.device.iap.model.UserDataResponse;
+
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.utils.Logger;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Random;
 
 
@@ -32,6 +40,9 @@ public class App extends /*com.orm.SugarApp*/ Application {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+
+
+
 
         PRNGFixes.apply();
         StatusListener mStatus = new StatusListener();

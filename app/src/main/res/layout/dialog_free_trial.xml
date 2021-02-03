@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021 VPNUK
+  ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
+  ~
+  -->
+
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:text="Free Trial Created"
+        android:layout_marginTop="20dp"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:text="Your Free trial account has been created"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:text="Account Login Details"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+
+    <LinearLayout
+        android:layout_marginTop="4dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Username:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="User Name"
+            android:layout_marginStart="6dp"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Password:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="password123"
+            android:layout_marginStart="6dp"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Unique IP:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="12.33.44.65"
+            android:layout_marginStart="6dp"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Server:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="Test UK 34"
+            android:layout_marginStart="6dp"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</LinearLayout>
+
+
+
+
+
+
+
+

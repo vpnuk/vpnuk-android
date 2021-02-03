@@ -45,13 +45,14 @@
 
         <TextView
             android:id="@+id/tvLinkTrial"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:focusable="true"
             android:text="@string/get_trial"
             android:textColor="@color/colorPrimary"
-            android:textSize="12dp" />
+            android:textSize="13sp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
