@@ -34,3 +34,5 @@ enum class ServerType(val value: String, @StringRes val nameRes: Int) {
         }
     }
 }
+
+const val CREATED_SUBSCRIPTION = "CREATED_SUBSCRIPTION"

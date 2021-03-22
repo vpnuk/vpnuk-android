@@ -50,6 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/vFreeTrialCreatedDialogUsername"
             android:text="User Name"
             android:layout_marginStart="6dp"
             android:textSize="16sp"
@@ -69,6 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/vFreeTrialCreatedDialogPassword"
             android:text="password123"
             android:layout_marginStart="6dp"
             android:textSize="16sp"
@@ -88,6 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/vFreeTrialCreatedDialogIP"
             android:text="12.33.44.65"
             android:layout_marginStart="6dp"
             android:textSize="16sp"
@@ -107,6 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/vFreeTrialCreatedDialogServer"
             android:text="Test UK 34"
             android:layout_marginStart="6dp"
             android:textSize="16sp"

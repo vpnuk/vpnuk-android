@@ -36,19 +36,23 @@ public class App extends /*com.orm.SugarApp*/ Application {
     public static final int NOTIFICATION_ID = new Random().nextInt(601) + 200;
     NotificationManager manager;
 
+    public static App instance;
+
+    public App(){
+        instance = this;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
 
 
-
-
         PRNGFixes.apply();
         StatusListener mStatus = new StatusListener();
         mStatus.init(getApplicationContext());
-
     }
+
 
     private void createNotificationChannel() {
         try {

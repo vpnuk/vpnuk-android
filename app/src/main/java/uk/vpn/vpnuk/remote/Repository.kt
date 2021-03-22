@@ -38,7 +38,9 @@ class Repository(context: Context) {
     var serversUpdated: Boolean = false
         private set
     private val prefs = context.getSharedPreferences("servers", Context.MODE_PRIVATE)
-    private val retrofit = Retrofit.Builder()
+
+    private val retrofit =
+        Retrofit.Builder()
         .baseUrl("https://www.serverlistvault.com/")
         .client(
             OkHttpClient.Builder()

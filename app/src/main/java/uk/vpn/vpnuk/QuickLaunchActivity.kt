@@ -12,9 +12,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.amazon.device.iap.PurchasingListener
+import com.amazon.device.iap.PurchasingService
+import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.*
@@ -23,13 +28,21 @@ import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.remote.Repository
 import io.reactivex.functions.Function3
+import kotlinx.android.synthetic.main.dialog_free_trial.view.*
+import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
+import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
+import java.util.HashSet
 
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
+
+    val hash = HashSet<String>()
+    val purchaseKey = "DED01-2-1F"
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +54,8 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
         initView()
 
+        showSubscriptionExpiredDialog()
+
         if (!repository.serversUpdated) {
             repository.updateServers()
                 .doOnIoObserveOnMain()
@@ -50,7 +65,63 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 })
                 .addToDestroySubscriptions()
         }
+
+
+        //TODO method to buy purchase
+        //PurchasingService.purchase(purchaseKey)
+
+        createAmazonIap()
     }
+
+    private fun createAmazonIap() {
+        PurchasingService.registerListener(this.applicationContext, object : PurchasingListener {
+            override fun onUserDataResponse(response: UserDataResponse?) {
+                when (response?.requestStatus) {
+                    UserDataResponse.RequestStatus.SUCCESSFUL -> {
+                        val amazonUserID = response.userData.userId
+
+
+                        Log.d("kek", "onUserDataResponse = success -----  $amazonUserID")
+                    }
+                }
+            }
+            override fun onProductDataResponse(response: ProductDataResponse?) {}
+            override fun onPurchaseResponse(response: PurchaseResponse?) {
+                Log.d("kek", "onPurchaseResponse = ${response?.receipt?.sku}")
+                //Купленная только что покупка
+                when (response?.requestStatus) {
+                    PurchaseResponse.RequestStatus.SUCCESSFUL -> {
+                        Log.d("kek", "onPurchaseResponse = success. ReceiptSKU  -----  ${response.receipt.sku}")
+                        Log.d("kek", "onPurchaseResponse = success. ReceiptID  -----  ${response.receipt.receiptId}")
+
+                        Log.d("kek", "onPurchaseResponse = success. UserID  -----  ${response.userData.userId}")
+
+
+                        val amazonReceiptId = response.receipt.receiptId
+
+                        PurchasingService.notifyFulfillment(purchaseKey, FulfillmentResult.FULFILLED)
+                    }
+                    PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
+                        Log.d("kek", "onPurchaseResponse = already_purchased")
+                    }
+                }
+            }
+            override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
+                Log.d("kek", "onPurchaseUpdatesResponse = ${response?.receipts?.size}")
+                //Список купленных юзером покупок
+                when (response?.requestStatus) {
+                    PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
+                        val q = response.receipts
+                    }
+                }
+            }
+        })
+
+        PurchasingService.getPurchaseUpdates(false)
+    }
+
+
+
 
     private fun initView() {
         supportActionBar?.hide()
@@ -116,6 +187,18 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
+    private fun showSubscriptionExpiredDialog(){
+        val alertDialog = AlertDialog.Builder(this).create()
+        val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
+        alertDialog.setView(customLayout)
+        alertDialog.show()
+
+        customLayout.vSubscriptionExpiredDialogRenew.setOnClickListener {
+            Toasty.success(this, "RENEW SUBSCRIPTION", Toasty.LENGTH_SHORT).show()
+        }
+        customLayout.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
+    }
+
     override fun showProgress() {
         switch_connect.visibility = View.GONE
         progressBarQuick.visibility = View.VISIBLE
@@ -129,15 +212,14 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     override fun onResume() {
         super.onResume()
         vpnConnector.startListen(this)
+
+        hash.add(purchaseKey)
+        PurchasingService.getUserData()
+        PurchasingService.getProductData(hash)
     }
 
     override fun onPause() {
         vpnConnector.removeListener()
         super.onPause()
-    }
-
-    override fun onDestroy() {
-
-        super.onDestroy()
     }
 }
