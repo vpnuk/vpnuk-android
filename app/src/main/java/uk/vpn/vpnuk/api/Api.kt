@@ -4,6 +4,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 import uk.vpn.vpnuk.model.*
+import uk.vpn.vpnuk.model.serverList.ServerListModel
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 
 interface Api {
@@ -11,7 +12,6 @@ interface Api {
     @Headers("Content-Type: application/json")
     @POST("wp-json/vpnuk/v1/customers")
     fun registerNewCustomer(@Body body: RegisterModel): Call<ErrorModel>
-
 
     @FormUrlEncoded
     @POST("wp-json/vpnuk/v1/token")
@@ -32,10 +32,22 @@ interface Api {
 
 
     @Headers("Content-Type: application/json")
-    @POST("wp-json/vpnuk/v1/amzinapp/purchase/order/{productId}")
+    @POST("wp-json/vpnuk/v1/amzinapp/purchase/order/{pendingOrderId}")
     fun renewSubscription(
         @Header("Authorization") token: String,
-        @Body body: String,
-        @Path("productId") productId: String
-    ): Call<String>
+        @Body body: RenewSubscriptionRequestModel,
+        @Path("pendingOrderId") pendingOrderId: String
+    ): Call<ResponseBody>
+
+    @GET("wp-json/vpnuk/v1/customers/{email_address}")
+    fun checkIfUserRegisteredFromSource(
+        @Path("email_address") emailAddress: String,
+        @Query("source") source: String
+    ): Call<ResponseBody>
+
+
+
+    //Another url
+    @GET("country.json")
+    fun getServerList(): Call<ServerListModel>
 }

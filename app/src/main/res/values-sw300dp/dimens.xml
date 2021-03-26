@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021 VPNUK
+  ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
+  ~
+  -->
+
+<resources>
+
+    <dimen name="create_free_trial_size">16sp</dimen>
+    <dimen name="create_free_trial_desc_text_size">14sp</dimen>
+    <dimen name="create_free_trial_fields_margin_top">16dp</dimen>
+    <dimen name="create_free_trial_margin_top_20dp">14dp</dimen>
+</resources>

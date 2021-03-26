@@ -16,9 +16,9 @@ object RestClient {
     private lateinit var retrofit: Retrofit
 
 
-    fun getApi(): Api {
+    fun getApi(url: String = "https://vpnuk.info/"): Api {
         retrofit = Retrofit.Builder()
-            .baseUrl("https://vpnuk.info/")
+            .baseUrl(url)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
             .client(provideOkHttpClient())
             .build()

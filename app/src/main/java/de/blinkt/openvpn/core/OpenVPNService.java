@@ -33,7 +33,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.system.OsConstants;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -56,9 +55,8 @@ import java.util.concurrent.TimeUnit;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
-import uk.vpn.vpnuk.BuildConfig;
 import uk.vpn.vpnuk.Data;
-import uk.vpn.vpnuk.MainActivity;
+import uk.vpn.vpnuk.view.mainScreen.MainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
 import uk.vpn.vpnuk.remote.Server;

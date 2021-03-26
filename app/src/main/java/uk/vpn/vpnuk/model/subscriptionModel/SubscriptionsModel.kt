@@ -61,5 +61,12 @@ data class SubscriptionsModel(
 
     @SerializedName("vpnaccounts")
     @Expose
-    var vpnaccounts: List<Vpnaccount>? = null
+    var vpnaccounts: List<Vpnaccount>? = null,
+
+
+
+
+    @SerializedName("pending_orders")
+    @Expose
+    var pending_orders: List<PendingOrder>? = null
 ) : Parcelable

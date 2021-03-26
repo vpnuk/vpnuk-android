@@ -29,5 +29,9 @@ data class RegisterModel(
 
     @SerializedName("email")
     @Expose
-    var email: String? = null
+    var email: String? = null,
+
+    @SerializedName("source")
+    @Expose
+    var source: String = "app"
 )

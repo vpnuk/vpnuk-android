@@ -84,6 +84,9 @@ open class LocalRepository(context: Context) {
     var purchasedSubId by IntPreferenceDelegate()
 
 
+    var cachedSelectedCountry by StringPreferenceDelegate()
+
+
 
     fun clear() {
         sharedPreferences

@@ -7,4 +7,8 @@
 
 <resources>
     <dimen name="padding_top_main">8dp</dimen>
+    <dimen name="create_free_trial_size">20sp</dimen>
+    <dimen name="create_free_trial_desc_text_size">18sp</dimen>
+    <dimen name="create_free_trial_fields_margin_top">40dp</dimen>
+    <dimen name="create_free_trial_margin_top_20dp">20dp</dimen>
 </resources>

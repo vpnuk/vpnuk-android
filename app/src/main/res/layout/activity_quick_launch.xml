@@ -12,7 +12,7 @@
     android:background="@drawable/ic_quicklaunch_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".QuickLaunchActivity">
+    tools:context=".view.quickLaunch.QuickLaunchActivity">
 
     <ProgressBar
         android:id="@+id/progressBarQuick"

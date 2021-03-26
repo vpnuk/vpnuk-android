@@ -15,16 +15,26 @@ class RegisterAccountVM : ViewModel() {
 
     val successToken = repo.successToken
     val createdSubscription = repo.createSubscription
+    val servers = repo.serverList
 
     val error = repo.error
 
 
-    fun registerUser(userName: String, email: String, password: String) {
-        repo.registerUser(userName, email, password)
+    fun registerUser(
+        userName: String,
+        email: String,
+        password: String,
+        selectedServerCountry: String
+    ) {
+        repo.registerUser(userName, email, password, selectedServerCountry)
     }
 
     fun createSubscription() {
         repo.createSubscription()
+    }
+
+    fun getServerList() {
+        repo.getServerList()
     }
 
 
