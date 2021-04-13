@@ -8,7 +8,6 @@ package uk.vpn.vpnuk.utils
 
 import android.util.Log
 import uk.vpn.vpnuk.BuildConfig
-import uk.vpn.vpnuk.SettingsActivity
 
 object Logger {
     val vpnLogs = mutableListOf<String>()

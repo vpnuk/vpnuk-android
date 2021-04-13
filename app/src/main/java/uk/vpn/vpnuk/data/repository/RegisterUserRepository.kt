@@ -81,10 +81,7 @@ class RegisterUserRepository() {
 
         RestClient.getApi().getToken("password", userName, password)
             .enqueue(object : Callback<TokenModelResp> {
-                override fun onResponse(
-                    call: Call<TokenModelResp>,
-                    response: Response<TokenModelResp>
-                ) {
+                override fun onResponse(call: Call<TokenModelResp>, response: Response<TokenModelResp>) {
                     if (response.isSuccessful) {
                         localRepository.token = response.body()?.accessToken.toString()
 
@@ -94,7 +91,6 @@ class RegisterUserRepository() {
                         errorMutable.postValue(error.message)
                     }
                 }
-
                 override fun onFailure(call: Call<TokenModelResp>, t: Throwable) {
                     errorMutable.postValue(t.message)
                 }
@@ -105,19 +101,12 @@ class RegisterUserRepository() {
     fun createSubscription(){
         val selectedCountry = localRepository.cachedSelectedCountry
 
-        val subModel = CreateSubscriptionModel(
-            "6633",
-            "vpnuk",
-            selectedCountry
-        )
+        val subModel = CreateSubscriptionModel("6633", "vpnuk", selectedCountry)
         val token = "Bearer ${localRepository.token}"
 
         RestClient.getApi().createSubscription(token, subModel)
             .enqueue(object : Callback<CreatedSubscriptionResp> {
-                override fun onResponse(
-                    call: Call<CreatedSubscriptionResp>,
-                    response: Response<CreatedSubscriptionResp>
-                ) {
+                override fun onResponse(call: Call<CreatedSubscriptionResp>, response: Response<CreatedSubscriptionResp>) {
                     if (response.isSuccessful) {
                         if (response.body() != null && response.body()?.id != null) {
                             localRepository.purchasedSubId = response.body()?.id!!
@@ -129,7 +118,6 @@ class RegisterUserRepository() {
                         errorMutable.postValue(error.message)
                     }
                 }
-
                 override fun onFailure(call: Call<CreatedSubscriptionResp>, t: Throwable) {
                     errorMutable.postValue(t.message)
                 }
@@ -155,15 +143,12 @@ class RegisterUserRepository() {
                             localRepository.vpnIp = body.vpnaccounts?.get(0)?.server?.ip.toString()
                             localRepository.vpnDescription = body.vpnaccounts?.get(0)?.server?.description.toString()
                             localRepository.vpnServerName = serverName
-
-
                         }
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
                         errorMutable.postValue(error.message)
                     }
                 }
-
                 override fun onFailure(call: Call<SubscriptionsModel>, t: Throwable) {
                     errorMutable.postValue(t.message)
                 }
@@ -198,15 +183,12 @@ class RegisterUserRepository() {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if(response.isSuccessful){
                         isUserRegisteredFromAppMutable.postValue(true)
-                        Log.d("kek", "Success -  " + response.code().toString())
                     }else{
                         isUserRegisteredFromAppMutable.postValue(false)
-                        Log.d("kek", "No Success -  " + response.code().toString())
                     }
                 }
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     isUserRegisteredFromAppMutable.postValue(false)
-                    Log.d("kek", "Failure -  " + t.message)
                 }
             })
     }

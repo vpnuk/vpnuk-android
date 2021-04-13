@@ -38,12 +38,16 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     var pendingOrderId = ""
 
+    private lateinit var localRepository: LocalRepository
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quick_launch)
         vm = ViewModelProvider(this)[QuickLaunchVM::class.java]
+
+        localRepository = LocalRepository(this)
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 
@@ -72,18 +76,14 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             vm.checkRegisteredSource(LocalRepository(this).initialEmail, "app")
         })
         vm.isUserRegisteredFromApp.observe(this, Observer {
-            if(it) checkSubscriptionState()
+            if(it) vm.checkSubscriptionState(localRepository.purchasedSubId)
         })
         vm.isSubscriptionExpired.observe(this, Observer {
-            if(it.first == true){
+            if(it.first){
                 pendingOrderId = it.second
                 showSubscriptionExpiredDialog()
             }
         })
-    }
-
-    private fun checkSubscriptionState() {
-        vm.checkSubscriptionState(LocalRepository(this).purchasedSubId)
     }
 
     private fun createAmazonIap() {
@@ -125,15 +125,16 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 if(checkData()){
                     val address = repository.getSelectedServer()?.address
                     val settings = repository.getSettings()
-                    val login = settings.credentials?.login
-                    val password = settings.credentials?.password
 
                     val socket = settings.socket
                     val port = settings.port
 
+                    val vpnLogin = localRepository.vpnUsername
+                    val vpnPassword = localRepository.vpnPassword
+
                     vpnConnector.startVpn(
-                        login,
-                        password,
+                        vpnLogin,
+                        vpnPassword,
                         address,
                         socket,
                         port,

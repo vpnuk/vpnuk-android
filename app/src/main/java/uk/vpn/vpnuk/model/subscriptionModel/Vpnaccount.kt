@@ -28,5 +28,10 @@ data class Vpnaccount(
 
     @SerializedName("server")
     @Expose
-    var server: Server? = null
+    var server: Server? = null,
+
+
+
+    @Transient
+    var subscriptionId: Int
 ) : Parcelable

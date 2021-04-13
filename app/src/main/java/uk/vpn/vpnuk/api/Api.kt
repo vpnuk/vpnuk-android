@@ -30,6 +30,8 @@ interface Api {
     @GET("wp-json/vpnuk/v1/subscriptions/{productId}")
     fun getSubInfo(@Header("Authorization") token: String, @Path("productId") productId: String): Call<SubscriptionsModel>
 
+    @GET("wp-json/vpnuk/v1/subscriptions")
+    fun getAllSubscriptions(@Header("Authorization") token: String): Call<List<SubscriptionsModel>>
 
     @Headers("Content-Type: application/json")
     @POST("wp-json/vpnuk/v1/amzinapp/purchase/order/{pendingOrderId}")

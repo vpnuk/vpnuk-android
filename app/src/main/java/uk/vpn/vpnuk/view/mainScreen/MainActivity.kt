@@ -9,23 +9,32 @@ package uk.vpn.vpnuk.view.mainScreen
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_choose_vpnaccount.view.*
 import kotlinx.android.synthetic.main.dialog_free_trial.view.*
 import uk.vpn.vpnuk.*
+import uk.vpn.vpnuk.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
+import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
 import uk.vpn.vpnuk.view.registerAccountScreen.RegisterAccountActivity
+import uk.vpn.vpnuk.view.settingsScreen.SettingsActivity
 
 
 class MainActivity : BaseActivity(), ConnectionStateListener {
@@ -33,36 +42,10 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
 
+    private lateinit var vm: MainVM
+
     private lateinit var localRepository: LocalRepository
 
-
-    override fun onStateChanged(state: ConnectionState) {
-        tvStatus.setText(state.nameId)
-        tvStatus.setTextColor(state.color(this))
-
-        when (state) {
-            ConnectionState.LEVEL_NOTCONNECTED -> {
-                btConnect.visibility = View.VISIBLE
-                btDisconnect.visibility = View.GONE
-                vSelectAddress.isEnabled = true
-            }
-            else -> {
-                btConnect.visibility = View.GONE
-                btDisconnect.visibility = View.VISIBLE
-                vSelectAddress.isEnabled = false
-            }
-        }
-    }
-
-    override fun showProgress() {
-        content.visibility = View.GONE
-        progressBar.visibility = View.VISIBLE
-    }
-
-    override fun hideProgress() {
-        content.visibility = View.VISIBLE
-        progressBar.visibility = View.GONE
-    }
 
     @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +53,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         setContentView(R.layout.activity_main)
         supportActionBar?.show()
         supportActionBar?.title = ""
+        vm = ViewModelProvider(this)[MainVM::class.java]
 
         localRepository = LocalRepository(this)
         repository = Repository.instance(this)
@@ -78,6 +62,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         initViews()
         applySettings()
         stFreeTrialAccountVisibility()
+        observeLiveData()
 
         if (!repository.serversUpdated) {
             repository.updateServers()
@@ -88,22 +73,66 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 })
                 .addToDestroySubscriptions()
         }
-
-//        createAmazonIap()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == RESULT_OK && data != null){
-            val subscriptionModel = data.getParcelableExtra<SubscriptionsModel>(CREATED_SUBSCRIPTION)
+    private fun observeLiveData() {
+        vm.vpnAccounts.observe(this, Observer {
+            hideProgressBar()
+            if(it.isEmpty()){
+                Toasty.error(this, getString(R.string.error_you_dont_have_active_vpn_account))
+            }else if(it.size == 1){
+                localRepository.vpnUsername = it[0].username.toString()
+                localRepository.vpnPassword = it[0].password.toString()
+                localRepository.vpnServerName = it[0].server?.description.toString().split("Server:")[1].split("<")[0]
+                localRepository.vpnIp = it[0].server?.ip.toString()
+                localRepository.vpnDescription = it[0].server?.description.toString()
+                localRepository.purchasedSubId = it[0].subscriptionId
 
-            applySettings()
-            initViews()
+                selectNewServer()
+                connectToVpn()
+
+                showExplainingDialog()
+            }else if(it.size > 1){
+                showChooseVpnAccountDialog(it)
+            }
+        })
+    }
+
+    private fun showChooseVpnAccountDialog(list: List<Vpnaccount>){
+        val alertDialog = AlertDialog.Builder(this).create()
+        val customLayout: View = layoutInflater.inflate(R.layout.dialog_choose_vpnaccount, null)
+        alertDialog.setView(customLayout)
+
+        val adapter = VpnAccountAdapter(this, list){
+            localRepository.vpnUsername = it.username.toString()
+            localRepository.vpnPassword = it.password.toString()
+            localRepository.vpnServerName = it.server?.description.toString().split("Server:")[1].split("<")[0]
+            localRepository.vpnIp = it.server?.ip.toString()
+            localRepository.vpnDescription = it.server?.description.toString()
+            localRepository.purchasedSubId = it.subscriptionId
+
             selectNewServer()
-            stFreeTrialAccountVisibility()
+            connectToVpn()
 
-            showSubscriptionInfoDialog(subscriptionModel)
+            alertDialog.dismiss()
+
+            showExplainingDialog()
         }
+        customLayout.vChooseVpnAccountDialogRecycler.layoutManager = LinearLayoutManager(this)
+        customLayout.vChooseVpnAccountDialogRecycler.adapter = adapter
+
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
+
+    private fun showExplainingDialog() {
+        val alertDialog = AlertDialog.Builder(this)
+        alertDialog.setTitle(getString(R.string.server_selected))
+        alertDialog.setMessage("Your server has been selected automatically!\n\n${Html.fromHtml(localRepository.vpnDescription)}")
+        alertDialog.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+            dialog.dismiss()
+        }
+        alertDialog.show()
     }
 
     private fun selectNewServer() {
@@ -113,58 +142,43 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             .subscribe {}.addToDestroySubscriptions()
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_action_bar, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        startActivity(Intent(this, SettingsActivity::class.java))
-        return super.onOptionsItemSelected(item)
+    private fun applySettings() {
+        val settings = repository.getSettings()
+        settings.credentials?.let {
+            etLogin.setText(it.login)
+            etPassword.setText(it.password)
+        }
+        cbSaveCredentials.isChecked = settings.credentials != null
     }
 
     private fun initViews() {
-        tvLinkTrial.stripUnderlines()
+        //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
+        btConnect.setOnClickListener {
+            val login = etLogin.text.toString()
+            val password = etPassword.text.toString()
 
+            if(isFirstLoginAttempt()){
+                vm.findActiveVpnAccount(login, password)
+                showProgressBar()
+            }else if(login != localRepository.initialUserName){
+                vm.findActiveVpnAccount(login, password)
+                showProgressBar()
+            }else{
+                connectToVpn()
+            }
+        }
+        //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
+
+
+
+        tvLinkTrial.stripUnderlines()
         tvLinkTrial.setOnClickListener {
             val intent = Intent(this, RegisterAccountActivity::class.java)
             startActivityForResult(intent, 132)
         }
-
         vSelectAddress.setOnClickListener {
             startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
         }
-
-        btConnect.setOnClickListener {
-            val login = etLogin.text.toString()
-            val password = etPassword.text.toString()
-            val credentials: Credentials? = if (cbSaveCredentials.isChecked) Credentials(
-                login,
-                password
-            ) else null
-            val address = repository.getSelectedServer()!!.address
-            val settings = repository.getSettings()
-
-            val socket = settings.socket
-            val port = settings.port
-
-            repository.updateSettings(
-                settings.copy(
-                    credentials = credentials
-                )
-            )
-
-            vpnConnector.startVpn(
-                login,
-                password,
-                address,
-                socket,
-                port,
-                settings.mtu ?: DefaultSettings.MTU_DEFAULT
-            )
-        }
-
         btDisconnect.setOnClickListener {
             vpnConnector.stopVpn()
         }
@@ -176,7 +190,6 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 server.server?.let {
                     tvAddress.text = it.dns
                     tvAddress.visibility = View.VISIBLE
-//                    tvDns.text = it.dns
                     tvCity.text = it.location.city
                     ivCountry.setImageResource(it.getIconResourceName(this))
                 } ?: run {
@@ -200,13 +213,8 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             }.addToDestroySubscriptions()
     }
 
-    private fun applySettings() {
-        val settings = repository.getSettings()
-        settings.credentials?.let {
-            etLogin.setText(it.login)
-            etPassword.setText(it.password)
-        }
-        cbSaveCredentials.isChecked = settings.credentials != null
+    private fun isFirstLoginAttempt(): Boolean {
+        return localRepository.vpnUsername == ""
     }
 
     private fun stFreeTrialAccountVisibility() {
@@ -215,6 +223,69 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }else{
             tvLinkTrial.visibility = View.VISIBLE
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_action_bar, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        startActivityForResult(Intent(this, SettingsActivity::class.java), 3332)
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 3332){
+            vpnConnector.stopVpn()
+
+            applySettings()
+            initViews()
+            selectNewServer()
+
+        }else{
+            if(resultCode == RESULT_OK && data != null){
+                val subscriptionModel = data.getParcelableExtra<SubscriptionsModel>(CREATED_SUBSCRIPTION)
+
+                applySettings()
+                initViews()
+                selectNewServer()
+                stFreeTrialAccountVisibility()
+
+                showSubscriptionInfoDialog(subscriptionModel)
+            }
+        }
+    }
+
+    private fun connectToVpn(){
+        val login = etLogin.text.toString()
+        val password = etPassword.text.toString()
+
+        //Check if checkbox checked...Removed because amazon iap flow
+        val credentials: Credentials? = Credentials(
+            login,
+            password
+        )
+
+        val address = repository.getSelectedServer()!!.address
+        val settings = repository.getSettings()
+
+        val socket = settings.socket
+        val port = settings.port
+
+        repository.updateSettings(settings.copy(credentials = credentials))
+
+        val vpnLogin = localRepository.vpnUsername
+        val vpnPassword = localRepository.vpnPassword
+
+        vpnConnector.startVpn(
+            vpnLogin,
+            vpnPassword,
+            address,
+            socket,
+            port,
+            settings.mtu ?: DefaultSettings.MTU_DEFAULT
+        )
     }
 
     private fun showSubscriptionInfoDialog(subscriptionModel: SubscriptionsModel?) {
@@ -231,76 +302,53 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         alertDialog.show()
     }
 
+    override fun onStateChanged(state: ConnectionState) {
+        tvStatus.setText(state.nameId)
+        tvStatus.setTextColor(state.color(this))
+
+        when (state) {
+            ConnectionState.LEVEL_NOTCONNECTED -> {
+                btConnect.visibility = View.VISIBLE
+                btDisconnect.visibility = View.GONE
+                vSelectAddress.isEnabled = true
+            }
+            else -> {
+                btConnect.visibility = View.GONE
+                btDisconnect.visibility = View.VISIBLE
+                vSelectAddress.isEnabled = false
+            }
+        }
+    }
+
+    private fun showProgressBar(){
+        progressBar.visibility = View.VISIBLE
+        progressBackground.visibility = View.VISIBLE
+    }
+    private fun hideProgressBar(){
+        progressBar.visibility = View.GONE
+        progressBackground.visibility = View.GONE
+    }
+
+    override fun showProgress() {
+        content.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
+    }
+
+    override fun hideProgress() {
+        content.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
+    }
+
     override fun onResume() {
         super.onResume()
         vpnConnector.startListen(this)
-//        val hash = HashSet<String>()
-//        hash.add("DED01-FR")
-//        PurchasingService.getUserData()
-//        PurchasingService.getProductData(hash)
     }
-
     override fun onPause() {
         vpnConnector.removeListener()
         super.onPause()
     }
-
     override fun onDestroy() {
         dialog?.dismiss()
         super.onDestroy()
     }
-
-
-
-//    private fun createAmazonIap() {
-//        PurchasingService.registerListener(this.applicationContext, object : PurchasingListener {
-//            override fun onUserDataResponse(response: UserDataResponse?) {
-//                when (response?.requestStatus) {
-//                    UserDataResponse.RequestStatus.SUCCESSFUL -> {
-//                        val q = response.userData.marketplace
-//                        q
-//                    }
-//                }
-//            }
-//            override fun onProductDataResponse(response: ProductDataResponse?) {
-//                Log.d("kek", "onProductDataResponse = ${response?.productData?.size}")
-//                //Список покупок
-//                when (response?.requestStatus) {
-//                    ProductDataResponse.RequestStatus.SUCCESSFUL -> {
-//                        val q = response.productData
-//                        q
-//                    }
-//                }
-//            }
-//            override fun onPurchaseResponse(response: PurchaseResponse?) {
-//                Log.d("kek", "onPurchaseResponse = ${response?.receipt?.sku}")
-//                //Купленная только что покупка
-//                when (response?.requestStatus) {
-//                    PurchaseResponse.RequestStatus.SUCCESSFUL -> {
-//                        Log.d("kek", "onPurchaseResponse = success   ${response.receipt.sku}")
-//
-//                        val q = response.receipt
-//                        q
-//
-//                        PurchasingService.notifyFulfillment("DED01-2-1F", FulfillmentResult.FULFILLED)
-//                    }
-//                    PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
-//                        Log.d("kek", "onPurchaseResponse = already_purchased")
-//                    }
-//                }
-//            }
-//            override fun onPurchaseUpdatesResponse(response: PurchaseUpdatesResponse?) {
-//                Log.d("kek", "onPurchaseUpdatesResponse = ${response?.receipts?.size}")
-//                //Список купленных юзером покупок
-//                when (response?.requestStatus) {
-//                    PurchaseUpdatesResponse.RequestStatus.SUCCESSFUL -> {
-//                        val q = response.receipts
-//                        q
-//                    }
-//                }
-//            }
-//        })
-//
-//        PurchasingService.getPurchaseUpdates(false)
-//    }
 }

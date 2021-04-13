@@ -42,7 +42,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".SettingsActivity" />
+        <activity android:name=".view.settingsScreen.SettingsActivity" />
         <activity android:name=".Main2Activity" />
         <activity android:name=".ServerListActivity" />
         <activity android:name=".view.quickLaunch.QuickLaunchActivity">

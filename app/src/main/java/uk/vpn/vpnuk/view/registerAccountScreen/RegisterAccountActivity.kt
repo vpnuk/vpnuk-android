@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_register_account.*
 import uk.vpn.vpnuk.R
+import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.remote.Repository
@@ -30,6 +31,8 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var vm: RegisterAccountVM
     lateinit var progressDialog: ProgressDialog
 
+    lateinit var localRepository: LocalRepository
+
     private var serverList = listOf<String>()
     private var selectedServerCountry = ""
 
@@ -40,6 +43,8 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
         vm = ViewModelProvider(this)[RegisterAccountVM::class.java]
 
         vm.getServerList()
+
+        localRepository = LocalRepository(this)
 
         //For fireTv
         vRegisterActivitySpinnerServers.setOnFocusChangeListener { v, hasFocus ->
@@ -95,8 +100,8 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun saveNewCredentialsAsDefault(it: SubscriptionsModel?) {
-        val login = it?.vpnaccounts?.get(0)?.username.toString()
-        val password = it?.vpnaccounts?.get(0)?.password.toString()
+        val login = localRepository.initialUserName
+        val password = localRepository.initialPassword
 
         val repository = Repository.instance(this)
         val settings = repository.getSettings()
