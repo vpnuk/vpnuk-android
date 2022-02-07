@@ -40,7 +40,7 @@ open class BaseActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun <T> Single<T>.addProgressTracking() =
+    fun <T>Single<T>.addProgressTracking() =
         doOnSubscribe {
             showProgress()
         }.doOnEvent { _, _ ->

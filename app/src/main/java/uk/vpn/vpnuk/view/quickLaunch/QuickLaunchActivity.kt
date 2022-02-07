@@ -32,14 +32,11 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var vm: QuickLaunchVM
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
+    private lateinit var localRepository: LocalRepository
 
     val hash = HashSet<String>()
     val purchaseKey = "DED01-FR"
-
     var pendingOrderId = ""
-
-    private lateinit var localRepository: LocalRepository
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +56,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         createAmazonIap()
         observeLivaData()
         initView()
+        initListeners()
 
         if (!repository.serversUpdated) {
             repository.updateServers()
@@ -86,6 +84,20 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         })
     }
 
+    private fun initListeners() {
+        switch_connect.setOnCheckedChangeListener { view, isChecked ->
+            if(isChecked){
+                startVpn()
+            }else{
+                stopVpn()
+            }
+        }
+        imageView_connection_configure.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
     private fun createAmazonIap() {
         PurchasingService.registerListener(this.applicationContext, object : PurchasingListener {
             override fun onUserDataResponse(response: UserDataResponse?) {}
@@ -94,9 +106,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             override fun onPurchaseResponse(response: PurchaseResponse?) {
                 when (response?.requestStatus) {
                     PurchaseResponse.RequestStatus.SUCCESSFUL -> {
-                        Log.d("kek", "onPurchaseResponse = success. ReceiptID  -----  ${response.receipt.receiptId}")
-                        Log.d("kek", "onPurchaseResponse = success. UserID  -----  ${response.userData.userId}")
-
                         val amazonReceiptId = response.receipt.receiptId
                         val amazonUserId = response.userData.userId
 
@@ -104,9 +113,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
                         PurchasingService.notifyFulfillment(purchaseKey, FulfillmentResult.FULFILLED)
                     }
-                    PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
-                        Log.d("kek", "onPurchaseResponse = already_purchased")
-                    }
+                    PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {}
                 }
             }
         })
@@ -114,40 +121,33 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         PurchasingService.getPurchaseUpdates(false)
     }
 
-
-
-
     private fun initView() {
         supportActionBar?.hide()
+    }
 
-        switch_connect.setOnCheckedChangeListener { view, isChecked ->
-            if(isChecked){
-                if(checkData()){
-                    val address = repository.getSelectedServer()?.address
-                    val settings = repository.getSettings()
+    private fun stopVpn() {
+        vpnConnector.stopVpn()
+    }
 
-                    val socket = settings.socket
-                    val port = settings.port
+    private fun startVpn() {
+        if(checkData()){
+            val address = repository.getSelectedServer()?.address
+            val settings = repository.getSettings()
 
-                    val vpnLogin = localRepository.vpnUsername
-                    val vpnPassword = localRepository.vpnPassword
+            val socket = settings.socket
+            val port = settings.port
 
-                    vpnConnector.startVpn(
-                        vpnLogin,
-                        vpnPassword,
-                        address,
-                        socket,
-                        port,
-                        settings.mtu ?: DefaultSettings.MTU_DEFAULT
-                    )
-                }
-            }else{
-                vpnConnector.stopVpn()
-            }
-        }
-        imageView_connection_configure.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val vpnLogin = localRepository.vpnUsername
+            val vpnPassword = localRepository.vpnPassword
+
+            vpnConnector.startVpn(
+                vpnLogin,
+                vpnPassword,
+                address,
+                socket,
+                port,
+                settings.mtu ?: DefaultSettings.MTU_DEFAULT
+            )
         }
     }
 

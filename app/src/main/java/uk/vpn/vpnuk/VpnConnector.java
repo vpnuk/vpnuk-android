@@ -43,9 +43,7 @@ public class VpnConnector implements VpnStatus.StateListener {
         public void onServiceConnected(ComponentName className, IBinder service) {
             Logger.INSTANCE.e("vpn1uk", "connected");
             mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-
         }
-
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             Logger.INSTANCE.e("vpn1uk", "disconnected");
