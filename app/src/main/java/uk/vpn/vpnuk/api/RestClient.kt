@@ -1,13 +1,10 @@
-package com.syject.scout.api
+package uk.vpn.vpnuk.api
 
 import com.google.gson.GsonBuilder
-import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.CookieManager
-import java.net.CookiePolicy
 import java.util.concurrent.TimeUnit
 
 object RestClient {
@@ -16,13 +13,13 @@ object RestClient {
     private lateinit var retrofit: Retrofit
 
 
-    fun getApi(url: String = "https://vpnuk.info/"): Api {
+    fun getApi(url: String = "https://vpnuk.info/"): VpnUkInfoApi {
         retrofit = Retrofit.Builder()
             .baseUrl(url)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
             .client(provideOkHttpClient())
             .build()
-        return retrofit.create(Api::class.java)
+        return retrofit.create(VpnUkInfoApi::class.java)
     }
 
     private fun provideOkHttpClient(): OkHttpClient {

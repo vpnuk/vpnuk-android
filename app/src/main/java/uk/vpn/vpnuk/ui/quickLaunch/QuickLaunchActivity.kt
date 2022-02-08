@@ -4,11 +4,10 @@
  *
  */
 
-package uk.vpn.vpnuk.view.quickLaunch
+package uk.vpn.vpnuk.ui.quickLaunch
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
@@ -24,7 +23,7 @@ import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.utils.*
-import uk.vpn.vpnuk.view.mainScreen.MainActivity
+import uk.vpn.vpnuk.ui.mainScreen.MainActivity
 import java.util.HashSet
 
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
@@ -32,7 +31,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var vm: QuickLaunchVM
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
-    private lateinit var localRepository: LocalRepository
 
     val hash = HashSet<String>()
     val purchaseKey = "DED01-FR"
@@ -44,7 +42,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         setContentView(R.layout.activity_quick_launch)
         vm = ViewModelProvider(this)[QuickLaunchVM::class.java]
 
-        localRepository = LocalRepository(this)
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 

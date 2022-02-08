@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.registerAccountScreen
+package uk.vpn.vpnuk.ui.registerAccountScreen
 
 import android.app.ProgressDialog
 import android.content.Intent

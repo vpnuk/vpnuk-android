@@ -4,6 +4,9 @@ apply plugin: 'kotlin-android-extensions'
 apply from: 'keystore.gradle'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'org.jetbrains.kotlin.android.extensions'
+apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'kotlin-kapt'
 
 android {
     signingConfigs {
@@ -14,12 +17,12 @@ android {
             keyPassword "$passwordAlias"
         }
     }
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 31
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "uk.vpn.vpnuk"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 21
         versionName "1.2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -39,10 +42,12 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    androidExtensions {
+        experimental = true
+    }
 }
 
 dependencies {
-
     ext.rxJavaVersion = '2.2.12'
     ext.rxAndroidVersion = '2.1.1'
     ext.stethoVersion = '1.5.1'
@@ -52,12 +57,17 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation "androidx.activity:activity-ktx:1.4.0"
+    implementation 'androidx.fragment:fragment-ktx:1.3.6'
+    implementation 'androidx.core:core-ktx:1.7.0'
+
+    implementation "androidx.work:work-runtime-ktx:2.7.0"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    kapt "androidx.lifecycle:lifecycle-compiler:2.4.0"
 
     compile 'org.codehaus.jackson:jackson-core-asl:1.9.9'
     compile files('libs/in-app-purchasing-2.0.76.jar')
@@ -65,33 +75,31 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:${retrofitVersion}"
     api "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}"
     api "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
-    implementation 'com.tickaroo.tikxml:annotation:0.8.16-SNAPSHOT'
-    implementation 'com.tickaroo.tikxml:core:0.8.16-SNAPSHOT'
-    implementation 'com.tickaroo.tikxml:retrofit-converter:0.8.16-SNAPSHOT'
-
-    annotationProcessor 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
-
     implementation "com.squareup.okhttp3:okhttp:${okHttpVersion}"
     implementation "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
-
-    // (Recommended) Add the Google Analytics dependency.
-    implementation 'com.google.firebase:firebase-analytics:17.2.1'
-    // Add the Firebase Crashlytics dependency.
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
-
+    implementation "com.github.haroldadmin:NetworkResponseAdapter:4.2.1"
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
     implementation 'com.jakewharton.rxbinding3:rxbinding:3.1.0'
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+    implementation 'com.tickaroo.tikxml:annotation:0.8.16-SNAPSHOT'
+    implementation 'com.tickaroo.tikxml:core:0.8.16-SNAPSHOT'
+    implementation 'com.tickaroo.tikxml:retrofit-converter:0.8.16-SNAPSHOT'
+    annotationProcessor 'com.tickaroo.tikxml:processor:0.8.16-SNAPSHOT'
+    implementation 'com.google.firebase:firebase-analytics:17.2.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
     //Switch button
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
-
     //Toasty
     implementation 'com.github.GrenderG:Toasty:1.4.2'
-
+    //Hilt
+    implementation 'com.google.dagger:hilt-android:2.38.1'
+    kapt 'com.google.dagger:hilt-compiler:2.38.1'
 }
 apply plugin: 'com.google.gms.google-services'

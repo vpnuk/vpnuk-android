@@ -4,7 +4,7 @@
  *  
  */
 
-package uk.vpn.vpnuk.view
+package uk.vpn.vpnuk.ui
 
 import android.content.Context
 import android.view.LayoutInflater

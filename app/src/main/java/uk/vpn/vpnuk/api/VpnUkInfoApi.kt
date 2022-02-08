@@ -1,4 +1,4 @@
-package com.syject.scout.api
+package uk.vpn.vpnuk.api
 
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -7,7 +7,7 @@ import uk.vpn.vpnuk.model.*
 import uk.vpn.vpnuk.model.serverList.ServerListModel
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 
-interface Api {
+interface VpnUkInfoApi {
 
     @Headers("Content-Type: application/json")
     @POST("wp-json/vpnuk/v1/customers")
@@ -50,6 +50,7 @@ interface Api {
 
 
     //Another url
+    //Todo - refactor all legacy..
     @GET("country.json")
     fun getServerList(): Call<ServerListModel>
 }

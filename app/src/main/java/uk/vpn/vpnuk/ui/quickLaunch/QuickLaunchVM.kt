@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.quickLaunch
+package uk.vpn.vpnuk.ui.quickLaunch
 
 import androidx.lifecycle.ViewModel
 import uk.vpn.vpnuk.data.repository.RegisterUserRepository

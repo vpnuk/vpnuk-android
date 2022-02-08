@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.mainScreen
+package uk.vpn.vpnuk.ui.mainScreen
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_choose_vpnaccount.view.*
 import kotlinx.android.synthetic.main.dialog_free_trial.view.*
 import uk.vpn.vpnuk.*
-import uk.vpn.vpnuk.adapter.vpnAccountAdapter.VpnAccountAdapter
+import uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.DefaultSettings
@@ -33,8 +33,8 @@ import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
-import uk.vpn.vpnuk.view.registerAccountScreen.RegisterAccountActivity
-import uk.vpn.vpnuk.view.settingsScreen.SettingsActivity
+import uk.vpn.vpnuk.ui.registerAccountScreen.RegisterAccountActivity
+import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 
 
 class MainActivity : BaseActivity(), ConnectionStateListener {
@@ -43,8 +43,6 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var vpnConnector: VpnConnector
 
     private lateinit var vm: MainVM
-
-    private lateinit var localRepository: LocalRepository
 
 
     @SuppressLint("DefaultLocale")
@@ -55,7 +53,6 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         supportActionBar?.title = ""
         vm = ViewModelProvider(this)[MainVM::class.java]
 
-        localRepository = LocalRepository(this)
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 
@@ -225,10 +222,11 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_action_bar, menu)
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         startActivityForResult(Intent(this, SettingsActivity::class.java), 3332)
         return super.onOptionsItemSelected(item)

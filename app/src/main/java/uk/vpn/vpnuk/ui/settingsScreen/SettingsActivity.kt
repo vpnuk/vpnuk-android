@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.settingsScreen
+package uk.vpn.vpnuk.ui.settingsScreen
 
 import android.os.Bundle
 import android.util.Log
@@ -39,8 +39,6 @@ class SettingsActivity : BaseActivity() {
     private lateinit var settings: Settings
     private lateinit var vm: SettingsViewModel
 
-    private lateinit var localRepository: LocalRepository
-
     private var vpnAccountsList = mutableListOf<Vpnaccount>()
     private var subscriptionsList = mutableListOf<SubscriptionsModel>()
 
@@ -61,7 +59,6 @@ class SettingsActivity : BaseActivity() {
         vm = ViewModelProvider(this)[SettingsViewModel::class.java]
 
 
-        localRepository = LocalRepository(this)
         repository = Repository(this)
 
 
@@ -191,7 +188,6 @@ class SettingsActivity : BaseActivity() {
 
     private fun selectNewServer() {
         val ip = localRepository.vpnIp
-        val q = localRepository.vpnServerName
         repository.setServerId(ip)
             .doOnIoObserveOnMain()
             .subscribe {}.addToDestroySubscriptions()
@@ -199,7 +195,7 @@ class SettingsActivity : BaseActivity() {
 
     private fun initViews() {
         //For fireTv
-        vSettingsActivitySpinner.setOnFocusChangeListener { v, hasFocus ->
+        vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
             if(hasFocus){
                 vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
             }else{

@@ -11,7 +11,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.syject.scout.api.RestClient
+import uk.vpn.vpnuk.api.RestClient
 import de.blinkt.openvpn.core.App
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -65,7 +65,7 @@ class RegisterUserRepository() {
                         getToken()
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message?:"")
                     }
                 }
 
@@ -88,7 +88,7 @@ class RegisterUserRepository() {
                         successTokenMutable.postValue(true)
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message?:"")
                     }
                 }
                 override fun onFailure(call: Call<TokenModelResp>, t: Throwable) {
@@ -115,7 +115,7 @@ class RegisterUserRepository() {
                         }
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message?:"")
                     }
                 }
                 override fun onFailure(call: Call<CreatedSubscriptionResp>, t: Throwable) {
@@ -134,7 +134,7 @@ class RegisterUserRepository() {
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {
-                            createdSubscriptionMutable.postValue(body)
+                            createdSubscriptionMutable.postValue(body!!)
 
                             val serverName = body.vpnaccounts?.get(0)?.server?.description.toString().split("Server:")[1].split("<")[0]
 
@@ -146,7 +146,7 @@ class RegisterUserRepository() {
                         }
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message?:"")
                     }
                 }
                 override fun onFailure(call: Call<SubscriptionsModel>, t: Throwable) {
@@ -214,7 +214,7 @@ class RegisterUserRepository() {
                         }
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message?:"")
                     }
                 }
                 override fun onFailure(call: Call<SubscriptionsModel>, t: Throwable) {
@@ -232,7 +232,7 @@ class RegisterUserRepository() {
                         val serverListModel = response.body()
                         val servers = serverListModel?.country?.map { it.location.toString() }
 
-                        serverListMutable.postValue(servers)
+                        serverListMutable.postValue(servers!!)
                     }
                 }
                 override fun onFailure(call: Call<ServerListModel>, t: Throwable) {

@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import javax.inject.Inject;
+
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.App;
@@ -30,6 +32,7 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
+import uk.vpn.vpnuk.data.repository.LocalRepository;
 import uk.vpn.vpnuk.utils.Logger;
 
 public class VpnConnector implements VpnStatus.StateListener {
@@ -123,6 +126,12 @@ public class VpnConnector implements VpnStatus.StateListener {
             }
         }
         return stringBuilder.toString();
+    }
+
+    private String getConfigText() {
+        LocalRepository localRepository = new LocalRepository(activity);
+
+        return "";
     }
 
     private byte[] prepareConfig(

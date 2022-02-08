@@ -12,7 +12,7 @@
     android:layout_height="match_parent"
 
     android:orientation="vertical"
-    tools:context=".view.mainScreen.MainActivity">
+    tools:context=".ui.mainScreen.MainActivity">
 
     <LinearLayout
         android:id="@+id/progressBackground"

@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.settingsScreen
+package uk.vpn.vpnuk.ui.settingsScreen
 import androidx.lifecycle.ViewModel
 import uk.vpn.vpnuk.data.repository.RegisterUserRepository
 import uk.vpn.vpnuk.data.repository.VpnAccountRepository

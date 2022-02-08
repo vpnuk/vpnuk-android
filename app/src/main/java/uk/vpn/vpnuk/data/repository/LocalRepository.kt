@@ -9,9 +9,12 @@ package uk.vpn.vpnuk.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import dagger.Provides
+import javax.inject.Inject
 import kotlin.reflect.KProperty
 
-open class LocalRepository(context: Context) {
+
+class LocalRepository @Inject constructor(context: Context) {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(VPNUK_PREFS, Context.MODE_PRIVATE);
@@ -85,6 +88,10 @@ open class LocalRepository(context: Context) {
 
 
     var cachedSelectedCountry by StringPreferenceDelegate()
+
+
+    var previousOvpnConfigVersion by StringPreferenceDelegate()
+    var newOvpnConfigTxt by StringPreferenceDelegate()
 
 
 

@@ -15,7 +15,7 @@ import uk.vpn.vpnuk.utils.ServerType
 import uk.vpn.vpnuk.utils.doOnIoObserveOnMain
 import uk.vpn.vpnuk.utils.setTabListener
 import uk.vpn.vpnuk.utils.setTabs
-import uk.vpn.vpnuk.view.ServersAdapter
+import uk.vpn.vpnuk.ui.ServersAdapter
 
 class ServerListActivity : BaseActivity() {
 

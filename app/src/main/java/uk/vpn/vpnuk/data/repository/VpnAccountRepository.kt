@@ -7,11 +7,10 @@
 package uk.vpn.vpnuk.data.repository
 
 import android.content.Context
-import android.view.SubMenu
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.syject.scout.api.RestClient
+import uk.vpn.vpnuk.api.RestClient
 import de.blinkt.openvpn.core.App
 import retrofit2.Call
 import retrofit2.Callback
@@ -20,7 +19,6 @@ import uk.vpn.vpnuk.model.ErrorModel
 import uk.vpn.vpnuk.model.TokenModelResp
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
-import kotlin.math.log
 
 class VpnAccountRepository {
 

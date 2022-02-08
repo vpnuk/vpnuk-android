@@ -20,6 +20,7 @@ import com.amazon.device.iap.model.PurchaseResponse;
 import com.amazon.device.iap.model.PurchaseUpdatesResponse;
 import com.amazon.device.iap.model.UserDataResponse;
 
+import dagger.hilt.android.HiltAndroidApp;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.utils.Logger;
 
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 
+@HiltAndroidApp
 public class App extends /*com.orm.SugarApp*/ Application {
     public static boolean isStart;
     public static boolean abortConnection = false;

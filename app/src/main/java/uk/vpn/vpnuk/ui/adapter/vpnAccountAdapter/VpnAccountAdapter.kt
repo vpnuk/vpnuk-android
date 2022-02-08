@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.adapter.vpnAccountAdapter
+package uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -13,9 +13,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_vpn_account.view.*
 import uk.vpn.vpnuk.R
-import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
-import uk.vpn.vpnuk.view.ServerViewHolder
 
 class VpnAccountAdapter(
     val context: Context,

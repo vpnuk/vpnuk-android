@@ -10,13 +10,20 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import uk.vpn.vpnuk.data.repository.LocalRepository
+import javax.inject.Inject
 
-@SuppressLint("Registered")
-open class BaseActivity : AppCompatActivity() {
+@AndroidEntryPoint
+abstract class BaseActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var localRepository: LocalRepository
+
     private val destroySubscription = CompositeDisposable()
 
     fun Disposable.addToDestroySubscriptions() {

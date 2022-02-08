@@ -56,7 +56,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import uk.vpn.vpnuk.Data;
-import uk.vpn.vpnuk.view.mainScreen.MainActivity;
+import uk.vpn.vpnuk.ui.mainScreen.MainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
 import uk.vpn.vpnuk.remote.Server;

@@ -3,7 +3,6 @@
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  *
  */
-
 package uk.vpn.vpnuk.remote
 
 import android.content.Context
@@ -25,6 +24,7 @@ import uk.vpn.vpnuk.utils.Logger
 import uk.vpn.vpnuk.utils.SocketType
 import java.util.concurrent.TimeUnit
 
+
 interface Requests {
     @GET("servers.json")
     fun getServers(): Single<Servers>
@@ -32,8 +32,10 @@ interface Requests {
     @GET("versions.json")
     fun getServerVersion(): Single<ServerVersion>
 }
-
 data class Wrapper(val server: Server?)
+
+
+
 class Repository(context: Context) {
     var serversUpdated: Boolean = false
         private set
@@ -89,7 +91,6 @@ class Repository(context: Context) {
         return getServersCache()
             .map { list -> Wrapper(list.find { getCurrentServerId() == it.address }) }
             .doOnSuccess {
-                Logger.e("subscribe", "put new $it")
                 currentServer.onNext(it)
             }
             .ignoreElement()

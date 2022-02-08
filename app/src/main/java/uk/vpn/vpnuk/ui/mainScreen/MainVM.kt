@@ -4,7 +4,7 @@
  *
  */
 
-package uk.vpn.vpnuk.view.mainScreen
+package uk.vpn.vpnuk.ui.mainScreen
 
 import androidx.lifecycle.ViewModel
 import uk.vpn.vpnuk.data.repository.VpnAccountRepository
@@ -12,7 +12,6 @@ import uk.vpn.vpnuk.data.repository.VpnAccountRepository
 class MainVM : ViewModel() {
 
     val repo = VpnAccountRepository()
-
     val vpnAccounts = repo.vpnAccountsList
 
 
