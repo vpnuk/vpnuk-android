@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_splash_screen.*
 import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
+import uk.vpn.vpnuk.ui.mainScreen.MainActivity
 import uk.vpn.vpnuk.ui.quickLaunch.QuickLaunchActivity
 import uk.vpn.vpnuk.utils.launchWhenCreated
 import uk.vpn.vpnuk.utils.observe
@@ -42,6 +43,7 @@ class SplashScreenActivity : BaseActivity() {
             when(it){
                 is SplashScreenVM.OneShotEvent.NavigateToQuickLaunch->{
                     val intent = Intent(this, QuickLaunchActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     startActivity(intent)
                 }
                 is SplashScreenVM.OneShotEvent.ErrorToast->{

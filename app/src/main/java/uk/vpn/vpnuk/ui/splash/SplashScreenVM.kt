@@ -47,6 +47,9 @@ class SplashScreenVM @Inject constructor(
     }
 
     private fun checkVpnVersion() = viewModelScope.launch {
+        getNewOvpnConfig()
+        return@launch
+
         when(val request = serverListApi.getVersions()){
             is NetworkResponse.Success ->{
                 if(request.body.ovpn != localRepository.previousOvpnConfigVersion){
@@ -54,15 +57,15 @@ class SplashScreenVM @Inject constructor(
 
                     getNewOvpnConfig()
                 }else{
-                    _oneShotEvents.tryEmit(OneShotEvent.NavigateToQuickLaunch)
+                    _oneShotEvents.emit(OneShotEvent.NavigateToQuickLaunch)
                 }
             }
             is NetworkResponse.Error ->{
-                _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(request.error.message.toString()))
+                _oneShotEvents.emit(OneShotEvent.ErrorToast(request.error.message.toString()))
             }
         }
 
-        _viewState.tryEmit(_viewState.value.copy(loadingTextToDisplay = "Checking for update..."))
+        _viewState.emit(_viewState.value.copy(loadingTextToDisplay = "Checking for update..."))
     }
 
     private fun getNewOvpnConfig() = viewModelScope.launch {
@@ -71,14 +74,14 @@ class SplashScreenVM @Inject constructor(
                 val ovpnTxtConfigString = request.body.string()
                 localRepository.newOvpnConfigTxt = ovpnTxtConfigString
 
-                _oneShotEvents.tryEmit(OneShotEvent.NavigateToQuickLaunch)
+                _oneShotEvents.emit(OneShotEvent.NavigateToQuickLaunch)
             }
             is NetworkResponse.Error ->{
-                _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(request.error.message.toString()))
+                _oneShotEvents.emit(OneShotEvent.ErrorToast(request.error.message.toString()))
             }
         }
 
-        _viewState.tryEmit(_viewState.value.copy(loadingTextToDisplay = "Updating vpn config..."))
+        _viewState.emit(_viewState.value.copy(loadingTextToDisplay = "Updating vpn config..."))
     }
 
 

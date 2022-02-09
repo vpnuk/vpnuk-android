@@ -23,6 +23,6 @@ interface ServerListVaultApi {
     suspend fun getVersions(): NetworkResponse<VersionsModel, Any>
 
     @Headers("Content-Type: text/plain")
-    @GET("openvpn-configuration.txt")
+    @GET("android.txt")
     suspend fun getOVPNConfig(): NetworkResponse<ResponseBody, Any>
 }

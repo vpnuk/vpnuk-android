@@ -130,8 +130,7 @@ public class VpnConnector implements VpnStatus.StateListener {
 
     private String getConfigText() {
         LocalRepository localRepository = new LocalRepository(activity);
-
-        return "";
+        return localRepository.getNewOvpnConfigTxt().replaceAll(String.valueOf('\r'), "");
     }
 
     private byte[] prepareConfig(
@@ -141,7 +140,12 @@ public class VpnConnector implements VpnStatus.StateListener {
             String port,
             String mtu
     ) throws IOException {
-        return getTextFromAsset(context)
+
+        //TODO TEMPORARY FOR TEST
+        String q = getTextFromAsset(context);
+        String w = getConfigText();
+
+        return getConfigText()
                 .replace("<ip>", ip)
                 .replace("<port>", port)
                 .replace("<socket>", socket)
