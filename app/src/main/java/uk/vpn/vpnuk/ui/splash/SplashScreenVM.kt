@@ -47,9 +47,6 @@ class SplashScreenVM @Inject constructor(
     }
 
     private fun checkVpnVersion() = viewModelScope.launch {
-        getNewOvpnConfig()
-        return@launch
-
         when(val request = serverListApi.getVersions()){
             is NetworkResponse.Success ->{
                 if(request.body.ovpn != localRepository.previousOvpnConfigVersion){

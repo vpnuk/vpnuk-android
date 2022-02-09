@@ -98,39 +98,9 @@ public class VpnConnector implements VpnStatus.StateListener {
         }
     }
 
-
-    private String getTextFromAsset(Activity context) throws IOException {
-        BufferedReader reader = null;
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(context.getAssets().open("openvpn.txt"), "UTF-8")
-            );
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {
-                stringBuilder.append(mLine);
-                stringBuilder.append('\n');
-                //process line
-            }
-        } catch (IOException e) {
-            //log the exception
-            Log.d("kek", e.getMessage());
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                    Log.d("kek", e.getMessage());
-                }
-            }
-        }
-        return stringBuilder.toString();
-    }
-
     private String getConfigText() {
         LocalRepository localRepository = new LocalRepository(activity);
-        return localRepository.getNewOvpnConfigTxt().replaceAll(String.valueOf('\r'), "");
+        return localRepository.getNewOvpnConfigTxt();
     }
 
     private byte[] prepareConfig(
@@ -140,11 +110,6 @@ public class VpnConnector implements VpnStatus.StateListener {
             String port,
             String mtu
     ) throws IOException {
-
-        //TODO TEMPORARY FOR TEST
-        String q = getTextFromAsset(context);
-        String w = getConfigText();
-
         return getConfigText()
                 .replace("<ip>", ip)
                 .replace("<port>", port)
@@ -207,6 +172,37 @@ public class VpnConnector implements VpnStatus.StateListener {
 
             }
         }
+    }
+
+    //Old method that used static Ovpn config from a assets. Now we use txt file from the server (see getConfigText)
+    @Deprecated
+    private String getTextFromAsset(Activity context) throws IOException {
+        BufferedReader reader = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(context.getAssets().open("openvpn.txt"), "UTF-8")
+            );
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {
+                stringBuilder.append(mLine);
+                stringBuilder.append('\n');
+                //process line
+            }
+        } catch (IOException e) {
+            //log the exception
+            Log.d("kek", e.getMessage());
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                    Log.d("kek", e.getMessage());
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 }
 

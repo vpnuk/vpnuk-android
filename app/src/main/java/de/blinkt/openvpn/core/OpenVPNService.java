@@ -274,7 +274,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public int onStartCommand(Intent intent, int flags, int startId) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                0, notificationIntent,  PendingIntent.FLAG_MUTABLE);
 
         try {
             startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)));
