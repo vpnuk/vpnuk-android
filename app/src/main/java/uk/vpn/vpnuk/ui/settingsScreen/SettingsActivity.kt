@@ -22,7 +22,6 @@ import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
-import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
@@ -38,6 +37,8 @@ class SettingsActivity : BaseActivity() {
     private lateinit var repository: Repository
     private lateinit var settings: Settings
     private lateinit var vm: SettingsViewModel
+
+    private var isRestartVpnConnectionRequired = false
 
     private var vpnAccountsList = mutableListOf<Vpnaccount>()
     private var subscriptionsList = mutableListOf<SubscriptionsModel>()
@@ -193,6 +194,10 @@ class SettingsActivity : BaseActivity() {
             .subscribe {}.addToDestroySubscriptions()
     }
 
+    private fun requireRestartVpnConnection() {
+        isRestartVpnConnectionRequired = true
+    }
+
     private fun initViews() {
         //For fireTv
         vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
@@ -212,6 +217,8 @@ class SettingsActivity : BaseActivity() {
                 socket = tabsSocketType.selectedTab().text.toString(),
                 port = tabsPort.selectedTab().text.toString()
             ))
+
+            requireRestartVpnConnection()
         }
         tabsSocketType.setTabListener { text, _ ->
             tabsPort.setTabs(SocketType.byValue(text)!!.ports)
@@ -219,6 +226,8 @@ class SettingsActivity : BaseActivity() {
                 socket = tabsSocketType.selectedTab().text.toString(),
                 port = tabsPort.selectedTab().text.toString()
             ))
+
+            requireRestartVpnConnection()
         }
 
         cbMtu.post {
@@ -245,6 +254,8 @@ class SettingsActivity : BaseActivity() {
                     removeMtu()
                 }
             }
+
+            requireRestartVpnConnection()
         }
 
         cbReconnect.setOnCheckedChangeListener { _, checked ->
@@ -269,7 +280,6 @@ class SettingsActivity : BaseActivity() {
     override fun hideProgress() {
         vSettingsActivityProgressView.visibility = View.GONE
     }
-
     private fun showServerProgress(){
         vSettingsActivityServersProgressBackground.visibility = View.VISIBLE
         vSettingsActivityServersProgressView.visibility = View.VISIBLE

@@ -223,7 +223,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         Intent intent = new Intent(getBaseContext(), activityClass);
         intent.putExtra("PAGE", "graph");
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent startLW = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent startLW = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         return startLW;
     }
@@ -274,7 +274,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public int onStartCommand(Intent intent, int flags, int startId) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent,  PendingIntent.FLAG_MUTABLE);
+                0, notificationIntent,  PendingIntent.FLAG_MUTABLE); //Changed from 0
 
         try {
             startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)));

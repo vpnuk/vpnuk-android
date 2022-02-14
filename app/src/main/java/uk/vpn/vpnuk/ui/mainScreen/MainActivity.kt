@@ -234,7 +234,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 3332){
+        if(requestCode == 3332 && resultCode == RESULT_OK){
             vpnConnector.stopVpn()
 
             applySettings()

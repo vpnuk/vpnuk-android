@@ -47,7 +47,7 @@ class VpnAccountRepository {
                         getSubscriptions()
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message!!)
                     }
                 }
                 override fun onFailure(call: Call<TokenModelResp>, t: Throwable) {
@@ -81,7 +81,7 @@ class VpnAccountRepository {
                         }
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message!!)
                     }
                 }
                 override fun onFailure(call: Call<List<SubscriptionsModel>>, t: Throwable) {
@@ -114,7 +114,7 @@ class VpnAccountRepository {
                             })
                     } else {
                         val error = Gson().fromJson<ErrorModel>(response.errorBody()!!.string(), ErrorModel::class.java)
-                        errorMutable.postValue(error.message)
+                        errorMutable.postValue(error.message!!)
                     }
                 }
                 override fun onFailure(call: Call<TokenModelResp>, t: Throwable) {
