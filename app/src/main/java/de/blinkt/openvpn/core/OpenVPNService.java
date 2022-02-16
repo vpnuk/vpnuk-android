@@ -56,7 +56,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import uk.vpn.vpnuk.Data;
-import uk.vpn.vpnuk.ui.mainScreen.MainActivity;
+import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
 import uk.vpn.vpnuk.remote.Server;
@@ -216,7 +216,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // Let the configure Button show the Log
         // Editor : I'm not sure about this but
         // TODO : Check what the fuck is this.
-        Class activityClass = MainActivity.class;
+        Class activityClass = AmazonMainActivity.class;
         if (mNotificationActivityClass != null) {
             activityClass = mNotificationActivityClass;
         }
@@ -272,7 +272,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, AmazonMainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent,  PendingIntent.FLAG_MUTABLE); //Changed from 0
 
@@ -402,7 +402,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     // TODO
     private Notification getMyActivityNotification(String description) {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, AmazonMainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 

@@ -10,7 +10,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
@@ -23,7 +22,7 @@ import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.utils.*
-import uk.vpn.vpnuk.ui.mainScreen.MainActivity
+import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity
 import java.util.HashSet
 
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
@@ -46,34 +45,33 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         vpnConnector = VpnConnector(this)
 
 
-        if(LocalRepository(this).initialEmail != ""){
-            vm.updateToken()
-        }
+        if(localRepository.isAppDownloadedFromAmazon){ initAmazonServices() }
 
-        createAmazonIap()
+
         observeLivaData()
         initView()
         initListeners()
+        updateVpnServers()
+    }
 
-        if (!repository.serversUpdated) {
-            repository.updateServers()
-                .doOnIoObserveOnMain()
-                .addProgressTracking()
-                .subscribe({}, { error ->
-                    showMessage(getString(R.string.err_unable_to_update_servers))
-                })
-                .addToDestroySubscriptions()
+    private fun initAmazonServices() {
+        if(localRepository.isAppDownloadedFromAmazon){
+            if(LocalRepository(this).initialEmail != ""){
+                vm.updateToken()
+            }
+
+            createAmazonIap()
         }
     }
 
     private fun observeLivaData() {
-        vm.tokenSuccess.observe(this, Observer {
+        vm.tokenSuccess.observe(this, {
             vm.checkRegisteredSource(LocalRepository(this).initialEmail, "app")
         })
-        vm.isUserRegisteredFromApp.observe(this, Observer {
+        vm.isUserRegisteredFromApp.observe(this, {
             if(it) vm.checkSubscriptionState(localRepository.purchasedSubId)
         })
-        vm.isSubscriptionExpired.observe(this, Observer {
+        vm.isSubscriptionExpired.observe(this, {
             if(it.first){
                 pendingOrderId = it.second
                 showSubscriptionExpiredDialog()
@@ -90,7 +88,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             }
         }
         imageView_connection_configure.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, AmazonMainActivity::class.java)
             startActivity(intent)
         }
     }
@@ -127,7 +125,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun startVpn() {
-        if(checkData()){
+        if(checkIfDataFilled()){
             val address = repository.getSelectedServer()?.address
             val settings = repository.getSettings()
 
@@ -148,7 +146,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
-    private fun checkData() : Boolean {
+    private fun checkIfDataFilled() : Boolean {
         val settings = repository.getSettings()
 
         if(repository.getSelectedServer() == null){
@@ -163,7 +161,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     }
 
     override fun onStateChanged(state: ConnectionState) {
-
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
                 switch_connect.isChecked = false
@@ -191,6 +188,26 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         customLayout.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
     }
 
+    private fun updateVpnServers() {
+        if (!repository.serversUpdated) {
+            repository.updateServers()
+                .doOnIoObserveOnMain()
+                .addProgressTracking()
+                .subscribe({}, { error ->
+                    showMessage(getString(R.string.err_unable_to_update_servers))
+                })
+                .addToDestroySubscriptions()
+        }
+    }
+
+    private fun resumeAmazonService() {
+        if(localRepository.isAppDownloadedFromAmazon){
+            hash.add(purchaseKey)
+            PurchasingService.getUserData()
+            PurchasingService.getProductData(hash)
+        }
+    }
+
     override fun showProgress() {
         switch_connect.visibility = View.GONE
         progressBarQuick.visibility = View.VISIBLE
@@ -205,9 +222,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         super.onResume()
         vpnConnector.startListen(this)
 
-        hash.add(purchaseKey)
-        PurchasingService.getUserData()
-        PurchasingService.getProductData(hash)
+        resumeAmazonService()
     }
 
     override fun onPause() {

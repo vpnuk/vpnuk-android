@@ -12,7 +12,7 @@
     android:layout_height="match_parent"
 
     android:orientation="vertical"
-    tools:context=".ui.mainScreen.MainActivity">
+    tools:context=".ui.mainScreen.amazonVersion.AmazonMainActivity">
 
     <LinearLayout
         android:id="@+id/progressBackground"

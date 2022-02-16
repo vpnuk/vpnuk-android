@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2021 VPNUK
+ * Copyright (c) 2022 VPNUK
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  *
  */
 
-package uk.vpn.vpnuk.ui.mainScreen
+package uk.vpn.vpnuk.ui.mainScreen.amazonVersion
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_amazon_main.*
 import kotlinx.android.synthetic.main.dialog_choose_vpnaccount.view.*
 import kotlinx.android.synthetic.main.dialog_free_trial.view.*
 import uk.vpn.vpnuk.*
@@ -37,21 +37,24 @@ import uk.vpn.vpnuk.ui.registerAccountScreen.RegisterAccountActivity
 import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 
 
-class MainActivity : BaseActivity(), ConnectionStateListener {
-    private var dialog: AlertDialog? = null
+class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
+
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
 
-    private lateinit var vm: MainVM
+    private lateinit var vm: AmazonMainVM
+
+    val SETTINGS_SCREEN_CODE = 3332
+    val REGISTER_AMAZON_ACCOUNT_SCREEN_CODE = 123
 
 
     @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_amazon_main)
         supportActionBar?.show()
         supportActionBar?.title = ""
-        vm = ViewModelProvider(this)[MainVM::class.java]
+        vm = ViewModelProvider(this)[AmazonMainVM::class.java]
 
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
@@ -76,7 +79,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         vm.vpnAccounts.observe(this, Observer {
             hideProgressBar()
             if(it.isEmpty()){
-                Toasty.error(this, getString(R.string.error_you_dont_have_active_vpn_account))
+                Toasty.error(this, getString(R.string.error_you_dont_have_active_vpn_account)).show()
             }else if(it.size == 1){
                 localRepository.vpnUsername = it[0].username.toString()
                 localRepository.vpnPassword = it[0].password.toString()
@@ -86,7 +89,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 localRepository.purchasedSubId = it[0].subscriptionId
 
                 selectNewServer()
-                connectToVpn()
+                startVpn()
 
                 showExplainingDialog()
             }else if(it.size > 1){
@@ -109,7 +112,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
             localRepository.purchasedSubId = it.subscriptionId
 
             selectNewServer()
-            connectToVpn()
+            startVpn()
 
             alertDialog.dismiss()
 
@@ -161,7 +164,7 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
                 vm.findActiveVpnAccount(login, password)
                 showProgressBar()
             }else{
-                connectToVpn()
+                startVpn()
             }
         }
         //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
@@ -171,10 +174,10 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         tvLinkTrial.stripUnderlines()
         tvLinkTrial.setOnClickListener {
             val intent = Intent(this, RegisterAccountActivity::class.java)
-            startActivityForResult(intent, 132)
+            startActivityForResult(intent, REGISTER_AMAZON_ACCOUNT_SCREEN_CODE)
         }
         vSelectAddress.setOnClickListener {
-            startActivity(Intent(this@MainActivity, ServerListActivity::class.java))
+            startActivity(Intent(this@AmazonMainActivity, ServerListActivity::class.java))
         }
         btDisconnect.setOnClickListener {
             vpnConnector.stopVpn()
@@ -226,22 +229,22 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         menuInflater.inflate(R.menu.main_action_bar, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        startActivityForResult(Intent(this, SettingsActivity::class.java), 3332)
+        startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_SCREEN_CODE)
         return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 3332 && resultCode == RESULT_OK){
-            vpnConnector.stopVpn()
+        if(requestCode == SETTINGS_SCREEN_CODE){
+            if(resultCode == RESULT_OK){
+                vpnConnector.stopVpn()
 
-            applySettings()
-            initViews()
-            selectNewServer()
-
-        }else{
+                applySettings()
+                initViews()
+                selectNewServer()
+            }
+        }else if(requestCode == REGISTER_AMAZON_ACCOUNT_SCREEN_CODE){
             if(resultCode == RESULT_OK && data != null){
                 val subscriptionModel = data.getParcelableExtra<SubscriptionsModel>(CREATED_SUBSCRIPTION)
 
@@ -255,19 +258,14 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
-    private fun connectToVpn(){
+    private fun startVpn(){
         val login = etLogin.text.toString()
         val password = etPassword.text.toString()
 
         //Check if checkbox checked...Removed because amazon iap flow
-        val credentials: Credentials? = Credentials(
-            login,
-            password
-        )
-
+        val credentials = Credentials(login, password)
         val address = repository.getSelectedServer()!!.address
         val settings = repository.getSettings()
-
         val socket = settings.socket
         val port = settings.port
 
@@ -326,12 +324,10 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
         progressBar.visibility = View.GONE
         progressBackground.visibility = View.GONE
     }
-
     override fun showProgress() {
         content.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
     }
-
     override fun hideProgress() {
         content.visibility = View.VISIBLE
         progressBar.visibility = View.GONE
@@ -344,9 +340,5 @@ class MainActivity : BaseActivity(), ConnectionStateListener {
     override fun onPause() {
         vpnConnector.removeListener()
         super.onPause()
-    }
-    override fun onDestroy() {
-        dialog?.dismiss()
-        super.onDestroy()
     }
 }

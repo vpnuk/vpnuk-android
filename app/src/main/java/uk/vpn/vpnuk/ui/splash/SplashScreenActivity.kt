@@ -7,9 +7,8 @@ package uk.vpn.vpnuk.ui.splash
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import es.dmoral.toasty.Toasty
@@ -17,10 +16,13 @@ import kotlinx.android.synthetic.main.activity_splash_screen.*
 import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
-import uk.vpn.vpnuk.ui.mainScreen.MainActivity
 import uk.vpn.vpnuk.ui.quickLaunch.QuickLaunchActivity
 import uk.vpn.vpnuk.utils.launchWhenCreated
-import uk.vpn.vpnuk.utils.observe
+
+import android.content.pm.PackageManager
+
+
+
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : BaseActivity() {
@@ -30,6 +32,8 @@ class SplashScreenActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
+
+        getIsAppDownloadedSource()
 
         vm.onCreate()
 
@@ -59,5 +63,26 @@ class SplashScreenActivity : BaseActivity() {
 
     private fun initView() {
         supportActionBar?.hide()
+    }
+
+    private fun getIsAppDownloadedSource() {
+        var isAppDownloadedFromAmazon = false
+        val installer = packageManager.getInstallerPackageName("uk.vpn.vpnuk")
+
+        if (installer == null) {
+            val installedPackages = packageManager.getInstalledPackages(PackageManager.GET_ACTIVITIES)
+            val packagesNames = installedPackages.map { it.packageName }
+
+            if(packagesNames.contains("amazon")){
+                isAppDownloadedFromAmazon = true
+            }
+            Log.d("kek", "Installer packages names: ${packagesNames}")
+        } else if (installer.contains("amazon")) {
+            isAppDownloadedFromAmazon = true
+        }
+
+        localRepository.isAppDownloadedFromAmazon = isAppDownloadedFromAmazon
+
+        Log.d("kek", "Installer:  $installer")
     }
 }

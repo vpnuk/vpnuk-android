@@ -77,7 +77,6 @@ class LocalRepository @Inject constructor(context: Context) {
     var initialPassword by StringPreferenceDelegate()
     var initialEmail by StringPreferenceDelegate()
 
-
     var vpnUsername by StringPreferenceDelegate()
     var vpnPassword by StringPreferenceDelegate()
     var vpnDescription by StringPreferenceDelegate()
@@ -85,14 +84,15 @@ class LocalRepository @Inject constructor(context: Context) {
     var vpnServerName by StringPreferenceDelegate()
     
     var purchasedSubId by IntPreferenceDelegate()
+    var cachedSelectedCountry by StringPreferenceDelegate() //UK or USA (user can choose different servers when creating new account from Amazon)
 
-
-    var cachedSelectedCountry by StringPreferenceDelegate()
 
 
     var previousOvpnConfigVersion by StringPreferenceDelegate()
     var newOvpnConfigTxt by StringPreferenceDelegate()
 
+
+    var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()
 
 
     fun clear() {
