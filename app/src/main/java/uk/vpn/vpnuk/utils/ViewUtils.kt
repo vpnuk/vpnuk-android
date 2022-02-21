@@ -8,11 +8,19 @@ package uk.vpn.vpnuk.utils
 
 import android.text.SpannableString
 import android.text.style.URLSpan
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
 import com.jakewharton.rxbinding3.widget.textChanges
 import uk.vpn.vpnuk.URLSpanNoUnderline
+
+fun View.gone() {
+    this.visibility = View.GONE
+}
+fun View.visible(){
+    this.visibility = View.VISIBLE
+}
 
 fun TextView.stripUnderlines() {
     val s = SpannableString(text)

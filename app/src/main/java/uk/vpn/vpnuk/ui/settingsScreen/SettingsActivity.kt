@@ -11,15 +11,18 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
+import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.local.DefaultSettings
@@ -36,7 +39,7 @@ class SettingsActivity : BaseActivity() {
     private var dialog: AlertDialog? = null
     private lateinit var repository: Repository
     private lateinit var settings: Settings
-    private lateinit var vm: SettingsViewModel
+    val vm: SettingsViewModel by viewModels()
 
     private var isRestartVpnConnectionRequired = false
 
@@ -57,24 +60,37 @@ class SettingsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         supportActionBar?.title = getString(R.string.Settings)
-        vm = ViewModelProvider(this)[SettingsViewModel::class.java]
-
 
         repository = Repository(this)
 
-
-        vm.getServerList()
-        showServerProgress()
-
+        vm.onCreate()
+        if(localRepository.isAppDownloadedFromAmazon){
+            createAmazonIap()
+        }
 
         initViews()
         applySettings()
-        initObservers()
-        createAmazonIap()
+        observeLiveData()
     }
 
-    private fun initObservers() {
-        vm.allSubscriptions.observe(this, Observer {
+    private fun observeLiveData() {
+        vm.oneShotEvents.onEach {
+            when(it){
+                is SettingsViewModel.OneShotEvent.ErrorToast ->{
+                    Toasty.error(this, it.message, Toasty.LENGTH_SHORT).show()
+                }
+                is SettingsViewModel.OneShotEvent.ShowServerProgress ->{
+                    showServerProgress()
+                }
+                is SettingsViewModel.OneShotEvent.HideServerProgress ->{
+                    hideServerProgress()
+                }
+            }
+        }.launchWhenCreated(lifecycleScope)
+
+        vm.viewState.onEach { render(it) }.launchWhenCreated(lifecycleScope)
+
+        vm.allSubscriptionsLive.observe(this, {
             vpnAccountsList = mutableListOf()
             subscriptionsList = it as MutableList<SubscriptionsModel>
 
@@ -84,8 +100,6 @@ class SettingsActivity : BaseActivity() {
                     vpnAccountsList.add(vpnAccount)
                 }
             }
-
-            hideServerProgress()
             initSpinners()
         })
         vm.isRegisteredFromApp.observe(this, Observer {
@@ -101,6 +115,14 @@ class SettingsActivity : BaseActivity() {
                 showSubscriptionExpiredDialog()
             }
         })
+    }
+
+    private fun render(viewState: SettingsViewModel.ViewState) {
+        if(viewState.amazonApiSettingsVisible){
+            frameServers.visible()
+        }else{
+            frameServers.gone()
+        }
     }
 
     private fun initSpinners() {
@@ -199,7 +221,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        //For fireTv
+        //For FireTv
         vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
             if(hasFocus){
                 vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
@@ -207,7 +229,6 @@ class SettingsActivity : BaseActivity() {
                 vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
             }
         }
-
 
         settings = repository.getSettings()
 
@@ -324,8 +345,10 @@ class SettingsActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
 
-        hash.add(purchaseKey)
-        PurchasingService.getUserData()
-        PurchasingService.getProductData(hash)
+        if(localRepository.isAppDownloadedFromAmazon){
+            hash.add(purchaseKey)
+            PurchasingService.getUserData()
+            PurchasingService.getProductData(hash)
+        }
     }
 }

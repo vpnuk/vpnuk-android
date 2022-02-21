@@ -7,6 +7,7 @@
 package uk.vpn.vpnuk.ui.mainScreen.googleVersion
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,6 +16,7 @@ import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.ui.splash.SplashScreenVM
 import javax.inject.Inject
 
+@HiltViewModel
 class GoogleMainVM @Inject constructor(
     private val localRepository: LocalRepository,
 ) : ViewModel() {

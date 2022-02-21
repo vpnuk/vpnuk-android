@@ -5,26 +5,95 @@
  */
 
 package uk.vpn.vpnuk.ui.settingsScreen
+import android.view.View
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import uk.vpn.vpnuk.api.VpnUkInfoApi
+import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.data.repository.RegisterUserRepository
 import uk.vpn.vpnuk.data.repository.VpnAccountRepository
+import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
+import uk.vpn.vpnuk.utils.asLiveData
+import javax.inject.Inject
+
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val localRepository: LocalRepository,
+    private val vpnUkInfoApi: VpnUkInfoApi,
+) : ViewModel() {
+
+    private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState())
+    val viewState = _viewState.asStateFlow()
+
+    private val _oneShotEvents = MutableSharedFlow<OneShotEvent>()
+    val oneShotEvents = _oneShotEvents.asSharedFlow()
 
 
-class SettingsViewModel : ViewModel() {
+    private val _allSubscriptionsLive = MutableLiveData<List<SubscriptionsModel>>()
+    val allSubscriptionsLive = _allSubscriptionsLive.asLiveData()
 
-    val repo = VpnAccountRepository()
+
     val registerRepo = RegisterUserRepository()
-
-
-    val allSubscriptions = repo.allSubscriptions
     val isRegisteredFromApp = registerRepo.isUserRegisteredFromApp
     val isSubscriptionExpired = registerRepo.isSubscriptionExpired
 
     var selectedSubscription = 0
 
 
-    fun getServerList() {
-        repo.getAllVpnAccounts()
+    fun onCreate() {
+        initAmazonGoogleViews()
+        initAmazonApi()
+    }
+
+    private fun initAmazonApi() {
+        if(localRepository.isAppDownloadedFromAmazon){
+            getServerList()
+        }
+    }
+
+    private fun initAmazonGoogleViews() {
+        if(localRepository.isAppDownloadedFromAmazon){
+            _viewState.tryEmit(viewState.value.copy(amazonApiSettingsVisible = true))
+        }else{
+            _viewState.tryEmit(viewState.value.copy(amazonApiSettingsVisible = false))
+        }
+    }
+
+    private fun getServerList() = viewModelScope.launch {
+        val login = localRepository.initialUserName
+        val password = localRepository.initialPassword
+
+        _oneShotEvents.tryEmit(OneShotEvent.ShowServerProgress)
+
+        when(val resultToken = vpnUkInfoApi.getTokenCoroutine("password", login, password)){
+            is NetworkResponse.Success ->{
+                localRepository.token = resultToken.body.accessToken.toString()
+                val token = "Bearer ${localRepository.token}"
+
+                when(val resultSubscriptions = vpnUkInfoApi.getAllSubscriptionsCoroutine(token)){
+                    is NetworkResponse.Success ->{
+                        val subscriptions = resultSubscriptions.body
+
+                        _allSubscriptionsLive.postValue(subscriptions)
+                        _oneShotEvents.tryEmit(OneShotEvent.HideServerProgress)
+                    }
+                    is NetworkResponse.Error ->{
+                        _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(resultSubscriptions.error.message.toString()))
+                    }
+                }
+            }
+            is NetworkResponse.Error ->{
+                _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(resultToken.error.message.toString()))
+            }
+        }
     }
 
     fun checkIfRegisteredFromApp(initialEmail: String, subscription: Int) {
@@ -41,4 +110,13 @@ class SettingsViewModel : ViewModel() {
     }
 
 
+    data class ViewState(
+        val amazonApiSettingsVisible: Boolean = false
+    )
+    sealed class OneShotEvent {
+        object NavigateToQuickLaunch : OneShotEvent()
+        object ShowServerProgress : OneShotEvent()
+        object HideServerProgress : OneShotEvent()
+        class ErrorToast(val message: String = "") : OneShotEvent()
+    }
 }

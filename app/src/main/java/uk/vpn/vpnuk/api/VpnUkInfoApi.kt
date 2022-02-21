@@ -1,5 +1,6 @@
 package uk.vpn.vpnuk.api
 
+import com.haroldadmin.cnradapter.NetworkResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -20,6 +21,14 @@ interface VpnUkInfoApi {
         @Field("username") username: String,
         @Field("password") password: String
     ): Call<TokenModelResp>
+    //TODO - refactor all requests to Coroutines
+    @FormUrlEncoded
+    @POST("wp-json/vpnuk/v1/token")
+    suspend fun getTokenCoroutine(
+        @Field("grant_type") grant: String = "password",
+        @Field("username") username: String,
+        @Field("password") password: String
+    ): NetworkResponse<TokenModelResp, Any>
 
 
     @Headers("Content-Type: application/json")
@@ -32,6 +41,8 @@ interface VpnUkInfoApi {
 
     @GET("wp-json/vpnuk/v1/subscriptions")
     fun getAllSubscriptions(@Header("Authorization") token: String): Call<List<SubscriptionsModel>>
+    @GET("wp-json/vpnuk/v1/subscriptions")
+    suspend fun getAllSubscriptionsCoroutine(@Header("Authorization") token: String): NetworkResponse<List<SubscriptionsModel>, Any>
 
     @Headers("Content-Type: application/json")
     @POST("wp-json/vpnuk/v1/amzinapp/purchase/order/{pendingOrderId}")
