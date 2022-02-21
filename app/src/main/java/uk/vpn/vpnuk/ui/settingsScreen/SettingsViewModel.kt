@@ -32,15 +32,13 @@ class SettingsViewModel @Inject constructor(
 
     private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState())
     val viewState = _viewState.asStateFlow()
-
     private val _oneShotEvents = MutableSharedFlow<OneShotEvent>()
     val oneShotEvents = _oneShotEvents.asSharedFlow()
-
 
     private val _allSubscriptionsLive = MutableLiveData<List<SubscriptionsModel>>()
     val allSubscriptionsLive = _allSubscriptionsLive.asLiveData()
 
-
+    //Refactor this some day...
     val registerRepo = RegisterUserRepository()
     val isRegisteredFromApp = registerRepo.isUserRegisteredFromApp
     val isSubscriptionExpired = registerRepo.isSubscriptionExpired
@@ -114,7 +112,6 @@ class SettingsViewModel @Inject constructor(
         val amazonApiSettingsVisible: Boolean = false
     )
     sealed class OneShotEvent {
-        object NavigateToQuickLaunch : OneShotEvent()
         object ShowServerProgress : OneShotEvent()
         object HideServerProgress : OneShotEvent()
         class ErrorToast(val message: String = "") : OneShotEvent()

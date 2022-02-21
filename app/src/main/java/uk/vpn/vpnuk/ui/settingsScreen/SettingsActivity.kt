@@ -87,8 +87,9 @@ class SettingsActivity : BaseActivity() {
                 }
             }
         }.launchWhenCreated(lifecycleScope)
-
-        vm.viewState.onEach { render(it) }.launchWhenCreated(lifecycleScope)
+        vm.viewState.onEach {
+            render(it)
+        }.launchWhenCreated(lifecycleScope)
 
         vm.allSubscriptionsLive.observe(this, {
             vpnAccountsList = mutableListOf()
@@ -323,11 +324,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun removeMtu() {
-        repository.updateSettings(
-            repository.getSettings().copy(
-                mtu = null
-            )
-        )
+        repository.updateSettings(repository.getSettings().copy(mtu = null))
     }
 
     private fun showSubscriptionExpiredDialog(){

@@ -23,6 +23,7 @@ import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.utils.*
 import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity
+import uk.vpn.vpnuk.ui.mainScreen.googleVersion.GoogleMainActivity
 import java.util.HashSet
 
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
@@ -88,8 +89,13 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             }
         }
         imageView_connection_configure.setOnClickListener {
-            val intent = Intent(this, AmazonMainActivity::class.java)
-            startActivity(intent)
+            if(localRepository.isAppDownloadedFromAmazon){
+                val intent = Intent(this, AmazonMainActivity::class.java)
+                startActivity(intent)
+            }else{
+                val intent = Intent(this, GoogleMainActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 

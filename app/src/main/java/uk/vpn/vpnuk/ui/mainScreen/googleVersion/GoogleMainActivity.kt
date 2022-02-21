@@ -88,7 +88,6 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         vGoogleMainActivityButtonConnect.setOnClickListener {
             startVpn()
         }
-
         vGoogleMainActivityLinkTrial.stripUnderlines()
         vGoogleMainActivityLinkTrial.setOnClickListener {
             val url = "https://www.vpnuk.net/product-category/free-trial/"
