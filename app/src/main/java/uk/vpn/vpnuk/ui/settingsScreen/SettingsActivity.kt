@@ -79,12 +79,6 @@ class SettingsActivity : BaseActivity() {
                 is SettingsViewModel.OneShotEvent.ErrorToast ->{
                     Toasty.error(this, it.message, Toasty.LENGTH_SHORT).show()
                 }
-                is SettingsViewModel.OneShotEvent.ShowServerProgress ->{
-                    showServerProgress()
-                }
-                is SettingsViewModel.OneShotEvent.HideServerProgress ->{
-                    hideServerProgress()
-                }
             }
         }.launchWhenCreated(lifecycleScope)
         vm.viewState.onEach {
@@ -123,6 +117,12 @@ class SettingsActivity : BaseActivity() {
             frameServers.visible()
         }else{
             frameServers.gone()
+        }
+
+        if(viewState.serverProgressView){
+            showServerProgress()
+        }else{
+            hideServerProgress()
         }
     }
 

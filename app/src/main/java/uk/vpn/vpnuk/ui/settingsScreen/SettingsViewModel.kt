@@ -69,7 +69,7 @@ class SettingsViewModel @Inject constructor(
         val login = localRepository.initialUserName
         val password = localRepository.initialPassword
 
-        _oneShotEvents.tryEmit(OneShotEvent.ShowServerProgress)
+        _viewState.tryEmit(viewState.value.copy(serverProgressView = true))
 
         when(val resultToken = vpnUkInfoApi.getTokenCoroutine("password", login, password)){
             is NetworkResponse.Success ->{
@@ -81,7 +81,7 @@ class SettingsViewModel @Inject constructor(
                         val subscriptions = resultSubscriptions.body
 
                         _allSubscriptionsLive.postValue(subscriptions)
-                        _oneShotEvents.tryEmit(OneShotEvent.HideServerProgress)
+                        _viewState.emit(viewState.value.copy(serverProgressView = false))
                     }
                     is NetworkResponse.Error ->{
                         _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(resultSubscriptions.error.message.toString()))
@@ -109,11 +109,10 @@ class SettingsViewModel @Inject constructor(
 
 
     data class ViewState(
-        val amazonApiSettingsVisible: Boolean = false
+        val amazonApiSettingsVisible: Boolean = false,
+        val serverProgressView: Boolean = false
     )
     sealed class OneShotEvent {
-        object ShowServerProgress : OneShotEvent()
-        object HideServerProgress : OneShotEvent()
         class ErrorToast(val message: String = "") : OneShotEvent()
     }
 }
