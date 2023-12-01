@@ -16,9 +16,9 @@ import android.widget.ArrayAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.activity_register_account.*
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.data.repository.LocalRepository
+import uk.vpn.vpnuk.databinding.ActivityRegisterAccountBinding
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.remote.Repository
@@ -27,6 +27,8 @@ import uk.vpn.vpnuk.utils.isEmailValid
 
 
 class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
+
+    private lateinit var bind: ActivityRegisterAccountBinding
 
     lateinit var vm: RegisterAccountVM
     lateinit var progressDialog: ProgressDialog
@@ -39,7 +41,8 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register_account)
+        bind = ActivityRegisterAccountBinding.inflate(layoutInflater)
+        setContentView(bind.root)
         vm = ViewModelProvider(this)[RegisterAccountVM::class.java]
 
         vm.getServerList()
@@ -47,11 +50,11 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
         localRepository = LocalRepository(this)
 
         //For fireTv
-        vRegisterActivitySpinnerServers.setOnFocusChangeListener { v, hasFocus ->
+        bind.vRegisterActivitySpinnerServers.setOnFocusChangeListener { v, hasFocus ->
             if(hasFocus){
-                vRegisterAccountActivityFrameSpinner.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
+                bind.vRegisterAccountActivityFrameSpinner.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
             }else{
-                vRegisterAccountActivityFrameSpinner.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
+                bind.vRegisterAccountActivityFrameSpinner.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
             }
         }
 
@@ -63,16 +66,16 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
     private fun initSpinners() {
         val accountsAdapter = ArrayAdapter(this, R.layout.spinner_custom, serverList)
 
-        vRegisterActivitySpinnerServers.adapter = accountsAdapter
+        bind.vRegisterActivitySpinnerServers.adapter = accountsAdapter
 
-        vRegisterActivitySpinnerServers.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener{
+        bind.vRegisterActivitySpinnerServers.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener{
             override fun onNothingSelected(parent: AdapterView<*>?) {}
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedServerCountry = serverList[position]
             }
         })
 
-        vRegisterActivitySpinnerServers.setSelection(accountsAdapter.getPosition(serverList[0]))
+        bind.vRegisterActivitySpinnerServers.setSelection(accountsAdapter.getPosition(serverList[0]))
     }
 
     private fun observeLiveData() {
@@ -110,15 +113,15 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initListeners() {
-        button_sign_up.setOnClickListener(this)
+        bind.buttonSignUp.setOnClickListener(this)
     }
 
     override fun onClick(view: View?) {
         when(view?.id){
             R.id.button_sign_up ->{
-                val userName = editText_name.text.toString().trim()
-                val email = editText_email.text.toString().trim()
-                val password = editText_password.text.toString().trim()
+                val userName = bind.editTextName.text.toString().trim()
+                val email = bind.editTextEmail.text.toString().trim()
+                val password = bind.editTextPassword.text.toString().trim()
 
                 if(checkFields(userName, email, password)){
                     vm.registerUser(userName, email, password, selectedServerCountry)

@@ -12,7 +12,6 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.activity_splash_screen.*
 import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
@@ -20,18 +19,20 @@ import uk.vpn.vpnuk.ui.quickLaunch.QuickLaunchActivity
 import uk.vpn.vpnuk.utils.launchWhenCreated
 
 import android.content.pm.PackageManager
-
-
+import uk.vpn.vpnuk.databinding.ActivitySplashScreenBinding
 
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : BaseActivity() {
 
+    lateinit var bind: ActivitySplashScreenBinding
+
     val vm: SplashScreenVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash_screen)
+        bind = ActivitySplashScreenBinding.inflate(layoutInflater)
+        setContentView(bind.root)
 
         getIsAppDownloadedSource()
 
@@ -58,7 +59,7 @@ class SplashScreenActivity : BaseActivity() {
     }
 
     private fun render(viewState: SplashScreenVM.ViewState) {
-        vSplashScreenActivityTextState.text = viewState.loadingTextToDisplay
+        bind.vSplashScreenActivityTextState.text = viewState.loadingTextToDisplay
     }
 
     private fun initView() {
@@ -81,7 +82,8 @@ class SplashScreenActivity : BaseActivity() {
             isAppDownloadedFromAmazon = true
         }
 
-        localRepository.isAppDownloadedFromAmazon = isAppDownloadedFromAmazon
+        //TODO - localRepository.isAppDownloadedFromAmazon = isAppDownloadedFromAmazon
+        localRepository.isAppDownloadedFromAmazon = true
 
         Log.d("kek", "Installer:  $installer")
     }

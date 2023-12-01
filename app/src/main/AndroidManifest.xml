@@ -41,6 +41,8 @@
         <activity
             android:name=".ui.quickLaunch.QuickLaunchActivity"
             android:exported="true" />
+
+
         <activity
             android:name=".ui.mainScreen.amazonVersion.AmazonMainActivity"
             android:exported="true" >
@@ -48,14 +50,10 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="gayanvoice.github.com"
-                    android:pathPrefix="/"
-                    android:scheme="http" />
             </intent-filter>
         </activity>
+
+
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
             android:excludeFromRecents="true"

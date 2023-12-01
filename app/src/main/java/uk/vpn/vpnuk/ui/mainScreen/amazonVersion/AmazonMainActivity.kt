@@ -20,12 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
-import kotlinx.android.synthetic.main.activity_amazon_main.*
-import kotlinx.android.synthetic.main.dialog_choose_vpnaccount.view.*
-import kotlinx.android.synthetic.main.dialog_free_trial.view.*
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.data.repository.LocalRepository
+import uk.vpn.vpnuk.databinding.ActivityAmazonMainBinding
+import uk.vpn.vpnuk.databinding.DialogChooseVpnaccountBinding
+import uk.vpn.vpnuk.databinding.DialogFreeTrialBinding
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
@@ -39,6 +39,8 @@ import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 
 class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
+    private lateinit var bind: ActivityAmazonMainBinding
+
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
 
@@ -51,7 +53,9 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_amazon_main)
+        bind = ActivityAmazonMainBinding.inflate(layoutInflater)
+        setContentView(bind.root)
+
         supportActionBar?.show()
         supportActionBar?.title = ""
         vm = ViewModelProvider(this)[AmazonMainVM::class.java]
@@ -100,8 +104,9 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun showChooseVpnAccountDialog(list: List<Vpnaccount>){
         val alertDialog = AlertDialog.Builder(this).create()
-        val customLayout: View = layoutInflater.inflate(R.layout.dialog_choose_vpnaccount, null)
-        alertDialog.setView(customLayout)
+        //val customLayout: View = layoutInflater.inflate(R.layout.dialog_choose_vpnaccount, null)
+        val dialogBind = DialogChooseVpnaccountBinding.inflate(layoutInflater, null, false)
+        alertDialog.setView(dialogBind.root)
 
         val adapter = VpnAccountAdapter(this, list){
             localRepository.vpnUsername = it.username.toString()
@@ -118,8 +123,8 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
             showExplainingDialog()
         }
-        customLayout.vChooseVpnAccountDialogRecycler.layoutManager = LinearLayoutManager(this)
-        customLayout.vChooseVpnAccountDialogRecycler.adapter = adapter
+        dialogBind.vChooseVpnAccountDialogRecycler.layoutManager = LinearLayoutManager(this)
+        dialogBind.vChooseVpnAccountDialogRecycler.adapter = adapter
 
         alertDialog.setCancelable(false)
         alertDialog.show()
@@ -145,17 +150,17 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     private fun applySettings() {
         val settings = repository.getSettings()
         settings.credentials?.let {
-            etLogin.setText(it.login)
-            etPassword.setText(it.password)
+            bind.etLogin.setText(it.login)
+            bind.etPassword.setText(it.password)
         }
-        cbSaveCredentials.isChecked = settings.credentials != null
+        bind.cbSaveCredentials.isChecked = settings.credentials != null
     }
 
     private fun initViews() {
         //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
-        btConnect.setOnClickListener {
-            val login = etLogin.text.toString()
-            val password = etPassword.text.toString()
+        bind.btConnect.setOnClickListener {
+            val login = bind.etLogin.text.toString()
+            val password = bind.etPassword.text.toString()
 
             if(isFirstLoginAttempt()){
                 vm.findActiveVpnAccount(login, password)
@@ -171,15 +176,15 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
 
 
-        tvLinkTrial.stripUnderlines()
-        tvLinkTrial.setOnClickListener {
+        bind.tvLinkTrial.stripUnderlines()
+        bind.tvLinkTrial.setOnClickListener {
             val intent = Intent(this, RegisterAccountActivity::class.java)
             startActivityForResult(intent, REGISTER_AMAZON_ACCOUNT_SCREEN_CODE)
         }
-        vSelectAddress.setOnClickListener {
+        bind.vSelectAddress.setOnClickListener {
             startActivity(Intent(this@AmazonMainActivity, ServerListActivity::class.java))
         }
-        btDisconnect.setOnClickListener {
+        bind.btDisconnect.setOnClickListener {
             vpnConnector.stopVpn()
         }
 
@@ -188,20 +193,20 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             .subscribe { server ->
                 Logger.e("subscribe", "$server")
                 server.server?.let {
-                    tvAddress.text = it.dns
-                    tvAddress.visibility = View.VISIBLE
-                    tvCity.text = it.location.city
-                    ivCountry.setImageResource(it.getIconResourceName(this))
+                    bind.tvAddress.text = it.dns
+                    bind.tvAddress.visibility = View.VISIBLE
+                    bind.tvCity.text = it.location.city
+                    bind.ivCountry.setImageDrawable(it.getIsoDrawable(this))
                 } ?: run {
-                    tvAddress.visibility = View.GONE
-                    ivCountry.setImageResource(R.drawable.ic_country)
-                    tvCity.setText(R.string.select_city)
+                    bind.tvAddress.visibility = View.GONE
+                    bind.ivCountry.setImageResource(R.drawable.ic_country)
+                    bind.tvCity.setText(R.string.select_city)
                 }
             }.addToDestroySubscriptions()
 
         Observable.combineLatest(
-            etPassword.textEmpty(),
-            etLogin.textEmpty(),
+            bind.etPassword.textEmpty(),
+            bind.etLogin.textEmpty(),
             repository.getCurrentServerObservable(),
             Function3<Boolean, Boolean, Wrapper, Boolean> { passwordEmpty, loginEmpty, server ->
                 Logger.e("subscribe", "enabled $server")
@@ -209,7 +214,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             })
             .observeOnMain()
             .subscribe {
-                btConnect.isEnabled = it
+                bind.btConnect.isEnabled = it
             }.addToDestroySubscriptions()
     }
 
@@ -219,9 +224,9 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun stFreeTrialAccountVisibility() {
         if(localRepository.vpnIp != ""){
-            tvLinkTrial.visibility = View.GONE
+            bind.tvLinkTrial.visibility = View.GONE
         }else{
-            tvLinkTrial.visibility = View.VISIBLE
+            bind.tvLinkTrial.visibility = View.VISIBLE
         }
     }
 
@@ -259,8 +264,8 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun startVpn(){
-        val login = etLogin.text.toString()
-        val password = etPassword.text.toString()
+        val login = bind.etLogin.text.toString()
+        val password = bind.etPassword.text.toString()
 
         //Check if checkbox checked...Removed because amazon iap flow
         val credentials = Credentials(login, password)
@@ -286,12 +291,13 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun showSubscriptionInfoDialog(subscriptionModel: SubscriptionsModel?) {
         val alertDialog = AlertDialog.Builder(this)
-        val customLayout: View = layoutInflater.inflate(R.layout.dialog_free_trial, null)
-        alertDialog.setView(customLayout)
-        customLayout.vFreeTrialCreatedDialogUsername.text = subscriptionModel?.vpnaccounts?.get(0)?.username.toString()
-        customLayout.vFreeTrialCreatedDialogPassword.text = subscriptionModel?.vpnaccounts?.get(0)?.password.toString()
-        customLayout.vFreeTrialCreatedDialogIP.text = subscriptionModel?.vpnaccounts?.get(0)?.ip.toString()
-        customLayout.vFreeTrialCreatedDialogServer.text = LocalRepository(this).vpnServerName
+        //val customLayout: View = layoutInflater.inflate(R.layout.dialog_free_trial, null)
+        val clBind = DialogFreeTrialBinding.inflate(layoutInflater, null, false)
+        alertDialog.setView(clBind.root)
+        clBind.vFreeTrialCreatedDialogUsername.text = subscriptionModel?.vpnaccounts?.get(0)?.username.toString()
+        clBind.vFreeTrialCreatedDialogPassword.text = subscriptionModel?.vpnaccounts?.get(0)?.password.toString()
+        clBind.vFreeTrialCreatedDialogIP.text = subscriptionModel?.vpnaccounts?.get(0)?.ip.toString()
+        clBind.vFreeTrialCreatedDialogServer.text = LocalRepository(this).vpnServerName
         alertDialog.setPositiveButton("OK") { dialog, which ->
             dialog.dismiss()
         }
@@ -299,38 +305,38 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     }
 
     override fun onStateChanged(state: ConnectionState) {
-        tvStatus.setText(state.nameId)
-        tvStatus.setTextColor(state.color(this))
+        bind.tvStatus.setText(state.nameId)
+        bind.tvStatus.setTextColor(state.color(this))
 
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
-                btConnect.visibility = View.VISIBLE
-                btDisconnect.visibility = View.GONE
-                vSelectAddress.isEnabled = true
+                bind.btConnect.visibility = View.VISIBLE
+                bind.btDisconnect.visibility = View.GONE
+                bind.vSelectAddress.isEnabled = true
             }
             else -> {
-                btConnect.visibility = View.GONE
-                btDisconnect.visibility = View.VISIBLE
-                vSelectAddress.isEnabled = false
+                bind.btConnect.visibility = View.GONE
+                bind.btDisconnect.visibility = View.VISIBLE
+                bind.vSelectAddress.isEnabled = false
             }
         }
     }
 
     private fun showProgressBar(){
-        progressBar.visibility = View.VISIBLE
-        progressBackground.visibility = View.VISIBLE
+        bind.progressBar.visibility = View.VISIBLE
+        bind.progressBackground.visibility = View.VISIBLE
     }
     private fun hideProgressBar(){
-        progressBar.visibility = View.GONE
-        progressBackground.visibility = View.GONE
+        bind.progressBar.visibility = View.GONE
+        bind.progressBackground.visibility = View.GONE
     }
     override fun showProgress() {
-        content.visibility = View.GONE
-        progressBar.visibility = View.VISIBLE
+        bind.content.visibility = View.GONE
+        bind.progressBar.visibility = View.VISIBLE
     }
     override fun hideProgress() {
-        content.visibility = View.VISIBLE
-        progressBar.visibility = View.GONE
+        bind.content.visibility = View.VISIBLE
+        bind.progressBar.visibility = View.GONE
     }
 
     override fun onResume() {

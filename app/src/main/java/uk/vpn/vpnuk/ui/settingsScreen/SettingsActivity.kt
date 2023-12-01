@@ -20,11 +20,11 @@ import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.activity_settings.*
-import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
 import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
+import uk.vpn.vpnuk.databinding.ActivitySettingsBinding
+import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
@@ -35,6 +35,8 @@ import java.util.HashSet
 
 
 class SettingsActivity : BaseActivity() {
+
+    private lateinit var bind: ActivitySettingsBinding
 
     private var dialog: AlertDialog? = null
     private lateinit var repository: Repository
@@ -58,7 +60,8 @@ class SettingsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        bind = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(bind.root)
         supportActionBar?.title = getString(R.string.Settings)
 
         repository = Repository(this)
@@ -85,7 +88,7 @@ class SettingsActivity : BaseActivity() {
             render(it)
         }.launchWhenCreated(lifecycleScope)
 
-        vm.allSubscriptionsLive.observe(this, {
+        vm.allSubscriptionsLive.observe(this) {
             vpnAccountsList = mutableListOf()
             subscriptionsList = it as MutableList<SubscriptionsModel>
 
@@ -96,7 +99,7 @@ class SettingsActivity : BaseActivity() {
                 }
             }
             initSpinners()
-        })
+        }
         vm.isRegisteredFromApp.observe(this, Observer {
             if(it){
                 vm.getPendingOrders()
@@ -114,9 +117,9 @@ class SettingsActivity : BaseActivity() {
 
     private fun render(viewState: SettingsViewModel.ViewState) {
         if(viewState.amazonApiSettingsVisible){
-            frameServers.visible()
+            bind.frameServers.visible()
         }else{
-            frameServers.gone()
+            bind.frameServers.gone()
         }
 
         if(viewState.serverProgressView){
@@ -130,9 +133,9 @@ class SettingsActivity : BaseActivity() {
         val vpnAccountStrings = vpnAccountsList.map { it.username }
         val accountsAdapter = ArrayAdapter(this, R.layout.spinner_custom, vpnAccountStrings)
 
-        vSettingsActivitySpinner.adapter = accountsAdapter
+        bind.vSettingsActivitySpinner.adapter = accountsAdapter
 
-        vSettingsActivitySpinner.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener{
+        bind.vSettingsActivitySpinner.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener{
             override fun onNothingSelected(parent: AdapterView<*>?) {}
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if(vpnAccountsList[position].username != localRepository.vpnUsername){
@@ -165,7 +168,7 @@ class SettingsActivity : BaseActivity() {
             }
         })
 
-        vSettingsActivitySpinner.setSelection(accountsAdapter.getPosition(localRepository.vpnUsername))
+        bind.vSettingsActivitySpinner.setSelection(accountsAdapter.getPosition(localRepository.vpnUsername))
     }
 
     private fun createAmazonIap() {
@@ -202,6 +205,7 @@ class SettingsActivity : BaseActivity() {
                     PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {
                         Log.d("kek", "onPurchaseResponse = already_purchased")
                     }
+                    else -> {}
                 }
             }
         })
@@ -223,37 +227,37 @@ class SettingsActivity : BaseActivity() {
 
     private fun initViews() {
         //For FireTv
-        vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
+        bind.vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
             if(hasFocus){
-                vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
+                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
             }else{
-                vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
+                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
             }
         }
 
         settings = repository.getSettings()
 
-        tabsSocketType.setTabs(SocketType.values().map { it.value })
-        tabsPort.setTabListener { _, _ ->
+        bind.tabsSocketType.setTabs(SocketType.values().map { it.value })
+        bind.tabsPort.setTabListener { _, _ ->
             repository.updateSettings(settings.copy(
-                socket = tabsSocketType.selectedTab().text.toString(),
-                port = tabsPort.selectedTab().text.toString()
+                socket = bind.tabsSocketType.selectedTab().text.toString(),
+                port = bind.tabsPort.selectedTab().text.toString()
             ))
 
             requireRestartVpnConnection()
         }
-        tabsSocketType.setTabListener { text, _ ->
-            tabsPort.setTabs(SocketType.byValue(text)!!.ports)
+        bind.tabsSocketType.setTabListener { text, _ ->
+            bind.tabsPort.setTabs(SocketType.byValue(text)!!.ports)
             repository.updateSettings(settings.copy(
-                socket = tabsSocketType.selectedTab().text.toString(),
-                port = tabsPort.selectedTab().text.toString()
+                socket = bind.tabsSocketType.selectedTab().text.toString(),
+                port = bind.tabsPort.selectedTab().text.toString()
             ))
 
             requireRestartVpnConnection()
         }
 
-        cbMtu.post {
-            cbMtu.setOnCheckedChangeListener { _, checked ->
+        bind.cbMtu.post {
+            bind.cbMtu.setOnCheckedChangeListener { _, checked ->
                 if (checked) {
                     dialog = AlertDialog.Builder(this)
                         .setItems(
@@ -267,7 +271,7 @@ class SettingsActivity : BaseActivity() {
                         }
                         .setTitle(getString(R.string.custom_mtu))
                         .setOnCancelListener {
-                            cbMtu.isChecked = false
+                            bind.cbMtu.isChecked = false
                         }
                         .create().apply {
                             show()
@@ -280,7 +284,7 @@ class SettingsActivity : BaseActivity() {
             requireRestartVpnConnection()
         }
 
-        cbReconnect.setOnCheckedChangeListener { _, checked ->
+        bind.cbReconnect.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 repository.updateSettings(settings.copy(reconnect = true))
             } else {
@@ -292,23 +296,23 @@ class SettingsActivity : BaseActivity() {
             Logger.vpnLogs.clear()
         }
         for(i in Logger.vpnLogs.indices){
-            textView_logs.append(Logger.vpnLogs[i] + "\n")
+            bind.textViewLogs.append(Logger.vpnLogs[i] + "\n")
         }
     }
 
     override fun showProgress() {
-        vSettingsActivityProgressView.visibility = View.VISIBLE
+        bind.vSettingsActivityProgressView.visibility = View.VISIBLE
     }
     override fun hideProgress() {
-        vSettingsActivityProgressView.visibility = View.GONE
+        bind.vSettingsActivityProgressView.visibility = View.GONE
     }
     private fun showServerProgress(){
-        vSettingsActivityServersProgressBackground.visibility = View.VISIBLE
-        vSettingsActivityServersProgressView.visibility = View.VISIBLE
+        bind.vSettingsActivityServersProgressBackground.visibility = View.VISIBLE
+        bind.vSettingsActivityServersProgressView.visibility = View.VISIBLE
     }
     private fun hideServerProgress(){
-        vSettingsActivityServersProgressBackground.visibility = View.GONE
-        vSettingsActivityServersProgressView.visibility = View.GONE
+        bind.vSettingsActivityServersProgressBackground.visibility = View.GONE
+        bind.vSettingsActivityServersProgressView.visibility = View.GONE
     }
 
     private fun applySettings() {
@@ -317,10 +321,10 @@ class SettingsActivity : BaseActivity() {
         val socketType = SocketType.byValue(settings.socket)!!
         val portIndex = socketType.ports.indexOf(settings.port)
         val socketIndex = SocketType.values().indexOf(socketType)
-        tabsSocketType.select(socketIndex)
-        tabsPort.select(portIndex)
-        cbReconnect.isChecked = settings.reconnect
-        cbMtu.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
+        bind.tabsSocketType.select(socketIndex)
+        bind.tabsPort.select(portIndex)
+        bind.cbReconnect.isChecked = settings.reconnect
+        bind.cbMtu.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
     }
 
     private fun removeMtu() {
@@ -329,14 +333,15 @@ class SettingsActivity : BaseActivity() {
 
     private fun showSubscriptionExpiredDialog(){
         val alertDialog = AlertDialog.Builder(this).create()
-        val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
-        alertDialog.setView(customLayout)
+        //val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
+        val clBind = DialogSubscriptionExpiredBinding.inflate(layoutInflater, null, false)
+        alertDialog.setView(clBind.root)
         alertDialog.show()
 
-        customLayout.vSubscriptionExpiredDialogRenew.setOnClickListener {
+        clBind.vSubscriptionExpiredDialogRenew.setOnClickListener {
             PurchasingService.purchase(purchaseKey)
         }
-        customLayout.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
+        clBind.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
     }
 
     override fun onResume() {

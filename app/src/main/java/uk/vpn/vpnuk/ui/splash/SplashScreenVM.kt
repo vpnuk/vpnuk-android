@@ -60,6 +60,7 @@ class SplashScreenVM @Inject constructor(
             is NetworkResponse.Error ->{
                 _oneShotEvents.emit(OneShotEvent.ErrorToast(request.error.message.toString()))
             }
+            else -> {}
         }
 
         _viewState.emit(_viewState.value.copy(loadingTextToDisplay = "Checking for update..."))
@@ -76,6 +77,7 @@ class SplashScreenVM @Inject constructor(
             is NetworkResponse.Error ->{
                 _oneShotEvents.emit(OneShotEvent.ErrorToast(request.error.message.toString()))
             }
+            else -> {}
         }
 
         _viewState.emit(_viewState.value.copy(loadingTextToDisplay = "Updating vpn config..."))

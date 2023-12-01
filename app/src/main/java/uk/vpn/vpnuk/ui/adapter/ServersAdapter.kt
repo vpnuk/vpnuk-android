@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.murgupluoglu.flagkit.FlagKit
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.remote.Server
 import uk.vpn.vpnuk.utils.getIconResourceName
@@ -52,7 +53,16 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val ivCountry: ImageView = itemView.findViewById(R.id.ivCountry)
 
     fun bind(server: Server) {
-        ivCountry.setImageResource(server.getIconResourceName(itemView.context))
+        //ivCountry.setImageResource(server.getIconResourceName(itemView.context))
+        //server.location.icon //== "uk"
+        var iso = server.location.icon.toLowerCase()
+        when(iso){
+            "uk" -> iso = "gb"
+        }
+
+        val drawable = FlagKit.getDrawable(itemView.context, iso)
+        ivCountry.setImageDrawable(drawable)
+
         tvCity.text = "${server.location.city}"
 
         tvAddress.text = "${server.dns}"

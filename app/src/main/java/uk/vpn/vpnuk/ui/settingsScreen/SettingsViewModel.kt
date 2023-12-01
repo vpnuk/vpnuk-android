@@ -86,11 +86,13 @@ class SettingsViewModel @Inject constructor(
                     is NetworkResponse.Error ->{
                         _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(resultSubscriptions.error.message.toString()))
                     }
+                    else -> {}
                 }
             }
             is NetworkResponse.Error ->{
                 _oneShotEvents.tryEmit(OneShotEvent.ErrorToast(resultToken.error.message.toString()))
             }
+            else -> {}
         }
     }
 

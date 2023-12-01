@@ -15,18 +15,20 @@ import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.activity_quick_launch.*
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.remote.Repository
-import kotlinx.android.synthetic.main.dialog_subscription_expired.view.*
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
+import uk.vpn.vpnuk.databinding.ActivityQuickLaunchBinding
+import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
 import uk.vpn.vpnuk.utils.*
 import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity
 import uk.vpn.vpnuk.ui.mainScreen.googleVersion.GoogleMainActivity
 import java.util.HashSet
 
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
+
+    lateinit var bind: ActivityQuickLaunchBinding
 
     private lateinit var vm: QuickLaunchVM
     private lateinit var repository: Repository
@@ -39,7 +41,8 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_quick_launch)
+        bind = ActivityQuickLaunchBinding.inflate(layoutInflater)
+        setContentView(bind.root)
         vm = ViewModelProvider(this)[QuickLaunchVM::class.java]
 
         repository = Repository.instance(this)
@@ -66,29 +69,29 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun observeLivaData() {
-        vm.tokenSuccess.observe(this, {
+        vm.tokenSuccess.observe(this) {
             vm.checkRegisteredSource(LocalRepository(this).initialEmail, "app")
-        })
-        vm.isUserRegisteredFromApp.observe(this, {
-            if(it) vm.checkSubscriptionState(localRepository.purchasedSubId)
-        })
-        vm.isSubscriptionExpired.observe(this, {
-            if(it.first){
+        }
+        vm.isUserRegisteredFromApp.observe(this) {
+            if (it) vm.checkSubscriptionState(localRepository.purchasedSubId)
+        }
+        vm.isSubscriptionExpired.observe(this) {
+            if (it.first) {
                 pendingOrderId = it.second
                 showSubscriptionExpiredDialog()
             }
-        })
+        }
     }
 
     private fun initListeners() {
-        switch_connect.setOnCheckedChangeListener { view, isChecked ->
+        bind.switchConnect.setOnCheckedChangeListener { view, isChecked ->
             if(isChecked){
                 startVpn()
             }else{
                 stopVpn()
             }
         }
-        imageView_connection_configure.setOnClickListener {
+        bind.imageViewConnectionConfigure.setOnClickListener {
             if(localRepository.isAppDownloadedFromAmazon){
                 val intent = Intent(this, AmazonMainActivity::class.java)
                 startActivity(intent)
@@ -115,6 +118,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                         PurchasingService.notifyFulfillment(purchaseKey, FulfillmentResult.FULFILLED)
                     }
                     PurchaseResponse.RequestStatus.ALREADY_PURCHASED -> {}
+                    else -> {}
                 }
             }
         })
@@ -169,29 +173,31 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     override fun onStateChanged(state: ConnectionState) {
         when (state) {
             ConnectionState.LEVEL_NOTCONNECTED -> {
-                switch_connect.isChecked = false
-                textView_state.text = "Disconnected"
+                bind.switchConnect.isChecked = false
+                bind.textViewState.text = "Disconnected"
             }
             ConnectionState.LEVEL_START ->{
-                textView_state.text = "Connecting"
+                bind.textViewState.text = "Connecting"
             }
             ConnectionState.LEVEL_CONNECTED -> {
-                switch_connect.isChecked = true
-                textView_state.text = "Connected"
+                bind.switchConnect.isChecked = true
+                bind.textViewState.text = "Connected"
             }
+            else -> {}
         }
     }
 
     private fun showSubscriptionExpiredDialog(){
         val alertDialog = AlertDialog.Builder(this).create()
-        val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
-        alertDialog.setView(customLayout)
+        //val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
+        val clBind = DialogSubscriptionExpiredBinding.inflate(layoutInflater, null, false)
+        alertDialog.setView(clBind.root)
         alertDialog.show()
 
-        customLayout.vSubscriptionExpiredDialogRenew.setOnClickListener {
+        clBind.vSubscriptionExpiredDialogRenew.setOnClickListener {
             PurchasingService.purchase(purchaseKey)
         }
-        customLayout.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
+        clBind.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
     }
 
     private fun updateVpnServers() {
@@ -215,13 +221,13 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     }
 
     override fun showProgress() {
-        switch_connect.visibility = View.GONE
-        progressBarQuick.visibility = View.VISIBLE
+        bind.switchConnect.visibility = View.GONE
+        bind.progressBarQuick.visibility = View.VISIBLE
     }
 
     override fun hideProgress() {
-        switch_connect.visibility = View.VISIBLE
-        progressBarQuick.visibility = View.GONE
+        bind.switchConnect.visibility = View.VISIBLE
+        bind.progressBarQuick.visibility = View.GONE
     }
 
     override fun onResume() {
