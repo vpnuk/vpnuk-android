@@ -6,8 +6,15 @@
 
 package uk.vpn.vpnuk.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.IconCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.murgupluoglu.flagkit.FlagKit
 import uk.vpn.vpnuk.remote.Server
 
@@ -21,4 +28,13 @@ fun Server.getIsoDrawable(context: Context) : Drawable? {
     }
 
     return FlagKit.getDrawable(context, iso)
+}
+
+fun Server.getIsoIcon(context: Context) : IconCompat {
+    var iso = this.location.icon.toLowerCase()
+    when(iso){
+        "uk" -> iso = "gb"
+    }
+
+    return IconCompat.createWithBitmap(FlagKit.getDrawable(context, iso)!!.toBitmap())
 }

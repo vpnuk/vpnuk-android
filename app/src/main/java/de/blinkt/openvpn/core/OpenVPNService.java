@@ -5,6 +5,7 @@
 package de.blinkt.openvpn.core;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
@@ -20,6 +21,8 @@ import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Icon;
 import android.net.ConnectivityManager;
 import android.net.VpnService;
 import android.os.Build;
@@ -37,6 +40,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -401,13 +405,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     // TODO
+    @SuppressLint("NewApi")
     private Notification getMyActivityNotification(String description) {
         Intent notificationIntent = new Intent(this, AmazonMainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Server currentServer = instance.getSelectedServer();
-        int serverIcon = ModelUtilsKt.getIconResourceName(currentServer, this);
+        IconCompat serverIcon = ModelUtilsKt.getIsoIcon(currentServer, this);
         String city = currentServer.getLocation().getCity();
         String title;
 
