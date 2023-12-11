@@ -35,15 +35,39 @@
         android:layout_marginRight="32dp"
         android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/tgCredentialsType"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@+id/tbUserCreds"
+            android:layout_width="match_parent"
+            android:layout_height="45dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tbUserCreds"
+                android:text="User Creds"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tbVpnCreds"
+                android:text="VPN Creds"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <EditText
                 android:id="@+id/etLogin"
                 android:layout_width="match_parent"
@@ -65,6 +89,8 @@
             android:textSize="13sp" />
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

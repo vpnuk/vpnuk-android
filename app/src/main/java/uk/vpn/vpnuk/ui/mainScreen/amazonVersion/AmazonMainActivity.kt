@@ -10,6 +10,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -80,14 +81,19 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun observeLiveData() {
-        vm.vpnAccounts.observe(this, Observer {
+        vm.vpnAccounts.observe(this) {
+            Log.d("kek", "vpnAccounts - observe")
             hideProgressBar()
-            if(it.isEmpty()){
-                Toasty.error(this, getString(R.string.error_you_dont_have_active_vpn_account)).show()
-            }else if(it.size == 1){
+
+            if (it.isEmpty()) {
+                Toasty.error(this, getString(R.string.error_you_dont_have_active_vpn_account))
+                    .show()
+            } else if (it.size == 1) {
+                Log.d("kek", "vpnAccounts size = 1%%% ${it[0].username.toString()}")
                 localRepository.vpnUsername = it[0].username.toString()
                 localRepository.vpnPassword = it[0].password.toString()
-                localRepository.vpnServerName = it[0].server?.description.toString().split("Server:")[1].split("<")[0]
+                localRepository.vpnServerName =
+                    it[0].server?.description.toString().split("Server:")[1].split("<")[0]
                 localRepository.vpnIp = it[0].server?.ip.toString()
                 localRepository.vpnDescription = it[0].server?.description.toString()
                 localRepository.purchasedSubId = it[0].subscriptionId
@@ -96,13 +102,18 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
                 startVpn()
 
                 showExplainingDialog()
-            }else if(it.size > 1){
+            } else if (it.size > 1) {
                 showChooseVpnAccountDialog(it)
             }
-        })
+        }
+        vm.error.observe(this){
+            hideProgressBar()
+        }
     }
 
     private fun showChooseVpnAccountDialog(list: List<Vpnaccount>){
+        Log.d("kek", "ALERTDIALOG - showChooseVpnAccountDialog")
+
         val alertDialog = AlertDialog.Builder(this).create()
         //val customLayout: View = layoutInflater.inflate(R.layout.dialog_choose_vpnaccount, null)
         val dialogBind = DialogChooseVpnaccountBinding.inflate(layoutInflater, null, false)
@@ -162,19 +173,27 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             val login = bind.etLogin.text.toString()
             val password = bind.etPassword.text.toString()
 
-            if(isFirstLoginAttempt()){
-                vm.findActiveVpnAccount(login, password)
-                showProgressBar()
-            }else if(login != localRepository.initialUserName){
-                vm.findActiveVpnAccount(login, password)
-                showProgressBar()
-            }else{
+            val isLoginByUserCreds = localRepository.isLoginByUserCreds
+
+            if(!isLoginByUserCreds){ //Login by VPN
                 startVpn()
+            }else{                  //Login by User Creds
+                if(localRepository.vpnUsername == ""){
+                    vm.findActiveVpnAccount(login, password)
+                    showProgressBar()
+                }else if(login != localRepository.initialUserName){
+                    vm.findActiveVpnAccount(login, password)
+                    showProgressBar()
+                }else{
+                    startVpn()
+                }
             }
         }
         //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
 
-
+        bind.tbUserCreds.setOnClickListener { localRepository.isLoginByUserCreds = true }
+        bind.tbVpnCreds.setOnClickListener { localRepository.isLoginByUserCreds = false }
+        bind.tgCredentialsType.check(if(localRepository.isLoginByUserCreds) R.id.tbUserCreds else R.id.tbVpnCreds)
 
         bind.tvLinkTrial.stripUnderlines()
         bind.tvLinkTrial.setOnClickListener {
@@ -263,7 +282,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
-    private fun startVpn(){
+    private fun startVpn() {
         val login = bind.etLogin.text.toString()
         val password = bind.etPassword.text.toString()
 
@@ -276,8 +295,9 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
         repository.updateSettings(settings.copy(credentials = credentials))
 
-        val vpnLogin = localRepository.vpnUsername
-        val vpnPassword = localRepository.vpnPassword
+        val isLoginByUserCreds = localRepository.isLoginByUserCreds
+        val vpnLogin = if(isLoginByUserCreds) localRepository.vpnUsername else login
+        val vpnPassword = if(isLoginByUserCreds) localRepository.vpnPassword else password
 
         vpnConnector.startVpn(
             vpnLogin,

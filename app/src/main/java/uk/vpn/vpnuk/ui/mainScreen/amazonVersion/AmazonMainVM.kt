@@ -13,7 +13,7 @@ class AmazonMainVM : ViewModel() {
 
     val repo = VpnAccountRepository()
     val vpnAccounts = repo.vpnAccountsList
-
+    val error = repo.error
 
     fun findActiveVpnAccount(login: String, password: String) {
         repo.getVpnAccountsFirstLoginAttempt(login, password)

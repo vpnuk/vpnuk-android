@@ -9,7 +9,6 @@ package uk.vpn.vpnuk.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import dagger.Provides
 import javax.inject.Inject
 import kotlin.reflect.KProperty
 
@@ -93,6 +92,7 @@ class LocalRepository @Inject constructor(context: Context) {
 
 
     var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()
+    var isLoginByUserCreds by BooleanPreferenceDelegate(true)
 
 
     fun clear() {

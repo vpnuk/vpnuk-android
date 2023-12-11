@@ -173,7 +173,7 @@
 
 
     <string name="string_of_two_number">%02d</string>
-    <string name="select_city">Select city</string>
+    <string name="select_city">Select VPN Location</string>
     <string name="err_unable_to_update_servers">Unable to update servers</string>
     <string name="reconnect_after_network_change">Kill Switch</string>
     <string name="status_level_connected">Connected</string>
