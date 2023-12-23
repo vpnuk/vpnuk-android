@@ -14,10 +14,11 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import uk.vpn.vpnuk.model.serverList.ServerListModel
 import uk.vpn.vpnuk.model.versions.VersionsModel
+import uk.vpn.vpnuk.remote.Servers
 
 interface ServerListVaultApi {
-    @GET("country.json")
-    suspend fun getServerList(): NetworkResponse<ServerListModel, Any>
+    @GET("servers.json")
+    suspend fun getServerList(): NetworkResponse<Servers, Any>
 
     @GET("versions.json")
     suspend fun getVersions(): NetworkResponse<VersionsModel, Any>

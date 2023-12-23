@@ -11,7 +11,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ServerListActivity">
+    tools:context=".ui.serverListScreen.ServerListActivity">
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabTypes"
         android:layout_width="match_parent"

@@ -17,5 +17,4 @@ data class ServerListModel(
     @SerializedName("country")
     @Expose
     var country: List<Country>? = null
-) {
-}
+)

@@ -38,7 +38,7 @@
         </activity>
         <activity android:name=".ui.registerAccountScreen.RegisterAccountActivity" />
         <activity android:name=".ui.settingsScreen.SettingsActivity" />
-        <activity android:name=".ServerListActivity" />
+        <activity android:name=".ui.serverListScreen.ServerListActivity" />
         <activity
             android:name=".ui.quickLaunch.QuickLaunchActivity"
             android:exported="true" />

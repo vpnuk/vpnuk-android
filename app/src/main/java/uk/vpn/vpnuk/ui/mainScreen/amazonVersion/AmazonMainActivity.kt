@@ -14,9 +14,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
@@ -35,6 +34,7 @@ import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.utils.*
 import uk.vpn.vpnuk.ui.registerAccountScreen.RegisterAccountActivity
+import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 
 
@@ -45,7 +45,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
     private lateinit var repository: Repository
     private lateinit var vpnConnector: VpnConnector
 
-    private lateinit var vm: AmazonMainVM
+    val vm: AmazonMainVM by viewModels()
 
     val SETTINGS_SCREEN_CODE = 3332
     val REGISTER_AMAZON_ACCOUNT_SCREEN_CODE = 123
@@ -59,7 +59,6 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
         supportActionBar?.show()
         supportActionBar?.title = ""
-        vm = ViewModelProvider(this)[AmazonMainVM::class.java]
 
         repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
@@ -69,15 +68,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         stFreeTrialAccountVisibility()
         observeLiveData()
 
-        if (!repository.serversUpdated) {
-            repository.updateServers()
-                .doOnIoObserveOnMain()
-                .addProgressTracking()
-                .subscribe({}, { error ->
-                    showMessage(getString(R.string.err_unable_to_update_servers))
-                })
-                .addToDestroySubscriptions()
-        }
+        vm.updateServers()
     }
 
     private fun observeLiveData() {

@@ -6,10 +6,25 @@
 
 package uk.vpn.vpnuk.ui.mainScreen.amazonVersion
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.haroldadmin.cnradapter.NetworkResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import uk.vpn.vpnuk.api.ServerListVaultApi
+import uk.vpn.vpnuk.api.VpnUkInfoApi
+import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.data.repository.VpnAccountRepository
+import uk.vpn.vpnuk.ui.splash.SplashScreenVM
+import javax.inject.Inject
 
-class AmazonMainVM : ViewModel() {
+@HiltViewModel
+class AmazonMainVM @Inject constructor(
+    private val localRepository: LocalRepository,
+    private val serverListApi: ServerListVaultApi,
+    private val vpnUkInfoApi: VpnUkInfoApi,
+) : ViewModel() {
 
     val repo = VpnAccountRepository()
     val vpnAccounts = repo.vpnAccountsList
@@ -17,5 +32,21 @@ class AmazonMainVM : ViewModel() {
 
     fun findActiveVpnAccount(login: String, password: String) {
         repo.getVpnAccountsFirstLoginAttempt(login, password)
+    }
+
+    fun updateServers() = viewModelScope.launch {
+        when(val request = serverListApi.getServerList()){
+            is NetworkResponse.Success ->{
+                Log.d("kek", "Saving servers Amaz request - ${request.body}")
+                Log.d("kek", "Saving servers Amaz request2 - ${request.body.servers}")
+                Log.d("kek", "Saving servers Amaz request3 - $request")
+
+                localRepository.serversList = request.body.servers ?: listOf()
+
+                Log.d("kek", "servers saved. LocalRepo - ${localRepository.serversList}")
+            }
+            is NetworkResponse.Error ->{}
+            else -> {}
+        }
     }
 }

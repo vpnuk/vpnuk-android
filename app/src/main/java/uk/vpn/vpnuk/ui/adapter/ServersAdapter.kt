@@ -62,10 +62,8 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val drawable = FlagKit.getDrawable(itemView.context, iso)
         ivCountry.setImageDrawable(drawable)
-
-        tvCity.text = "${server.location.city}"
-
-        tvAddress.text = "${server.dns}"
+        tvCity.text = server.location.city
+        tvAddress.text = server.dns
     }
 
 }

@@ -9,6 +9,8 @@ package uk.vpn.vpnuk.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import uk.vpn.vpnuk.remote.Server
 import javax.inject.Inject
 import kotlin.reflect.KProperty
 
@@ -68,6 +70,21 @@ class LocalRepository @Inject constructor(context: Context) {
                 .apply()
     }
 
+    inner class JsonListPreferenceDelegate<T>(clazz: Class<T>) {
+        private val typeToken = TypeToken.getParameterized(ArrayList::class.java, clazz).type
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): List<T> {
+            val json = sharedPreferences.getString(property.name, "")!!
+            if (json.isEmpty()) return arrayListOf()
+            return gson.fromJson(json, typeToken)
+        }
+        operator fun setValue(thisRef: Any?, property: KProperty<*>, value: List<T>?) =
+            sharedPreferences
+                .edit()
+                .putString(property.name, gson.toJson(value))
+                .apply()
+    }
+
+
 
 
     var token by StringPreferenceDelegate()
@@ -93,6 +110,7 @@ class LocalRepository @Inject constructor(context: Context) {
 
     var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()
     var isLoginByUserCreds by BooleanPreferenceDelegate(true)
+    var serversList by JsonListPreferenceDelegate(Server::class.java)
 
 
     fun clear() {

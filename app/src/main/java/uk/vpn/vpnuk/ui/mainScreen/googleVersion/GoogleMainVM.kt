@@ -7,11 +7,15 @@
 package uk.vpn.vpnuk.ui.mainScreen.googleVersion
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.ui.splash.SplashScreenVM
 import javax.inject.Inject
@@ -19,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GoogleMainVM @Inject constructor(
     private val localRepository: LocalRepository,
+    private val serverListApi: ServerListVaultApi,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(ViewState())
@@ -28,15 +33,19 @@ class GoogleMainVM @Inject constructor(
     val oneShotEvents = _oneShotEvents.asSharedFlow()
 
 
-    init {
-
-    }
-
     fun onAction(action: SplashScreenVM.UiAction) {
 
     }
 
-
+    fun updateServers() = viewModelScope.launch {
+        when(val request = serverListApi.getServerList()){
+            is NetworkResponse.Success ->{
+                localRepository.serversList = request.body.servers  ?: listOf()
+            }
+            is NetworkResponse.Error ->{}
+            else -> {}
+        }
+    }
 
 
     data class ViewState(

@@ -13,18 +13,17 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import io.reactivex.Observable
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.local.Credentials
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.remote.Repository
-import uk.vpn.vpnuk.remote.Wrapper
 import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 import uk.vpn.vpnuk.utils.*
 import android.net.Uri
 import uk.vpn.vpnuk.databinding.ActivityGoogleMainBinding
+import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 
 
 class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
@@ -52,23 +51,12 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         initViews()
         applySettings()
         observeLiveData()
-        updateVpnServers()
+
+        vm.updateServers()
     }
 
     private fun observeLiveData() {
 
-    }
-
-    private fun updateVpnServers() {
-        if (!repository.serversUpdated) {
-            repository.updateServers()
-                .doOnIoObserveOnMain()
-                .addProgressTracking()
-                .subscribe({}, { error ->
-                    showMessage(getString(R.string.err_unable_to_update_servers))
-                })
-                .addToDestroySubscriptions()
-        }
     }
 
     private fun selectNewServer() {

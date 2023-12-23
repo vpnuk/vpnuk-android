@@ -44,6 +44,21 @@ class SplashScreenVM @Inject constructor(
 
     fun onCreate() = viewModelScope.launch {
         checkVpnVersion()
+        updateServersList()
+    }
+
+    private fun updateServersList() = viewModelScope.launch {
+        when(val request = serverListApi.getServerList()){
+            is NetworkResponse.Success ->{
+                localRepository.serversList = request.body.servers  ?: listOf()
+            }
+            is NetworkResponse.Error ->{
+                _oneShotEvents.emit(OneShotEvent.ErrorToast(request.error.message.toString()))
+            }
+            else -> {}
+        }
+
+        _viewState.emit(_viewState.value.copy(loadingTextToDisplay = "Checking server list..."))
     }
 
     private fun checkVpnVersion() = viewModelScope.launch {
