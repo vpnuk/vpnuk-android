@@ -5,6 +5,7 @@
  */
 package uk.vpn.vpnuk.ui.splash
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,10 +39,6 @@ class SplashScreenVM @Inject constructor(
     val oneShotEvents = _oneShotEvents.asSharedFlow()
 
 
-    fun onAction(action: UiAction) {
-
-    }
-
     fun onCreate() = viewModelScope.launch {
         checkVpnVersion()
         updateServersList()
@@ -64,6 +61,7 @@ class SplashScreenVM @Inject constructor(
     private fun checkVpnVersion() = viewModelScope.launch {
         when(val request = serverListApi.getVersions()){
             is NetworkResponse.Success ->{
+                Log.d("kek", "checkVpnVersion = ${request}")
                 if(request.body.ovpn != localRepository.previousOvpnConfigVersion){
                     localRepository.previousOvpnConfigVersion = request.body.ovpn.toString()
 
@@ -86,7 +84,7 @@ class SplashScreenVM @Inject constructor(
             is NetworkResponse.Success ->{
                 val ovpnTxtConfigString = request.body.string()
                 localRepository.newOvpnConfigTxt = ovpnTxtConfigString
-
+                Log.d("kek", "getNewOvpnConfig = $request")
                 _oneShotEvents.emit(OneShotEvent.NavigateToQuickLaunch)
             }
             is NetworkResponse.Error ->{

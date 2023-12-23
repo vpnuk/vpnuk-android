@@ -77,7 +77,7 @@ class SplashScreenActivity : BaseActivity() {
             if(packagesNames.contains("amazon")){
                 isAppDownloadedFromAmazon = true
             }
-            Log.d("kek", "Installer packages names: ${packagesNames}")
+            Log.d("kek", "Installer packages names: $packagesNames")
         } else if (installer.contains("amazon")) {
             isAppDownloadedFromAmazon = true
         }

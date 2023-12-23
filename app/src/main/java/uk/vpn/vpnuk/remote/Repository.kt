@@ -15,6 +15,7 @@ import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -32,6 +33,10 @@ interface Requests {
     @GET("versions.json")
     fun getServerVersion(): Single<ServerVersion>
 }
+interface RequestsRetrofit {
+    @GET("servers.json")
+    fun getServers(): Call<Servers>
+}
 data class Wrapper(val server: Server?)
 
 
@@ -46,9 +51,6 @@ class Repository(context: Context) {
         .baseUrl("https://www.serverlistvault.com/")
         .client(
             OkHttpClient.Builder()
-//                .addInterceptor(HttpLoggingInterceptor().apply {
-//                    this.level = HttpLoggingInterceptor.Level.BODY
-//                })
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .build()
         )

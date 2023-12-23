@@ -6,8 +6,10 @@
 
 package uk.vpn.vpnuk.ui.serverListScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.haroldadmin.cnradapter.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,10 +17,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.data.repository.LocalRepository
+import uk.vpn.vpnuk.remote.Requests
+import uk.vpn.vpnuk.remote.RequestsRetrofit
 import uk.vpn.vpnuk.remote.Server
+import uk.vpn.vpnuk.remote.Servers
 import uk.vpn.vpnuk.ui.splash.SplashScreenVM
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +54,31 @@ class ServerListViewModel @Inject constructor(
             is NetworkResponse.Success ->{
                 localRepository.serversList = request.body.servers  ?: listOf()
                 _viewState.emit(viewState.value.copy(serverList = request.body.servers  ?: listOf()))
+
+
+                val retrofit =
+                    Retrofit.Builder()
+                        .baseUrl("https://www.serverlistvault.com/")
+                        .client(
+                            OkHttpClient.Builder()
+                                .connectTimeout(20, TimeUnit.SECONDS)
+                                .build()
+                        )
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                val api = retrofit.create(RequestsRetrofit::class.java)
+
+                api.getServers().enqueue(object : Callback<Servers> {
+                    override fun onResponse(call: Call<Servers>, response: Response<Servers>) {
+                        Log.d("kek", "retrofit response: ${response.body()}")
+                    }
+                    override fun onFailure(call: Call<Servers>, t: Throwable) {
+                        Log.d("kek", "retrofit error: $t")
+                    }
+                })
+
+
             }
             is NetworkResponse.Error ->{}
             else -> {}

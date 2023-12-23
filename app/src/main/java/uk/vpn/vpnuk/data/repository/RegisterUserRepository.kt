@@ -166,13 +166,10 @@ class RegisterUserRepository() {
             .enqueue(object : Callback<ResponseBody>{
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if(response.isSuccessful){
-                        Log.d("kek", "Renewing!!!   Success - ${response.code()}")
                     }else{
-                        Log.d("kek", "Renewing!!!   No Success - ${response.code()}")
                     }
                 }
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.d("kek", "Renewing!!!   Failure - ${t.message}")
                 }
             })
     }

@@ -37,8 +37,6 @@ class AmazonMainVM @Inject constructor(
     fun updateServers() = viewModelScope.launch {
         when(val request = serverListApi.getServerList()){
             is NetworkResponse.Success ->{
-                Log.d("kek", "Saving servers Amaz request - ${request.body}")
-                Log.d("kek", "Saving servers Amaz request2 - ${request.body.servers}")
                 Log.d("kek", "Saving servers Amaz request3 - $request")
 
                 localRepository.serversList = request.body.servers ?: listOf()

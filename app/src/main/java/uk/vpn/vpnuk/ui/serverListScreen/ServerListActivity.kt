@@ -81,5 +81,7 @@ class ServerListActivity : BaseActivity() {
         if(servers.isEmpty()){
             vm.getServerList()
         }
+        //TODO _____________________
+        vm.getServerList()
     }
 }
