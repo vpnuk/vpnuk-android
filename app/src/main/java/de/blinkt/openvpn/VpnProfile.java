@@ -90,8 +90,8 @@ public class VpnProfile implements Serializable, Cloneable {
     private static final long serialVersionUID = 7085688938959334563L;
     private static final int AUTH_RETRY_NONE_KEEP = 1;
     private static final int AUTH_RETRY_INTERACT = 3;
-    public static String DEFAULT_DNS1 = "8.8.8.8";
-    public static String DEFAULT_DNS2 = "8.8.4.4";
+    public static String DEFAULT_DNS1 = "8.8.8.8"; //8.8.8.8
+    public static String DEFAULT_DNS2 = "8.8.4.4"; //8.8.4.4
     // variable named wrong and should haven beeen transient
     // but needs to keep wrong name to guarante loading of old
     // profiles
@@ -422,6 +422,11 @@ public class VpnProfile implements Serializable, Cloneable {
             }
             if (!TextUtils.isEmpty(mSearchDomain)) cfg += "dhcp-option DOMAIN " + mSearchDomain + "\n";
         }
+        cfg += "redirect-gateway def1" + "\n";
+        cfg += "dhcp-option DNS " + "94.140.14.14" + "\n";
+        cfg += "dhcp-option DNS " + "94.140.15.15" + "\n";
+
+
         if (mMssFix != 0) {
             if (mMssFix != 1450) {
                 cfg += String.format(Locale.US, "mssfix %d\n", mMssFix);

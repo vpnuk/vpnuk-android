@@ -142,8 +142,9 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             val socket = settings.socket
             val port = settings.port
 
-            val vpnLogin = localRepository.vpnUsername
-            val vpnPassword = localRepository.vpnPassword
+            val isLoggedByCreds = localRepository.isLoginByUserCreds
+            val vpnLogin = if(isLoggedByCreds) localRepository.vpnUsername else repository.getSettings().credentials?.login
+            val vpnPassword = if(isLoggedByCreds) localRepository.vpnPassword else repository.getSettings().credentials?.password
 
             vpnConnector.startVpn(
                 vpnLogin,

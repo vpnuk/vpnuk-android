@@ -52,6 +52,8 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         applySettings()
         observeLiveData()
 
+        localRepository.isLoginByUserCreds = false
+
         vm.updateServers()
     }
 
