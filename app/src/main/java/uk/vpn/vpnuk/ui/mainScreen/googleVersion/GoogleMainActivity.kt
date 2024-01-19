@@ -102,7 +102,7 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
                 server.server?.let {
                     bind.vGoogleMainActivityTextAddress.text = it.dns
                     bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
-                    bind.vGoogleMainActivityTextCity.text = it.location.city
+                    bind.vGoogleMainActivityTextCity.text = it.location?.city
                     bind.vGoogleMainActivityImageViewCountry.setImageDrawable(it.getIsoDrawable(this))
                 } ?: run {
                     bind.vGoogleMainActivityTextAddress.visibility = View.GONE
@@ -168,7 +168,8 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             address,
             socket,
             port,
-            settings.mtu ?: DefaultSettings.MTU_DEFAULT
+            settings.mtu ?: DefaultSettings.MTU_DEFAULT,
+            localRepository.customDns
         )
     }
 

@@ -12,6 +12,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import uk.vpn.vpnuk.model.CustomDnsModel
 import uk.vpn.vpnuk.model.serverList.ServerListModel
 import uk.vpn.vpnuk.model.versions.VersionsModel
 import uk.vpn.vpnuk.remote.Servers
@@ -26,4 +27,7 @@ interface ServerListVaultApi {
     @Headers("Content-Type: text/plain")
     @GET("android.txt")
     suspend fun getOVPNConfig(): NetworkResponse<ResponseBody, Any>
+
+    @GET("dns.json")
+    suspend fun getCustomDns(): NetworkResponse<CustomDnsModel, Any>
 }

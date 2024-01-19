@@ -122,6 +122,9 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mRemoteCN = "";
     public String mPassword = "";
     public String mUsername = "";
+    public Boolean useCustomDns = false;  //new feature Custom DNS
+    public String customDnsPrimary = "";
+    public String customDnsSecondary = "";
     public boolean mRoutenopull = false;
     public boolean mUseRandomHostname = false;
     public boolean mUseFloat = false;
@@ -422,9 +425,13 @@ public class VpnProfile implements Serializable, Cloneable {
             }
             if (!TextUtils.isEmpty(mSearchDomain)) cfg += "dhcp-option DOMAIN " + mSearchDomain + "\n";
         }
-        cfg += "redirect-gateway def1" + "\n";
-        cfg += "dhcp-option DNS " + "94.140.14.14" + "\n";
-        cfg += "dhcp-option DNS " + "94.140.15.15" + "\n";
+        if(useCustomDns){
+            cfg += "redirect-gateway def1" + "\n";
+            cfg += "dhcp-option DNS " + customDnsPrimary + "\n";
+            cfg += "dhcp-option DNS " + customDnsSecondary + "\n";
+            //cfg += "dhcp-option DNS " + "94.140.14.14" + "\n";
+            //cfg += "dhcp-option DNS " + "94.140.15.15" + "\n";
+        }
 
 
         if (mMssFix != 0) {

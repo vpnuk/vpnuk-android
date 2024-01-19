@@ -158,6 +158,18 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         bind.cbSaveCredentials.isChecked = settings.credentials != null
     }
 
+    private fun onUserCredsClick() {
+        localRepository.isLoginByUserCreds = true
+        bind.etLoginBox.hint = "User account"
+        bind.etPasswordBox.hint = "User password"
+    }
+
+    private fun onVpnCredsClick() {
+        localRepository.isLoginByUserCreds = false
+        bind.etLoginBox.hint = "Vpn username"
+        bind.etPasswordBox.hint = "Vpn password"
+    }
+
     private fun initViews() {
         //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
         bind.btConnect.setOnClickListener {
@@ -182,9 +194,16 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         }
         //temp//////////////////////////////   CONNECT CLICK   ////////////////////////////////////
 
-        bind.tbUserCreds.setOnClickListener { localRepository.isLoginByUserCreds = true }
-        bind.tbVpnCreds.setOnClickListener { localRepository.isLoginByUserCreds = false }
-        bind.tgCredentialsType.check(if(localRepository.isLoginByUserCreds) R.id.tbUserCreds else R.id.tbVpnCreds)
+        bind.tbUserCreds.setOnClickListener { onUserCredsClick() }
+        bind.tbVpnCreds.setOnClickListener { onVpnCredsClick() }
+        if(localRepository.isLoginByUserCreds) {
+            bind.tgCredentialsType.check(R.id.tbUserCreds)
+            onUserCredsClick()
+        } else{
+            bind.tgCredentialsType.check(R.id.tbVpnCreds)
+            onVpnCredsClick()
+        }
+
 
         bind.tvLinkTrial.stripUnderlines()
         bind.tvLinkTrial.setOnClickListener {
@@ -205,7 +224,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
                 server.server?.let {
                     bind.tvAddress.text = it.dns
                     bind.tvAddress.visibility = View.VISIBLE
-                    bind.tvCity.text = it.location.city
+                    bind.tvCity.text = it.location?.city
                     bind.ivCountry.setImageDrawable(it.getIsoDrawable(this))
                 } ?: run {
                     bind.tvAddress.visibility = View.GONE
@@ -296,7 +315,8 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             address,
             socket,
             port,
-            settings.mtu ?: DefaultSettings.MTU_DEFAULT
+            settings.mtu ?: DefaultSettings.MTU_DEFAULT,
+            localRepository.customDns
         )
     }
 

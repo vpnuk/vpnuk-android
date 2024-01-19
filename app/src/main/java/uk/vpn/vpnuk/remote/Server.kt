@@ -6,6 +6,7 @@
 
 package uk.vpn.vpnuk.remote
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -13,12 +14,14 @@ data class ServerVersion(
     val servers: String
 )
 
+@Keep
 data class Servers(
     @SerializedName("servers")
     @Expose
     val servers: List<Server>?
 )
 
+@Keep
 data class Server(
     @SerializedName("type")
     @Expose
@@ -35,6 +38,7 @@ data class Server(
     val location: Location
 )
 
+@Keep
 data class Location(
     @SerializedName("icon")
     @Expose

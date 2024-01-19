@@ -6,6 +6,7 @@
 
 package uk.vpn.vpnuk.ui.mainScreen.googleVersion
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haroldadmin.cnradapter.NetworkResponse
@@ -40,7 +41,9 @@ class GoogleMainVM @Inject constructor(
     fun updateServers() = viewModelScope.launch {
         when(val request = serverListApi.getServerList()){
             is NetworkResponse.Success ->{
+                Log.d("kek", "Saving servers Goog request3 - $request")
                 localRepository.serversList = request.body.servers  ?: listOf()
+                Log.d("kek", "servers saved. LocalRepo - ${localRepository.serversList}")
             }
             is NetworkResponse.Error ->{}
             else -> {}

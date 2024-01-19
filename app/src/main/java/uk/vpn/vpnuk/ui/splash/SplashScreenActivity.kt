@@ -82,8 +82,8 @@ class SplashScreenActivity : BaseActivity() {
             isAppDownloadedFromAmazon = true
         }
 
-        //localRepository.isAppDownloadedFromAmazon = isAppDownloadedFromAmazon
-        localRepository.isAppDownloadedFromAmazon = true
+        localRepository.isAppDownloadedFromAmazon = isAppDownloadedFromAmazon
+        //localRepository.isAppDownloadedFromAmazon = true
 
         Log.d("kek", "Installer:  $installer")
     }

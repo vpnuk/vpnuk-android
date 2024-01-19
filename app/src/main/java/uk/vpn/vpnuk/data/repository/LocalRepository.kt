@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.remote.Server
 import javax.inject.Inject
 import kotlin.reflect.KProperty
@@ -109,8 +110,9 @@ class LocalRepository @Inject constructor(context: Context) {
 
 
     var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()
-    var isLoginByUserCreds by BooleanPreferenceDelegate(true)
+    var isLoginByUserCreds by BooleanPreferenceDelegate(false)
     var serversList by JsonListPreferenceDelegate(Server::class.java)
+    var customDns by JsonPreferenceDelegate(DnsServer::class.java)
 
 
     fun clear() {

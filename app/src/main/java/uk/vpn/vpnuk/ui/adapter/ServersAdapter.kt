@@ -55,14 +55,14 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind(server: Server) {
         //ivCountry.setImageResource(server.getIconResourceName(itemView.context))
         //server.location.icon //== "uk"
-        var iso = server.location.icon.toLowerCase()
+        var iso = server.location?.icon?.toLowerCase() ?: ""
         when(iso){
             "uk" -> iso = "gb"
         }
 
         val drawable = FlagKit.getDrawable(itemView.context, iso)
         ivCountry.setImageDrawable(drawable)
-        tvCity.text = server.location.city
+        tvCity.text = server.location?.city
         tvAddress.text = server.dns
     }
 

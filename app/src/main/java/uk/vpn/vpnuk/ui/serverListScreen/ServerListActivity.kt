@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.databinding.ActivityServerListBinding
 import uk.vpn.vpnuk.remote.Repository
+import uk.vpn.vpnuk.remote.Server
 import uk.vpn.vpnuk.remote.ServerVersion
 import uk.vpn.vpnuk.utils.ServerType
 import uk.vpn.vpnuk.utils.doOnIoObserveOnMain
@@ -30,14 +31,19 @@ class ServerListActivity : BaseActivity() {
 
     private lateinit var repository: Repository
     private lateinit var serversAdapter: ServersAdapter
+    private var serverList = listOf<Server>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind = ActivityServerListBinding.inflate(layoutInflater)
         setContentView(bind.root)
         repository = Repository.instance(this@ServerListActivity)
+
+        vm.getServerList()
+
         initViews()
         observeData()
+
         bind.tabTypes.getTabAt(0)!!.select()
     }
 
@@ -47,7 +53,10 @@ class ServerListActivity : BaseActivity() {
 
     private fun render(viewState: ServerListViewModel.ViewState) {
         Log.d("kek", "Render, serverList = ${viewState.serverList}")
-        if(viewState.serverList.isNotEmpty()) serversAdapter.updateData(viewState.serverList)
+        if(viewState.serverList.isNotEmpty()) {
+            serverList = viewState.serverList
+            loadServers(ServerType.values()[0])
+        }
     }
 
     private fun initViews() {
@@ -74,14 +83,8 @@ class ServerListActivity : BaseActivity() {
 
     private fun loadServers(serverType: ServerType) {
         Log.d("kek", "load servers. before filter - ${localRepository.serversList}")
-        val servers = localRepository.serversList.filter { it.type == serverType.value }
+        val servers = serverList.filter { it.type == serverType.value }
         Log.d("kek", "servers after filter - ${servers.size}")
         serversAdapter.updateData(servers)
-
-        if(servers.isEmpty()){
-            vm.getServerList()
-        }
-        //TODO _____________________
-        vm.getServerList()
     }
 }

@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
@@ -27,6 +26,7 @@ import uk.vpn.vpnuk.databinding.ActivitySettingsBinding
 import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.local.Settings
+import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
@@ -98,7 +98,7 @@ class SettingsActivity : BaseActivity() {
                     vpnAccountsList.add(vpnAccount)
                 }
             }
-            initSpinners()
+            initSubscriptionsSpinner()
         }
         vm.isRegisteredFromApp.observe(this, Observer {
             if(it){
@@ -127,9 +127,26 @@ class SettingsActivity : BaseActivity() {
         }else{
             hideServerProgress()
         }
+
+        initDnsSpinner(viewState.customDnsServers)
     }
 
-    private fun initSpinners() {
+    private fun initDnsSpinner(customDnsServers: List<DnsServer>) {
+        val dnsAdapter = ArrayAdapter(this, R.layout.spinner_custom, customDnsServers.map { it.name })
+
+        bind.vSettingsActivitySpinnerDNS.adapter = dnsAdapter
+
+        bind.vSettingsActivitySpinnerDNS.onItemSelectedListener = (object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                vm.onCustomDnsSelected(position)
+            }
+        })
+
+        bind.vSettingsActivitySpinnerDNS.setSelection(dnsAdapter.getPosition(localRepository.customDns?.name))
+    }
+
+    private fun initSubscriptionsSpinner() {
         val vpnAccountStrings = vpnAccountsList.map { it.username }
         val accountsAdapter = ArrayAdapter(this, R.layout.spinner_custom, vpnAccountStrings)
 
@@ -232,6 +249,13 @@ class SettingsActivity : BaseActivity() {
                 bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
             }else{
                 bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
+            }
+        }
+        bind.vSettingsActivitySpinnerDNS.setOnFocusChangeListener { _, hasFocus ->
+            if(hasFocus){
+                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
+            }else{
+                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
             }
         }
 

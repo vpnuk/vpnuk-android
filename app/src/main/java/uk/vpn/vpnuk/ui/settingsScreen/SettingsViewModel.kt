@@ -15,11 +15,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.api.VpnUkInfoApi
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.data.repository.RegisterUserRepository
 import uk.vpn.vpnuk.data.repository.VpnAccountRepository
+import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.utils.asLiveData
 import javax.inject.Inject
@@ -28,6 +31,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val vpnUkInfoApi: VpnUkInfoApi,
+    private val serverListVaultApi: ServerListVaultApi
 ) : ViewModel() {
 
     private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState())
@@ -49,6 +53,22 @@ class SettingsViewModel @Inject constructor(
     fun onCreate() {
         initAmazonGoogleViews()
         initAmazonApi()
+        getCustomDNS()
+    }
+
+    private fun getCustomDNS() = viewModelScope.launch {
+        when(val result = serverListVaultApi.getCustomDns()){
+            is NetworkResponse.Success -> {
+                val servers = result.body.dns.apply {
+                        this.add(0, DnsServer(name = "Default"))
+                    }
+
+                _viewState.update {
+                    it.copy(customDnsServers = servers)
+                }
+            }
+            else -> {}
+        }
     }
 
     private fun initAmazonApi() {
@@ -109,10 +129,21 @@ class SettingsViewModel @Inject constructor(
         registerRepo.renewSubscription(amazonUserId, amazonReceiptId, pendingOrderId)
     }
 
+    fun onCustomDnsSelected(position: Int) {
+        val selectedDns = _viewState.value.customDnsServers[position]
+
+        if(selectedDns.secondary != null && selectedDns.primary != null){
+            localRepository.customDns = selectedDns
+        }else{
+            localRepository.customDns = null
+        }
+    }
+
 
     data class ViewState(
         val amazonApiSettingsVisible: Boolean = false,
-        val serverProgressView: Boolean = false
+        val serverProgressView: Boolean = false,
+        val customDnsServers: List<DnsServer> = listOf(),
     )
     sealed class OneShotEvent {
         class ErrorToast(val message: String = "") : OneShotEvent()

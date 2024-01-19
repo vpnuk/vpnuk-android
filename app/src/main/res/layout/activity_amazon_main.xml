@@ -41,19 +41,21 @@
             android:id="@+id/tgCredentialsType"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:checkedButton="@+id/tbUserCreds"
+            app:checkedButton="@+id/tbVpnCreds"
             android:layout_width="match_parent"
             android:layout_height="45dp">
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tbUserCreds"
-                android:text="User Creds"
+                android:text="User Credentials"
+                android:textSize="11sp"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tbVpnCreds"
-                android:text="VPN Creds"
+                android:text="VPN Credentials"
+                android:textSize="11sp"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
@@ -64,6 +66,7 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/etLoginBox"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
@@ -73,7 +76,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text|textEmailAddress"
-                android:hint="@string/hint_login"
                 android:autofillHints="" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -89,6 +91,7 @@
             android:textSize="13sp" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/etPasswordBox"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
@@ -98,7 +101,6 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_password"
                 android:inputType="textPassword"
                 android:autofillHints="" />
         </com.google.android.material.textfield.TextInputLayout>

@@ -33,6 +33,7 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import uk.vpn.vpnuk.data.repository.LocalRepository;
+import uk.vpn.vpnuk.model.DnsServer;
 import uk.vpn.vpnuk.utils.Logger;
 
 public class VpnConnector implements VpnStatus.StateListener {
@@ -64,7 +65,8 @@ public class VpnConnector implements VpnStatus.StateListener {
             String ip,
             String socket,
             String port,
-            String mtu
+            String mtu,
+            DnsServer customDns
     ) {
         try {
             ByteArrayInputStream inputStream;
@@ -78,6 +80,12 @@ public class VpnConnector implements VpnStatus.StateListener {
             cp.parseConfig(bufferedReader);
 
             VpnProfile vp = cp.convertProfile();
+
+            if(customDns != null){
+                vp.useCustomDns = true;
+                vp.customDnsPrimary = customDns.getPrimary();
+                vp.customDnsSecondary = customDns.getSecondary();
+            }
 
             vp.mName = Build.MODEL;
             vp.mUsername = userName;

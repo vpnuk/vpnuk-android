@@ -3,5 +3,6 @@
   <domain-config cleartextTrafficPermitted="true">
     <domain includeSubdomains="true">vpnuk.info</domain>
     <domain includeSubdomains="true">serverlistvault.com</domain>
+    <domain includeSubdomains="true">www.serverlistvault.com</domain>
   </domain-config>
 </network-security-config>

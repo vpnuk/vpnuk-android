@@ -54,31 +54,6 @@ class ServerListViewModel @Inject constructor(
             is NetworkResponse.Success ->{
                 localRepository.serversList = request.body.servers  ?: listOf()
                 _viewState.emit(viewState.value.copy(serverList = request.body.servers  ?: listOf()))
-
-
-                val retrofit =
-                    Retrofit.Builder()
-                        .baseUrl("https://www.serverlistvault.com/")
-                        .client(
-                            OkHttpClient.Builder()
-                                .connectTimeout(20, TimeUnit.SECONDS)
-                                .build()
-                        )
-                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                val api = retrofit.create(RequestsRetrofit::class.java)
-
-                api.getServers().enqueue(object : Callback<Servers> {
-                    override fun onResponse(call: Call<Servers>, response: Response<Servers>) {
-                        Log.d("kek", "retrofit response: ${response.body()}")
-                    }
-                    override fun onFailure(call: Call<Servers>, t: Throwable) {
-                        Log.d("kek", "retrofit error: $t")
-                    }
-                })
-
-
             }
             is NetworkResponse.Error ->{}
             else -> {}
