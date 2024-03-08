@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="uk.vpn.vpnuk" >
+    package="uk.vpn.vpnuk">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,20 +18,27 @@
         android:name="de.blinkt.openvpn.core.App"
         android:allowBackup="true"
         android:extractNativeLibs="true"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ui.settingsScreen.manageWebsites.ManageWebsitesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settingsScreen.manageApps.ManageAppsActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:exported="false" />
         <activity
             android:name=".ui.mainScreen.googleVersion.GoogleMainActivity"
             android:exported="false" />
         <activity
             android:name=".ui.splash.SplashScreenActivity"
             android:exported="true"
-            android:noHistory="true" >
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,25 +51,21 @@
         <activity
             android:name=".ui.quickLaunch.QuickLaunchActivity"
             android:exported="true" />
-
-
         <activity
             android:name=".ui.mainScreen.amazonVersion.AmazonMainActivity"
-            android:exported="true" >
-            <intent-filter android:label="@string/app_name" >
+            android:exported="true">
+            <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/vpn_launch_title"
-            tools:ignore="ExportedActivity" >
+            tools:ignore="ExportedActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -74,7 +77,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="uk.vpn.vpnuk.provider"
             android:exported="false"
-            android:grantUriPermissions="true" >
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
@@ -83,7 +86,7 @@
         <receiver
             android:name="com.amazon.device.iap.ResponseReceiver"
             android:exported="true"
-            android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY" >
+            android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY">
             <intent-filter>
                 <action android:name="com.amazon.inapp.purchasing.NOTIFY" />
             </intent-filter>
@@ -96,7 +99,7 @@
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:exported="true"
-            android:permission="android.permission.BIND_VPN_SERVICE" >
+            android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
@@ -104,7 +107,7 @@
         <service
             android:name="de.blinkt.openvpn.api.ExternalOpenVPNService"
             android:exported="true"
-            tools:ignore="ExportedService" >
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="de.blinkt.openvpn.api.IOpenVPNAPIService" />
             </intent-filter>

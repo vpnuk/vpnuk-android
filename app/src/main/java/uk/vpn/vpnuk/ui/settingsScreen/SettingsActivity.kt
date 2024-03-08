@@ -6,6 +6,7 @@
 
 package uk.vpn.vpnuk.ui.settingsScreen
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -30,6 +31,7 @@ import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
+import uk.vpn.vpnuk.ui.settingsScreen.manageApps.ManageAppsActivity
 import uk.vpn.vpnuk.utils.*
 import java.util.HashSet
 
@@ -42,8 +44,6 @@ class SettingsActivity : BaseActivity() {
     private lateinit var repository: Repository
     private lateinit var settings: Settings
     val vm: SettingsViewModel by viewModels()
-
-    private var isRestartVpnConnectionRequired = false
 
     private var vpnAccountsList = mutableListOf<Vpnaccount>()
     private var subscriptionsList = mutableListOf<SubscriptionsModel>()
@@ -238,28 +238,27 @@ class SettingsActivity : BaseActivity() {
             .subscribe {}.addToDestroySubscriptions()
     }
 
-    private fun requireRestartVpnConnection() {
-        isRestartVpnConnectionRequired = true
-    }
-
     private fun initViews() {
         //For FireTv
         bind.vSettingsActivitySpinner.setOnFocusChangeListener { _, hasFocus ->
             if(hasFocus){
-                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
+                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.dropdown_gray_focused)
             }else{
-                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
+                bind.vSettingsActivityFrameChooseServer.background = resources.getDrawable(R.drawable.dropdown_gray)
             }
         }
         bind.vSettingsActivitySpinnerDNS.setOnFocusChangeListener { _, hasFocus ->
             if(hasFocus){
-                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.blue_rounded_stroke)
+                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.dropdown_gray_focused)
             }else{
-                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.gray_rounded_stroke)
+                bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.dropdown_gray)
             }
         }
-
         settings = repository.getSettings()
+
+
+        bind.buttonManageApps.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
+        bind.buttonManageWebsites.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
 
         bind.tabsSocketType.setTabs(SocketType.values().map { it.value })
         bind.tabsPort.setTabListener { _, _ ->
@@ -267,8 +266,6 @@ class SettingsActivity : BaseActivity() {
                 socket = bind.tabsSocketType.selectedTab().text.toString(),
                 port = bind.tabsPort.selectedTab().text.toString()
             ))
-
-            requireRestartVpnConnection()
         }
         bind.tabsSocketType.setTabListener { text, _ ->
             bind.tabsPort.setTabs(SocketType.byValue(text)!!.ports)
@@ -276,26 +273,17 @@ class SettingsActivity : BaseActivity() {
                 socket = bind.tabsSocketType.selectedTab().text.toString(),
                 port = bind.tabsPort.selectedTab().text.toString()
             ))
-
-            requireRestartVpnConnection()
         }
 
-        bind.cbMtu.post {
-            bind.cbMtu.setOnCheckedChangeListener { _, checked ->
+        bind.switchEnableMTU.post {
+            bind.switchEnableMTU.setOnCheckedChangeListener { _, checked ->
                 if (checked) {
-                    dialog = AlertDialog.Builder(this)
-                        .setItems(
-                            DefaultSettings.MTU_LIST
-                        ) { _, i ->
-                            repository.updateSettings(
-                                repository.getSettings().copy(
-                                    mtu = DefaultSettings.MTU_LIST[i]
-                                )
-                            )
+                    dialog = AlertDialog.Builder(this).setItems(DefaultSettings.MTU_LIST) { _, i ->
+                            repository.updateSettings(repository.getSettings().copy(mtu = DefaultSettings.MTU_LIST[i]))
                         }
                         .setTitle(getString(R.string.custom_mtu))
                         .setOnCancelListener {
-                            bind.cbMtu.isChecked = false
+                            bind.switchEnableMTU.isChecked = false
                         }
                         .create().apply {
                             show()
@@ -304,11 +292,9 @@ class SettingsActivity : BaseActivity() {
                     removeMtu()
                 }
             }
-
-            requireRestartVpnConnection()
         }
 
-        bind.cbReconnect.setOnCheckedChangeListener { _, checked ->
+        bind.switchKillSwitch.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 repository.updateSettings(settings.copy(reconnect = true))
             } else {
@@ -324,12 +310,6 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
-    override fun showProgress() {
-        bind.vSettingsActivityProgressView.visibility = View.VISIBLE
-    }
-    override fun hideProgress() {
-        bind.vSettingsActivityProgressView.visibility = View.GONE
-    }
     private fun showServerProgress(){
         bind.vSettingsActivityServersProgressBackground.visibility = View.VISIBLE
         bind.vSettingsActivityServersProgressView.visibility = View.VISIBLE
@@ -347,8 +327,8 @@ class SettingsActivity : BaseActivity() {
         val socketIndex = SocketType.values().indexOf(socketType)
         bind.tabsSocketType.select(socketIndex)
         bind.tabsPort.select(portIndex)
-        bind.cbReconnect.isChecked = settings.reconnect
-        bind.cbMtu.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
+        bind.switchKillSwitch.isChecked = settings.reconnect
+        bind.switchEnableMTU.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
     }
 
     private fun removeMtu() {

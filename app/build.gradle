@@ -38,6 +38,12 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            buildConfigField "boolean", "CATALYST_DEBUG", "true"
+            buildConfigField "boolean", "ALLOW_INVALID_CERTIFICATE", "true"
+        }
+        debug {
+            buildConfigField "boolean", "CATALYST_DEBUG", "true"
+            buildConfigField "boolean", "ALLOW_INVALID_CERTIFICATE", "true"
         }
     }
     compileOptions {

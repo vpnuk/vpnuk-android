@@ -20,6 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,6 +35,7 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import uk.vpn.vpnuk.data.repository.LocalRepository;
+import uk.vpn.vpnuk.model.AppInfo;
 import uk.vpn.vpnuk.model.DnsServer;
 import uk.vpn.vpnuk.utils.Logger;
 
@@ -66,7 +69,8 @@ public class VpnConnector implements VpnStatus.StateListener {
             String socket,
             String port,
             String mtu,
-            DnsServer customDns
+            DnsServer customDns,
+            List<AppInfo> excludedAppsFromVPNConn
     ) {
         try {
             ByteArrayInputStream inputStream;
@@ -80,6 +84,14 @@ public class VpnConnector implements VpnStatus.StateListener {
             cp.parseConfig(bufferedReader);
 
             VpnProfile vp = cp.convertProfile();
+
+            if(excludedAppsFromVPNConn != null && !excludedAppsFromVPNConn.isEmpty()){
+                HashSet<String> excludedAppsSet = new HashSet<>();
+                for (AppInfo app: excludedAppsFromVPNConn) {
+                    excludedAppsSet.add(app.getPackageName());
+                }
+                vp.mAllowedAppsVpn = excludedAppsSet;
+            }
 
             if(customDns != null){
                 vp.useCustomDns = true;

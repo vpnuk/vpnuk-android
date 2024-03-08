@@ -169,7 +169,8 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             socket,
             port,
             settings.mtu ?: DefaultSettings.MTU_DEFAULT,
-            localRepository.customDns
+            localRepository.customDns,
+            localRepository.excludedApps
         )
     }
 

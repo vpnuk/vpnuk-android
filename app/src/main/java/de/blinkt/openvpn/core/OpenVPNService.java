@@ -772,6 +772,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 builder.addAllowedApplication(getPackageName());
             } catch (PackageManager.NameNotFoundException e) {
                 VpnStatus.logError("This should not happen: " + e.getLocalizedMessage());
+
             }
         }
         if (mProfile.mAllowedAppsVpnAreDisallowed) {

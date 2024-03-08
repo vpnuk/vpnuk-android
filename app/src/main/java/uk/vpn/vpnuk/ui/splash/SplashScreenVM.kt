@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.api.VpnUkInfoApi
+import uk.vpn.vpnuk.data.repository.ApplicationsInfoRepository
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.utils.asLiveData
 import javax.inject.Inject
@@ -30,6 +31,7 @@ class SplashScreenVM @Inject constructor(
     private val localRepository: LocalRepository,
     private val serverListApi: ServerListVaultApi,
     private val vpnUkInfoApi: VpnUkInfoApi,
+    private val applicationsInfoRepository: ApplicationsInfoRepository
 ) : ViewModel() {
 
     private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState())
@@ -42,6 +44,11 @@ class SplashScreenVM @Inject constructor(
     fun onCreate() = viewModelScope.launch {
         checkVpnVersion()
         updateServersList()
+        cacheInstalledApplications()
+    }
+
+    private fun cacheInstalledApplications() = viewModelScope.launch {
+        applicationsInfoRepository.saveAllAppsLocally()
     }
 
     private fun updateServersList() = viewModelScope.launch {

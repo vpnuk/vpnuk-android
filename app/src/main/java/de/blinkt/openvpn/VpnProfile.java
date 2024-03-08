@@ -399,6 +399,19 @@ public class VpnProfile implements Serializable, Cloneable {
             if (!TextUtils.isEmpty(mIPv6Address)) cfg += "ifconfig-ipv6 " + mIPv6Address + "\n";
         }
         if (mUsePull && mRoutenopull) cfg += "route-nopull\n";
+
+
+
+
+
+
+        //TODO - exclude routes from VPN connection.
+        //mUseDefaultRoute = false;
+        //mExcludedRoutes = "2ip.ru\n";
+
+
+
+
         String routes = "";
         if (mUseDefaultRoute) routes += "route 0.0.0.0 0.0.0.0 vpn_gateway\n";
         else {
@@ -429,9 +442,11 @@ public class VpnProfile implements Serializable, Cloneable {
             cfg += "redirect-gateway def1" + "\n";
             cfg += "dhcp-option DNS " + customDnsPrimary + "\n";
             cfg += "dhcp-option DNS " + customDnsSecondary + "\n";
-            //cfg += "dhcp-option DNS " + "94.140.14.14" + "\n";
-            //cfg += "dhcp-option DNS " + "94.140.15.15" + "\n";
         }
+
+
+
+
 
 
         if (mMssFix != 0) {

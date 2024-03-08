@@ -153,7 +153,8 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 socket,
                 port,
                 settings.mtu ?: DefaultSettings.MTU_DEFAULT,
-                localRepository.customDns
+                localRepository.customDns,
+                localRepository.excludedApps
             )
         }
     }
@@ -208,7 +209,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 .doOnIoObserveOnMain()
                 .addProgressTracking()
                 .subscribe({}, { error ->
-                    showMessage(getString(R.string.err_unable_to_update_servers))
+                    //showMessage(getString(R.string.err_unable_to_update_servers))
                 })
                 .addToDestroySubscriptions()
         }
