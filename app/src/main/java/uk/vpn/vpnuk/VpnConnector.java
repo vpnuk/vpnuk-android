@@ -70,7 +70,8 @@ public class VpnConnector implements VpnStatus.StateListener {
             String port,
             String mtu,
             DnsServer customDns,
-            List<AppInfo> excludedAppsFromVPNConn
+            List<AppInfo> excludedAppsFromVPNConn,
+            List<String> excludedDomainsFromVPNConn
     ) {
         try {
             ByteArrayInputStream inputStream;
@@ -91,6 +92,14 @@ public class VpnConnector implements VpnStatus.StateListener {
                     excludedAppsSet.add(app.getPackageName());
                 }
                 vp.mAllowedAppsVpn = excludedAppsSet;
+            }
+
+            if(excludedDomainsFromVPNConn != null && !excludedDomainsFromVPNConn.isEmpty()){
+                StringBuilder routesToExclude = new StringBuilder();
+                for (String domain: excludedDomainsFromVPNConn) {
+                    routesToExclude.append(domain).append("\n");
+                }
+                vp.mExcludedRoutes = routesToExclude.toString();
             }
 
             if(customDns != null){

@@ -95,6 +95,17 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             vpnConnector.stopVpn()
         }
 
+//        val server = localRepository.currentServer
+//        if(server != null){
+//            bind.vGoogleMainActivityTextAddress.text = server.dns
+//            bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
+//            bind.vGoogleMainActivityTextCity.text = server.location?.city
+//            bind.vGoogleMainActivityImageViewCountry.setImageDrawable(server.getIsoDrawable(this))
+//        }else{
+//            bind.vGoogleMainActivityTextAddress.visibility = View.GONE
+//            bind.vGoogleMainActivityImageViewCountry.setImageResource(R.drawable.ic_country)
+//            bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
+//        }
         repository.getCurrentServerObservable()
             .observeOnMain()
             .subscribe { server ->
@@ -110,6 +121,10 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
                     bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
                 }
             }.addToDestroySubscriptions()
+
+//        if(!bind.vGoogleMainActivityPassword.text.isNullOrEmpty() && !bind.vGoogleMainActivityLogin.text.isNullOrEmpty() && server != null){
+//            bind.vGoogleMainActivityButtonConnect.isEnabled = true
+//        }
 
         Observable.combineLatest(
             bind.vGoogleMainActivityPassword.textEmpty(),
@@ -170,7 +185,8 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             port,
             settings.mtu ?: DefaultSettings.MTU_DEFAULT,
             localRepository.customDns,
-            localRepository.excludedApps
+            localRepository.excludedApps,
+            localRepository.excludedWebsites
         )
     }
 

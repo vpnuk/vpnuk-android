@@ -32,6 +32,7 @@ import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.ui.settingsScreen.manageApps.ManageAppsActivity
+import uk.vpn.vpnuk.ui.settingsScreen.manageWebsites.ManageWebsitesActivity
 import uk.vpn.vpnuk.utils.*
 import java.util.HashSet
 
@@ -258,7 +259,7 @@ class SettingsActivity : BaseActivity() {
 
 
         bind.buttonManageApps.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
-        bind.buttonManageWebsites.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
+        bind.buttonManageWebsites.setOnClickListener { startActivity(Intent(this, ManageWebsitesActivity::class.java)) }
 
         bind.tabsSocketType.setTabs(SocketType.values().map { it.value })
         bind.tabsPort.setTabListener { _, _ ->

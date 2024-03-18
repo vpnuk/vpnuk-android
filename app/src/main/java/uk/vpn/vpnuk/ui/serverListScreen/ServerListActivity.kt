@@ -64,6 +64,8 @@ class ServerListActivity : BaseActivity() {
 
 
         serversAdapter = ServersAdapter(this) {
+            localRepository.currentServer = it
+
             repository.setServerId(it.address)
                 .doOnIoObserveOnMain()
                 .subscribe {

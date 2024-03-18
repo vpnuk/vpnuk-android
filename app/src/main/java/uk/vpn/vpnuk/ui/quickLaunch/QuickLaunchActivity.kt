@@ -154,7 +154,8 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 port,
                 settings.mtu ?: DefaultSettings.MTU_DEFAULT,
                 localRepository.customDns,
-                localRepository.excludedApps
+                localRepository.excludedApps,
+                localRepository.excludedWebsites
             )
         }
     }

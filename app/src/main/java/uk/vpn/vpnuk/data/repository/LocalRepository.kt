@@ -108,6 +108,7 @@ class LocalRepository @Inject constructor(context: Context) {
 
     var previousOvpnConfigVersion by StringPreferenceDelegate()
     var newOvpnConfigTxt by StringPreferenceDelegate()
+    var currentServer by JsonPreferenceDelegate(Server::class.java)
 
 
     var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()
@@ -116,6 +117,7 @@ class LocalRepository @Inject constructor(context: Context) {
     var customDns by JsonPreferenceDelegate(DnsServer::class.java)
     var allAppsInfoList by JsonListPreferenceDelegate(AppInfo::class.java)
     var excludedApps by JsonListPreferenceDelegate(AppInfo::class.java)
+    var excludedWebsites by JsonListPreferenceDelegate(String::class.java)
 
 
     fun clear() {

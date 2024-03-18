@@ -405,12 +405,10 @@ public class VpnProfile implements Serializable, Cloneable {
 
 
 
+
         //TODO - exclude routes from VPN connection.
-        //mUseDefaultRoute = false;
+        mUseDefaultRoute = false;
         //mExcludedRoutes = "2ip.ru\n";
-
-
-
 
         String routes = "";
         if (mUseDefaultRoute) routes += "route 0.0.0.0 0.0.0.0 vpn_gateway\n";
@@ -443,6 +441,7 @@ public class VpnProfile implements Serializable, Cloneable {
             cfg += "dhcp-option DNS " + customDnsPrimary + "\n";
             cfg += "dhcp-option DNS " + customDnsSecondary + "\n";
         }
+
 
 
 
