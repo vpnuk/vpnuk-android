@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
+import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uk.vpn.vpnuk.BaseActivity
@@ -40,6 +41,13 @@ class ManageWebsitesActivity : BaseActivity() {
 
     private fun observeData() {
         observeFlow(vm.viewState, ::render)
+        observeFlow(vm.event, ::event)
+    }
+
+    private fun event(event: ManageWebsitesViewModel.ManageWebsitesEvent) {
+        when(event){
+            is ManageWebsitesViewModel.ManageWebsitesEvent.Error -> Toasty.error(this, event.message, Toasty.LENGTH_LONG).show()
+        }
     }
 
     private fun render(viewState: ManageWebsitesViewModel.ManageWebsitesViewState) {
