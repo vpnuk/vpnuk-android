@@ -312,6 +312,10 @@ public class VpnProfile implements Serializable, Cloneable {
         else if (mUsePull) cfg += "pull\n";
         else if (useTLSClient) cfg += "tls-client\n";
         //cfg += "verb " + mVerb + "\n";
+
+        cfg += "tmp-dir " + cacheDir + "\n";
+
+
         cfg += "verb " + MAXLOGLEVEL + "\n";
         if (mConnectRetryMax == null) {
             mConnectRetryMax = "-1";
@@ -406,7 +410,12 @@ public class VpnProfile implements Serializable, Cloneable {
 
 
 
+
+
         //TODO - exclude routes from VPN connection.
+
+        cfg += "scramble obfuscate 4fhxKPXNyftLKCofqbWv3ErATWLca7";
+
         mUseDefaultRoute = false;
         //mExcludedRoutes = "2ip.ru\n";
 
@@ -883,9 +892,9 @@ public class VpnProfile implements Serializable, Cloneable {
             int pkey = (Integer) getPkeyContext.invoke(opensslkey);
             getPkeyContext.setAccessible(false);
             // 112 with TLS 1.2 (172 back with 4.3), 36 with TLS 1.0
-            byte[] signed_bytes = NativeUtils.rsasign(data, pkey);
+            byte[] signed_bytes = new byte[0]; //TODO ______________ NativeUtils.rsasign(data, pkey);
             return Base64.encodeToString(signed_bytes, Base64.NO_WRAP);
-        } catch (NoSuchMethodException | InvalidKeyException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             VpnStatus.logError(R.string.error_rsa_sign, e.getClass().toString(), e.getLocalizedMessage());
             return null;
         }

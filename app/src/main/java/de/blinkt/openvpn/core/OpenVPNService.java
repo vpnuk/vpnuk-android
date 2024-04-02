@@ -611,7 +611,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return null;
         }
         if (mLocalIP != null) {
-            addLocalNetworksToRoutes();
+            //TODO ________ addLocalNetworksToRoutes();
             try {
                 builder.addAddress(mLocalIP.mIp, mLocalIP.len);
             } catch (IllegalArgumentException iae) {
@@ -730,7 +730,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     private void addLocalNetworksToRoutes() {
         // Add local network interfaces
-        String[] localRoutes = NativeUtils.getIfconfig();
+        String[] localRoutes = new String[0]; //TODO ____ NativeUtils.getIfconfig();
         // The format of mLocalRoutes is kind of broken because I don't really like JNI
         for (int i = 0; i < localRoutes.length; i += 3) {
             String intf = localRoutes[i];
