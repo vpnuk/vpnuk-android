@@ -22,7 +22,7 @@ android {
     buildToolsVersion '31.0.0'
     defaultConfig {
         applicationId "uk.vpn.vpnuk"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 33
         versionCode 27
         versionName "1.3.4"

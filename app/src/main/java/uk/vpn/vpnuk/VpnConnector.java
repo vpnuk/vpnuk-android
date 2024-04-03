@@ -6,6 +6,8 @@
 
 package uk.vpn.vpnuk;
 
+import static uk.vpn.vpnuk.utils.ConstantsKt.OBFUSCATION_KEY;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -71,9 +73,15 @@ public class VpnConnector implements VpnStatus.StateListener {
             String mtu,
             DnsServer customDns,
             List<AppInfo> excludedAppsFromVPNConn,
-            List<String> excludedDomainsFromVPNConn
+            List<String> excludedDomainsFromVPNConn,
+            Boolean useObfuscation
     ) {
         try {
+            if(useObfuscation){
+                socket = "udp";
+                port = "443";
+            }
+
             ByteArrayInputStream inputStream;
             BufferedReader bufferedReader;
             inputStream =
@@ -85,6 +93,11 @@ public class VpnConnector implements VpnStatus.StateListener {
             cp.parseConfig(bufferedReader);
 
             VpnProfile vp = cp.convertProfile();
+
+            if(useObfuscation){
+                vp.mUseObfuscation = true;
+                vp.mObfuscationKey = OBFUSCATION_KEY;
+            }
 
             if(excludedAppsFromVPNConn != null && !excludedAppsFromVPNConn.isEmpty()){
                 HashSet<String> excludedAppsSet = new HashSet<>();

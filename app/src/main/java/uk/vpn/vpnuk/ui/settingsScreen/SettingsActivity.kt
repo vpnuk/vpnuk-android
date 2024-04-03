@@ -303,6 +303,11 @@ class SettingsActivity : BaseActivity() {
             }
         }
 
+        bind.switchUseObfuscation.isChecked = localRepository.useObfuscation
+        bind.switchUseObfuscation.setOnCheckedChangeListener { _, isChecked ->
+            localRepository.useObfuscation = isChecked
+        }
+
         if(Logger.vpnLogs.size > 300){
             Logger.vpnLogs.clear()
         }

@@ -52,6 +52,24 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Use obfuscation"
+            android:layout_gravity="center"
+            android:textSize="17sp"
+            android:layout_weight="1"
+            android:textColor="@color/color_checkbox_focused"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchUseObfuscation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
     <FrameLayout
         android:id="@+id/frameServers"
         android:layout_width="match_parent"

@@ -113,6 +113,8 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mIPv4Address;
     public String mIPv6Address;
     public boolean mOverrideDNS = false;
+    public boolean mUseObfuscation = false;
+    public String mObfuscationKey = "";
     public String mSearchDomain = "blinkt.de";
     public boolean mUseDefaultRoute = true;
     public boolean mUsePull = true;
@@ -413,11 +415,11 @@ public class VpnProfile implements Serializable, Cloneable {
 
 
         //TODO - exclude routes from VPN connection.
-
-        cfg += "scramble obfuscate 4fhxKPXNyftLKCofqbWv3ErATWLca7";
+        if(mUseObfuscation){
+            cfg += "scramble obfuscate " + mObfuscationKey + "\n";
+        }
 
         mUseDefaultRoute = false;
-        //mExcludedRoutes = "2ip.ru\n";
 
         String routes = "";
         if (mUseDefaultRoute) routes += "route 0.0.0.0 0.0.0.0 vpn_gateway\n";

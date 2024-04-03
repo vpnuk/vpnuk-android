@@ -118,7 +118,7 @@ class LocalRepository @Inject constructor(context: Context) {
     var allAppsInfoList by JsonListPreferenceDelegate(AppInfo::class.java)
     var excludedApps by JsonListPreferenceDelegate(AppInfo::class.java)
     var excludedWebsites by JsonListPreferenceDelegate(String::class.java)
-
+    var useObfuscation by BooleanPreferenceDelegate(false)
 
     fun clear() {
         sharedPreferences

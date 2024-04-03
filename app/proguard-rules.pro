@@ -20,3 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class uk.vpn.vpnuk.BuildConfig { *; }
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
