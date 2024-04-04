@@ -17,7 +17,7 @@
     <TextView
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="10dp"
-        android:text="*Unchecked apps will use default non anonymous internet connection"
+        android:text="*Unselected apps will not route through the VPN."
         android:textSize="10sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

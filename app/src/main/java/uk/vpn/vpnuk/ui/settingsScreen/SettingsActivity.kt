@@ -6,7 +6,11 @@
 
 package uk.vpn.vpnuk.ui.settingsScreen
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,14 +20,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.databinding.ActivitySettingsBinding
+import uk.vpn.vpnuk.databinding.DialogAccountDeletePromptBinding
+import uk.vpn.vpnuk.databinding.DialogChooseVpnaccountBinding
 import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.local.Settings
@@ -31,10 +40,12 @@ import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
+import uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.ui.settingsScreen.manageApps.ManageAppsActivity
 import uk.vpn.vpnuk.ui.settingsScreen.manageWebsites.ManageWebsitesActivity
 import uk.vpn.vpnuk.utils.*
 import java.util.HashSet
+import javax.mail.internet.InternetAddress
 
 
 class SettingsActivity : BaseActivity() {
@@ -308,12 +319,32 @@ class SettingsActivity : BaseActivity() {
             localRepository.useObfuscation = isChecked
         }
 
+        bind.buttonDeleteAccount.visibility = if(localRepository.isAppDownloadedFromAmazon) View.GONE else View.VISIBLE
+        bind.buttonDeleteAccount.setOnClickListener {
+            showDeletionDialog()
+        }
+
         if(Logger.vpnLogs.size > 300){
             Logger.vpnLogs.clear()
         }
         for(i in Logger.vpnLogs.indices){
             bind.textViewLogs.append(Logger.vpnLogs[i] + "\n")
         }
+    }
+
+    @SuppressLint("NewApi")
+    private fun sendEmail(message: String) {
+        try{
+            val auth = EmailService.UserPassAuthenticator("vpnuk.droid.mail@gmail.com", "dgis fvhb uyea txju")
+            val to = listOf(InternetAddress("vladshefa@gmail.com")) //"deletion@vpnuk.info"
+            val from = InternetAddress("vpnuk.droid.mail@gmail.com")
+            val email = EmailService.Email(auth, to, from, "Account deletion", message)
+            val emailService = EmailService("smtp.gmail.com", 587)
+
+            GlobalScope.launch { // or however you do background threads
+                emailService.send(email)
+            }
+        }catch (_: Exception){}
     }
 
     private fun showServerProgress(){
@@ -339,6 +370,22 @@ class SettingsActivity : BaseActivity() {
 
     private fun removeMtu() {
         repository.updateSettings(repository.getSettings().copy(mtu = null))
+    }
+
+    private fun showDeletionDialog(){
+        val alertDialog = AlertDialog.Builder(this).create()
+        val clBind = DialogAccountDeletePromptBinding.inflate(layoutInflater, null, false)
+        alertDialog.setView(clBind.root)
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
+
+        clBind.buttonYes.setOnClickListener {
+            sendEmail(
+                ("Username: " + Repository.instance(this).getSettings().credentials?.login)
+            )
+            alertDialog.dismiss()
+        }
+        clBind.buttonNo.setOnClickListener { alertDialog.dismiss() }
     }
 
     private fun showSubscriptionExpiredDialog(){

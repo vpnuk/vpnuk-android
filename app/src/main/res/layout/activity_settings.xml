@@ -4,216 +4,228 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   ~
   -->
-
-<LinearLayout
-    android:orientation="vertical"
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.settingsScreen.SettingsActivity">
-
-
+    android:layout_height="match_parent">
     <LinearLayout
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="Enable custom MTU"
-            android:layout_gravity="center"
-            android:textSize="17sp"
-            android:layout_weight="1"
-            android:textColor="@color/color_checkbox_focused"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchEnableMTU"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+        android:layout_height="match_parent"
+        tools:context=".ui.settingsScreen.SettingsActivity">
 
-    <LinearLayout
-        android:layout_marginHorizontal="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="Kill Switch"
-            android:layout_gravity="center"
-            android:textSize="17sp"
-            android:layout_weight="1"
-            android:textColor="@color/color_checkbox_focused"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchKillSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginHorizontal="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="Use obfuscation"
-            android:layout_gravity="center"
-            android:textSize="17sp"
-            android:layout_weight="1"
-            android:textColor="@color/color_checkbox_focused"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchUseObfuscation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/frameServers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/cbReconnect">
         <LinearLayout
-            android:id="@+id/vSettingsActivityFrameChooseServer"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Enable custom MTU"
+                android:layout_gravity="center"
+                android:textSize="17sp"
+                android:layout_weight="1"
+                android:textColor="@color/color_checkbox_focused"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchEnableMTU"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginHorizontal="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Kill Switch"
+                android:layout_gravity="center"
+                android:textSize="17sp"
+                android:layout_weight="1"
+                android:textColor="@color/color_checkbox_focused"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchKillSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginHorizontal="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Use obfuscation"
+                android:layout_gravity="center"
+                android:textSize="17sp"
+                android:layout_weight="1"
+                android:textColor="@color/color_checkbox_focused"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchUseObfuscation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/frameServers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/cbReconnect">
+            <LinearLayout
+                android:id="@+id/vSettingsActivityFrameChooseServer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp"
+                android:background="@drawable/dropdown_gray">
+
+                <TextView
+                    android:text="Choose Account:"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:textColor="#1E1E1E"
+                    android:textSize="16sp" />
+
+                <Spinner
+                    android:id="@+id/vSettingsActivitySpinner"
+                    android:background="@drawable/spinner_gray"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp" />
+            </LinearLayout>
+            <View
+                android:id="@+id/vSettingsActivityServersProgressBackground"
+                android:background="@drawable/rounded_gray_progress_view"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="43dp"/>
+            <ProgressBar
+                android:id="@+id/vSettingsActivityServersProgressView"
+                android:layout_gravity="center"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:id="@+id/vSettingsActivityFrameChooseDNS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/dropdown_gray"
             android:orientation="horizontal"
             android:padding="4dp"
-            android:background="@drawable/dropdown_gray">
+            app:layout_constraintTop_toBottomOf="@+id/frameServers">
 
             <TextView
-                android:text="Choose Account:"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
+                android:text="Custom DNS:"
                 android:textColor="#1E1E1E"
                 android:textSize="16sp" />
 
             <Spinner
-                android:id="@+id/vSettingsActivitySpinner"
-                android:background="@drawable/spinner_gray"
-                android:layout_weight="1"
+                android:id="@+id/vSettingsActivitySpinnerDNS"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp" />
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_gray" />
         </LinearLayout>
-        <View
-            android:id="@+id/vSettingsActivityServersProgressBackground"
-            android:background="@drawable/rounded_gray_progress_view"
-            android:layout_gravity="center"
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonManageApps"
+            android:text="Manage VPN connection for apps"
+            android:textAllCaps="false"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="16dp"
+            app:cornerRadius="8dp"
             android:layout_width="match_parent"
-            android:layout_height="43dp"/>
-        <ProgressBar
-            android:id="@+id/vSettingsActivityServersProgressView"
-            android:layout_gravity="center"
-            android:layout_width="35dp"
-            android:layout_height="35dp"/>
-    </FrameLayout>
+            android:layout_height="50dp"
+            app:layout_constraintTop_toBottomOf="@+id/vSettingsActivityFrameChooseDNS" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonManageWebsites"
+            android:text="Manage VPN connection for websites"
+            android:textAllCaps="false"
+            android:layout_marginHorizontal="16dp"
+            app:cornerRadius="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonManageApps" />
 
-    <LinearLayout
-        android:id="@+id/vSettingsActivityFrameChooseDNS"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="14dp"
-        android:background="@drawable/dropdown_gray"
-        android:orientation="horizontal"
-        android:padding="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/frameServers">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonDeleteAccount"
+            android:backgroundTint="#EF3A3A"
+            android:text="Delete account"
+            android:textAllCaps="false"
+            android:layout_marginHorizontal="16dp"
+            app:cornerRadius="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonManageApps" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabsSocketType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonManageWebsites" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabsPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusDown="@id/vSelectAddress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tabsSocketType" />
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginStart="8dp"
-            android:text="Custom DNS:"
-            android:textColor="#1E1E1E"
-            android:textSize="16sp" />
-
-        <Spinner
-            android:id="@+id/vSettingsActivitySpinnerDNS"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:background="@drawable/spinner_gray" />
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonManageApps"
-        android:text="Manage VPN connection for apps"
-        android:textAllCaps="false"
-        android:layout_marginTop="10dp"
-        android:layout_marginHorizontal="16dp"
-        app:cornerRadius="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:layout_constraintTop_toBottomOf="@+id/vSettingsActivityFrameChooseDNS" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonManageWebsites"
-        android:text="Manage VPN connection for websites"
-        android:textAllCaps="false"
-        android:layout_marginHorizontal="16dp"
-        app:cornerRadius="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:layout_constraintTop_toBottomOf="@+id/buttonManageApps" />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabsSocketType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonManageWebsites" />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabsPort"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:nextFocusDown="@id/vSelectAddress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabsSocketType" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
-        android:text="@string/log"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabsPort" />
-
-    <ScrollView
-        android:id="@+id/scrollView2"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
-
-        <TextView
-            android:id="@+id/textView_logs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:padding="3dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/log"
             android:textColor="@color/black"
-            android:textSize="16sp" />
-    </ScrollView>
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tabsPort" />
 
-</LinearLayout>
+        <ScrollView
+            android:id="@+id/scrollView2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView">
+
+            <TextView
+                android:id="@+id/textView_logs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="3dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+        </ScrollView>
+
+    </LinearLayout>
+</ScrollView>
