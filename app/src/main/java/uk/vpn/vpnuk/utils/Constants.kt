@@ -11,6 +11,9 @@ import uk.vpn.vpnuk.R
 
 
 const val OBFUSCATION_KEY = "4fhxKPXNyftLKCofqbWv3ErATWLca7"
+
+
+
 enum class SocketType(
     val value: String,
     val ports: List<String>

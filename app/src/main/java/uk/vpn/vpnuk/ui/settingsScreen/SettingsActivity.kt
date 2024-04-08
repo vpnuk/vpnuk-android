@@ -18,12 +18,16 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.toColor
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
+import com.google.android.material.tabs.TabLayout.GRAVITY_FILL
+import com.google.android.material.tabs.TabLayout.MODE_AUTO
+import com.google.android.material.tabs.TabLayout.MODE_FIXED
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.onEach
@@ -46,6 +50,7 @@ import uk.vpn.vpnuk.ui.settingsScreen.manageWebsites.ManageWebsitesActivity
 import uk.vpn.vpnuk.utils.*
 import java.util.HashSet
 import javax.mail.internet.InternetAddress
+import kotlin.math.log
 
 
 class SettingsActivity : BaseActivity() {
@@ -67,7 +72,6 @@ class SettingsActivity : BaseActivity() {
     var pendingOrderId = ""
 
     lateinit var selectedVpnAccountToRenew: Vpnaccount
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -272,20 +276,7 @@ class SettingsActivity : BaseActivity() {
         bind.buttonManageApps.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
         bind.buttonManageWebsites.setOnClickListener { startActivity(Intent(this, ManageWebsitesActivity::class.java)) }
 
-        bind.tabsSocketType.setTabs(SocketType.values().map { it.value })
-        bind.tabsPort.setTabListener { _, _ ->
-            repository.updateSettings(settings.copy(
-                socket = bind.tabsSocketType.selectedTab().text.toString(),
-                port = bind.tabsPort.selectedTab().text.toString()
-            ))
-        }
-        bind.tabsSocketType.setTabListener { text, _ ->
-            bind.tabsPort.setTabs(SocketType.byValue(text)!!.ports)
-            repository.updateSettings(settings.copy(
-                socket = bind.tabsSocketType.selectedTab().text.toString(),
-                port = bind.tabsPort.selectedTab().text.toString()
-            ))
-        }
+
 
         bind.switchEnableMTU.post {
             bind.switchEnableMTU.setOnCheckedChangeListener { _, checked ->
@@ -317,11 +308,17 @@ class SettingsActivity : BaseActivity() {
         bind.switchUseObfuscation.isChecked = localRepository.useObfuscation
         bind.switchUseObfuscation.setOnCheckedChangeListener { _, isChecked ->
             localRepository.useObfuscation = isChecked
+            applySettings()
         }
 
         bind.buttonDeleteAccount.visibility = if(localRepository.isAppDownloadedFromAmazon) View.GONE else View.VISIBLE
         bind.buttonDeleteAccount.setOnClickListener {
-            showDeletionDialog()
+            val login = repository.getSettings().credentials?.login
+            if(login != null && login != ""){
+                showDeletionDialog()
+            }else{
+                Toasty.error(this, "You are not logged in", Toasty.LENGTH_LONG).show()
+            }
         }
 
         if(Logger.vpnLogs.size > 300){
@@ -336,12 +333,12 @@ class SettingsActivity : BaseActivity() {
     private fun sendEmail(message: String) {
         try{
             val auth = EmailService.UserPassAuthenticator("vpnuk.droid.mail@gmail.com", "dgis fvhb uyea txju")
-            val to = listOf(InternetAddress("vladshefa@gmail.com")) //"deletion@vpnuk.info"
+            val to = listOf(InternetAddress("deletion@vpnuk.info"))
             val from = InternetAddress("vpnuk.droid.mail@gmail.com")
             val email = EmailService.Email(auth, to, from, "Account deletion", message)
             val emailService = EmailService("smtp.gmail.com", 587)
 
-            GlobalScope.launch { // or however you do background threads
+            GlobalScope.launch {
                 emailService.send(email)
             }
         }catch (_: Exception){}
@@ -362,10 +359,61 @@ class SettingsActivity : BaseActivity() {
         val socketType = SocketType.byValue(settings.socket)!!
         val portIndex = socketType.ports.indexOf(settings.port)
         val socketIndex = SocketType.values().indexOf(socketType)
-        bind.tabsSocketType.select(socketIndex)
-        bind.tabsPort.select(portIndex)
-        bind.switchKillSwitch.isChecked = settings.reconnect
-        bind.switchEnableMTU.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
+
+        if(!localRepository.useObfuscation){
+            bind.tabsPort.setSelectedTabIndicatorColor(resources.getColor(R.color.light_blue))
+            bind.tabsSocketType.setSelectedTabIndicatorColor(resources.getColor(R.color.light_blue))
+            bind.tabsPort.setTabTextColors(resources.getColor(R.color.light_blue), resources.getColor(R.color.light_blue))
+            bind.tabsSocketType.setTabTextColors(resources.getColor(R.color.light_blue), resources.getColor(R.color.light_blue))
+
+            bind.tabsSocketType.setTabs(SocketType.values().map { it.value })
+            bind.tabsPort.setTabs(SocketType.byValue(settings.socket)!!.ports)
+
+            bind.tabsPort.setTabListener { _, _ ->
+                if (bind.tabsPort.selectedTab().text.toString() != "443" && !localRepository.useObfuscation)
+                    repository.updateSettings(
+                        settings.copy(
+                            socket = bind.tabsSocketType.selectedTab().text.toString(),
+                            port = bind.tabsPort.selectedTab().text.toString()
+                        )
+                    )
+            }
+            bind.tabsSocketType.setTabListener { text, _ ->
+                bind.tabsPort.setTabs(SocketType.byValue(text)!!.ports)
+                repository.updateSettings(settings.copy(
+                    socket = bind.tabsSocketType.selectedTab().text.toString(),
+                    port = bind.tabsPort.selectedTab().text.toString()
+                ))
+            }
+
+            bind.tabsSocketType.select(socketIndex)
+            bind.tabsPort.select(portIndex)
+            bind.switchKillSwitch.isChecked = settings.reconnect
+            bind.switchEnableMTU.isChecked = settings.mtu?.let { it != DefaultSettings.MTU_DEFAULT } ?: false
+        }
+
+
+        if(localRepository.useObfuscation){
+            bind.tabsPort.tabMode =  MODE_FIXED
+            bind.tabsSocketType.tabMode =  MODE_FIXED
+            bind.tabsPort.tabGravity = GRAVITY_FILL
+            bind.tabsSocketType.tabGravity = GRAVITY_FILL
+
+            bind.tabsSocketType.clearOnTabSelectedListeners()
+            bind.tabsPort.setTabs(listOf("443"))
+            bind.tabsSocketType.setTabs(listOf("UDP"))
+
+            bind.tabsSocketType.select(0)
+            bind.tabsPort.select(0)
+
+
+            bind.tabsPort.setSelectedTabIndicatorColor(Color.GRAY)
+            bind.tabsSocketType.setSelectedTabIndicatorColor(Color.GRAY)
+            bind.tabsPort.setTabTextColors(Color.GRAY, Color.GRAY)
+            bind.tabsSocketType.setTabTextColors(Color.GRAY, Color.GRAY)
+            bind.tabsPort.isEnabled = false
+            bind.tabsSocketType.isEnabled = false
+        }
     }
 
     private fun removeMtu() {

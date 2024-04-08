@@ -22,6 +22,7 @@ import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 import uk.vpn.vpnuk.utils.*
 import android.net.Uri
+import android.util.Log
 import uk.vpn.vpnuk.databinding.ActivityGoogleMainBinding
 import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 
@@ -95,17 +96,25 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             vpnConnector.stopVpn()
         }
 
-//        val server = localRepository.currentServer
-//        if(server != null){
-//            bind.vGoogleMainActivityTextAddress.text = server.dns
-//            bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
-//            bind.vGoogleMainActivityTextCity.text = server.location?.city
-//            bind.vGoogleMainActivityImageViewCountry.setImageDrawable(server.getIsoDrawable(this))
-//        }else{
-//            bind.vGoogleMainActivityTextAddress.visibility = View.GONE
-//            bind.vGoogleMainActivityImageViewCountry.setImageResource(R.drawable.ic_country)
-//            bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
-//        }
+
+        //TODO _____________________________________________________
+        val server = localRepository.currentServer
+        Log.d("kek", "GoogleMainActivity InitView server = ${server}")
+        if(server != null){
+            bind.vGoogleMainActivityTextAddress.text = server.dns
+            bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
+            bind.vGoogleMainActivityTextCity.text = server.location?.city
+            bind.vGoogleMainActivityImageViewCountry.setImageDrawable(server.getIsoDrawable(this))
+        }else{
+            bind.vGoogleMainActivityTextAddress.visibility = View.GONE
+            bind.vGoogleMainActivityImageViewCountry.setImageResource(R.drawable.ic_country)
+            bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
+        }
+        if(!bind.vGoogleMainActivityPassword.text.isNullOrEmpty() && !bind.vGoogleMainActivityLogin.text.isNullOrEmpty() && server != null){
+            bind.vGoogleMainActivityButtonConnect.isEnabled = true
+        }
+        //TODO ________________________________________________________
+
         repository.getCurrentServerObservable()
             .observeOnMain()
             .subscribe { server ->
@@ -122,22 +131,19 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
                 }
             }.addToDestroySubscriptions()
 
-//        if(!bind.vGoogleMainActivityPassword.text.isNullOrEmpty() && !bind.vGoogleMainActivityLogin.text.isNullOrEmpty() && server != null){
-//            bind.vGoogleMainActivityButtonConnect.isEnabled = true
-//        }
 
-        Observable.combineLatest(
-            bind.vGoogleMainActivityPassword.textEmpty(),
-            bind.vGoogleMainActivityLogin.textEmpty(),
-            repository.getCurrentServerObservable()
-        ) { passwordEmpty, loginEmpty, server ->
-            Logger.e("subscribe", "enabled $server")
-            !passwordEmpty && !loginEmpty && server.server != null
-        }
-            .observeOnMain()
-            .subscribe {
-                bind.vGoogleMainActivityButtonConnect.isEnabled = it
-            }.addToDestroySubscriptions()
+        //Observable.combineLatest(
+        //    bind.vGoogleMainActivityPassword.textEmpty(),
+        //    bind.vGoogleMainActivityLogin.textEmpty(),
+        //    repository.getCurrentServerObservable()
+        //) { passwordEmpty, loginEmpty, server ->
+        //    Logger.e("subscribe", "enabled $server")
+        //    !passwordEmpty && !loginEmpty && server.server != null
+        //}
+        //    .observeOnMain()
+        //    .subscribe {
+        //        bind.vGoogleMainActivityButtonConnect.isEnabled = it
+        //    }.addToDestroySubscriptions()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -212,6 +218,7 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
     override fun onResume() {
         super.onResume()
         vpnConnector.startListen(this)
+        initViews()
     }
     override fun onPause() {
         vpnConnector.removeListener()

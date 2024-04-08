@@ -45,7 +45,7 @@ fun TabLayout.setTabs(list: List<String>) {
 }
 
 fun TabLayout.select(position: Int) =
-    getTabAt(position)!!.select()
+    getTabAt(position)?.select()
 
 fun TabLayout.selectedTab() = getTabAt(selectedTabPosition)!!
 

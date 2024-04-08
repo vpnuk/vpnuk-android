@@ -16,10 +16,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.murgupluoglu.flagkit.FlagKit
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.remote.Server
-import uk.vpn.vpnuk.utils.getIconResourceName
 
-class ServersAdapter(context: Context, val listener: (Server) -> Unit) :
-    RecyclerView.Adapter<ServerViewHolder>() {
+class ServersAdapter(
+    context: Context,
+    val listener: (Server) -> Unit
+) : RecyclerView.Adapter<ServerViewHolder>() {
+
     val inflater = LayoutInflater.from(context)
     private val servers = mutableListOf<Server>()
 
@@ -30,11 +32,7 @@ class ServersAdapter(context: Context, val listener: (Server) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerViewHolder {
-        return ServerViewHolder(inflater.inflate(R.layout.item_server, parent, false)).apply {
-            itemView.setOnClickListener {
-                listener(servers[adapterPosition])
-            }
-        }
+        return ServerViewHolder(inflater.inflate(R.layout.item_server, parent, false))
     }
 
     override fun getItemCount(): Int {
@@ -43,7 +41,8 @@ class ServersAdapter(context: Context, val listener: (Server) -> Unit) :
 
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
         holder.itemView.isFocusable = true
-        holder.bind(servers[position])
+
+        holder.bind(servers[position], listener)
     }
 }
 
@@ -52,9 +51,12 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val tvAddress: TextView = itemView.findViewById(R.id.tvAddress)
     val ivCountry: ImageView = itemView.findViewById(R.id.ivCountry)
 
-    fun bind(server: Server) {
-        //ivCountry.setImageResource(server.getIconResourceName(itemView.context))
-        //server.location.icon //== "uk"
+    fun bind(server: Server, listener: (Server) -> Unit) {
+        itemView.setOnClickListener { listener(server) }
+
+        tvCity.text = server.location?.city
+        tvAddress.text = server.dns
+
         var iso = server.location?.icon?.toLowerCase() ?: ""
         when(iso){
             "uk" -> iso = "gb"
@@ -62,8 +64,6 @@ class ServerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val drawable = FlagKit.getDrawable(itemView.context, iso)
         ivCountry.setImageDrawable(drawable)
-        tvCity.text = server.location?.city
-        tvAddress.text = server.dns
     }
 
 }

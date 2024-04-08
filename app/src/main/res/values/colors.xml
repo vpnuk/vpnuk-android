@@ -85,6 +85,7 @@
     <color name="colorOtherStatus">#ffcc00</color>
     <color name="black">#000</color>
     <color name="light_blue">#1977DC</color>
+    <color name="red_button">#DD4242</color>
 
 
     <!-- Button -->

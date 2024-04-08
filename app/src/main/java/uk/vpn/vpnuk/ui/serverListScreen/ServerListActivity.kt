@@ -65,6 +65,8 @@ class ServerListActivity : BaseActivity() {
 
         serversAdapter = ServersAdapter(this) {
             localRepository.currentServer = it
+            Log.d("kek", "ServerAdapter 1 Selected server = ${it}")
+            Log.d("kek", "ServerAdapter 1 ______LocalRepo = ${localRepository.currentServer}")
 
             repository.setServerId(it.address)
                 .doOnIoObserveOnMain()

@@ -36,5 +36,5 @@ fun Server.getIsoIcon(context: Context) : IconCompat {
         "uk" -> iso = "gb"
     }
 
-    return IconCompat.createWithBitmap(FlagKit.getDrawable(context, iso)!!.toBitmap())
+    return IconCompat.createWithAdaptiveBitmap(FlagKit.getDrawable(context, iso)!!.toBitmap())
 }
