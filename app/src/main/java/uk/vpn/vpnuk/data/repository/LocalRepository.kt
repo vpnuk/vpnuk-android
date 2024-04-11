@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.model.AppInfo
 import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.remote.Server
@@ -109,6 +110,7 @@ class LocalRepository @Inject constructor(context: Context) {
     var previousOvpnConfigVersion by StringPreferenceDelegate()
     var newOvpnConfigTxt by StringPreferenceDelegate()
     var currentServer by JsonPreferenceDelegate(Server::class.java)
+    var settings by JsonPreferenceDelegate(Settings::class.java)
 
 
     var isAppDownloadedFromAmazon by BooleanPreferenceDelegate()

@@ -73,8 +73,7 @@ class ManageWebsitesActivity : BaseActivity() {
     }
 
     private fun initView() {
-        bind.buttonAddWebsite.setOnClickListener { vm.onAddWebsiteClick() }
+        bind.buttonAddWebsite.setOnClickListener { vm.onAddWebsiteClick(bind.etDomain.editText?.text.toString()) }
 
-        bind.etDomain.editText?.doOnTextChanged { text, _, _, _ -> vm.onDomainTextChanged(text) }
     }
 }

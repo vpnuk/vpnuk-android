@@ -45,7 +45,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         setContentView(bind.root)
         vm = ViewModelProvider(this)[QuickLaunchVM::class.java]
 
-        repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 
 
@@ -55,7 +54,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         observeLivaData()
         initView()
         initListeners()
-        updateVpnServers()
     }
 
     private fun initAmazonServices() {
@@ -136,15 +134,15 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     private fun startVpn() {
         if(checkIfDataFilled()){
-            val address = repository.getSelectedServer()?.address
-            val settings = repository.getSettings()
+            val address = localRepository.currentServer?.address
+            val settings = localRepository.settings
 
-            val socket = settings.socket
-            val port = settings.port
+            val socket = settings?.socket
+            val port = settings?.port
 
             val isLoggedByCreds = localRepository.isLoginByUserCreds
-            val vpnLogin = if(isLoggedByCreds) localRepository.vpnUsername else repository.getSettings().credentials?.login
-            val vpnPassword = if(isLoggedByCreds) localRepository.vpnPassword else repository.getSettings().credentials?.password
+            val vpnLogin = if(isLoggedByCreds) localRepository.vpnUsername else localRepository.settings?.credentials?.login
+            val vpnPassword = if(isLoggedByCreds) localRepository.vpnPassword else localRepository.settings?.credentials?.password
 
             vpnConnector.startVpn(
                 vpnLogin,
@@ -152,7 +150,7 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
                 address,
                 socket,
                 port,
-                settings.mtu ?: DefaultSettings.MTU_DEFAULT,
+                settings?.mtu ?: DefaultSettings.MTU_DEFAULT,
                 localRepository.customDns,
                 localRepository.excludedApps,
                 localRepository.excludedWebsites,
@@ -162,12 +160,12 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     }
 
     private fun checkIfDataFilled() : Boolean {
-        val settings = repository.getSettings()
+        val settings = localRepository.settings
 
-        if(repository.getSelectedServer() == null){
+        if(localRepository.currentServer == null){
             Toasty.error(this, "You have not selected a server", Toasty.LENGTH_SHORT).show()
             return false
-        }else if(settings.credentials == null){
+        }else if(settings?.credentials == null){
             Toasty.error(this, "You have not entered credentials", Toasty.LENGTH_SHORT).show()
             return false
         }else{
@@ -203,18 +201,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             PurchasingService.purchase(purchaseKey)
         }
         clBind.vSubscriptionExpiredDialogCancel.setOnClickListener { alertDialog.dismiss() }
-    }
-
-    private fun updateVpnServers() {
-        if (!repository.serversUpdated) {
-            repository.updateServers()
-                .doOnIoObserveOnMain()
-                .addProgressTracking()
-                .subscribe({}, { error ->
-                    //showMessage(getString(R.string.err_unable_to_update_servers))
-                })
-                .addToDestroySubscriptions()
-        }
     }
 
     private fun resumeAmazonService() {

@@ -7,13 +7,11 @@
 package uk.vpn.vpnuk.ui.settingsScreen.manageWebsites
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.utils.emitFlow
 import javax.inject.Inject
@@ -47,9 +45,7 @@ class ManageWebsitesViewModel @Inject constructor(
         }
     }
 
-    fun onAddWebsiteClick() {
-        val newDomain = _viewState.value.domainText
-
+    fun onAddWebsiteClick(newDomain: String) {
         if(!localRepository.excludedWebsites.contains(newDomain) && isDomainCorrect(newDomain)){
             val excludedWebsites = localRepository.excludedWebsites.toMutableList()
             excludedWebsites.add(newDomain)
@@ -59,11 +55,6 @@ class ManageWebsitesViewModel @Inject constructor(
         }else{
             emitFlow(_event, ManageWebsitesEvent.Error("Domain already exists or incorrect"))
         }
-    }
-
-    fun onDomainTextChanged(text: CharSequence?) {
-        val text = text.toString()
-        emitFlow(_viewState, _viewState.value.copy(domainText = text))
     }
 
     private fun isDomainCorrect(domain: String) : Boolean{

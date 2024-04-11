@@ -26,8 +26,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.data.repository.LocalRepository
-import uk.vpn.vpnuk.remote.Requests
-import uk.vpn.vpnuk.remote.RequestsRetrofit
 import uk.vpn.vpnuk.remote.Server
 import uk.vpn.vpnuk.remote.Servers
 import uk.vpn.vpnuk.ui.splash.SplashScreenVM

@@ -24,6 +24,7 @@ import uk.vpn.vpnuk.utils.*
 import android.net.Uri
 import android.util.Log
 import uk.vpn.vpnuk.databinding.ActivityGoogleMainBinding
+import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 
 
@@ -46,7 +47,6 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         supportActionBar?.show()
         supportActionBar?.title = ""
 
-        repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 
         initViews()
@@ -64,18 +64,15 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun selectNewServer() {
         val ip = LocalRepository(this).vpnIp
-        repository.setServerId(ip)
-            .doOnIoObserveOnMain()
-            .subscribe {}.addToDestroySubscriptions()
     }
 
     private fun applySettings() {
-        val settings = repository.getSettings()
-        settings.credentials?.let {
+        val settings = localRepository.settings
+        settings?.credentials?.let {
             bind.vGoogleMainActivityLogin.setText(it.login)
             bind.vGoogleMainActivityPassword.setText(it.password)
         }
-        bind.vGoogleMainActivityCheckSaveCredentials.isChecked = settings.credentials != null
+        bind.vGoogleMainActivityCheckSaveCredentials.isChecked = settings?.credentials != null
     }
 
     private fun initViews() {
@@ -115,21 +112,21 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         }
         //TODO ________________________________________________________
 
-        repository.getCurrentServerObservable()
-            .observeOnMain()
-            .subscribe { server ->
-                Logger.e("subscribe", "$server")
-                server.server?.let {
-                    bind.vGoogleMainActivityTextAddress.text = it.dns
-                    bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
-                    bind.vGoogleMainActivityTextCity.text = it.location?.city
-                    bind.vGoogleMainActivityImageViewCountry.setImageDrawable(it.getIsoDrawable(this))
-                } ?: run {
-                    bind.vGoogleMainActivityTextAddress.visibility = View.GONE
-                    bind.vGoogleMainActivityImageViewCountry.setImageResource(R.drawable.ic_country)
-                    bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
-                }
-            }.addToDestroySubscriptions()
+        //repository.getCurrentServerObservable()
+        //    .observeOnMain()
+        //    .subscribe { server ->
+        //        Logger.e("subscribe", "$server")
+        //        server.server?.let {
+        //            bind.vGoogleMainActivityTextAddress.text = it.dns
+        //            bind.vGoogleMainActivityTextAddress.visibility = View.VISIBLE
+        //            bind.vGoogleMainActivityTextCity.text = it.location?.city
+        //            bind.vGoogleMainActivityImageViewCountry.setImageDrawable(it.getIsoDrawable(this))
+        //        } ?: run {
+        //            bind.vGoogleMainActivityTextAddress.visibility = View.GONE
+        //            bind.vGoogleMainActivityImageViewCountry.setImageResource(R.drawable.ic_country)
+        //            bind.vGoogleMainActivityTextCity.setText(R.string.select_city)
+        //        }
+        //    }.addToDestroySubscriptions()
 
 
         //Observable.combineLatest(
@@ -173,15 +170,15 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         val password = bind.vGoogleMainActivityPassword.text.toString()
 
         val credentials = Credentials(login, password)
-        val address = repository.getSelectedServer()!!.address
-        val settings = repository.getSettings()
-        val socket = settings.socket
-        val port = settings.port
+        val address = localRepository.currentServer?.address
+        val settings = localRepository.settings
+        val socket = settings?.socket
+        val port = settings?.port
 
-        repository.updateSettings(settings.copy(credentials = credentials))
+        localRepository.settings = localRepository.settings?.copy(credentials = credentials)
 
-        val vpnLogin = repository.getSettings().credentials?.login
-        val vpnPassword = repository.getSettings().credentials?.password
+        val vpnLogin = localRepository.settings?.credentials?.login
+        val vpnPassword = localRepository.settings?.credentials?.password
 
         vpnConnector.startVpn(
             vpnLogin,
@@ -189,7 +186,7 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             address,
             socket,
             port,
-            settings.mtu ?: DefaultSettings.MTU_DEFAULT,
+            settings?.mtu ?: DefaultSettings.MTU_DEFAULT,
             localRepository.customDns,
             localRepository.excludedApps,
             localRepository.excludedWebsites,

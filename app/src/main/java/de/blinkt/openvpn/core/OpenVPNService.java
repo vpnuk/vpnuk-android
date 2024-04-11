@@ -60,6 +60,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import uk.vpn.vpnuk.Data;
+import uk.vpn.vpnuk.data.repository.LocalRepository;
 import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
@@ -134,7 +135,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Handler guiHandler;
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
-    private Repository instance;
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     public static String humanReadableByteCount(long bytes, boolean speed, Resources res) {
@@ -238,7 +238,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
-        mDeviceStateReceiver = new DeviceStateReceiver(this, magnagement, instance.getSettings());
+        mDeviceStateReceiver = new DeviceStateReceiver(this, magnagement, new LocalRepository(App.instance).getSettings());
         // Fetch initial network state
         mDeviceStateReceiver.networkStateChange(this);
         registerReceiver(mDeviceStateReceiver, filter);
@@ -411,7 +411,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        Server currentServer = instance.getSelectedServer();
+        Server currentServer = new LocalRepository(App.instance).getCurrentServer();
         IconCompat serverIcon = ModelUtilsKt.getIsoIcon(currentServer, this);
         String city = currentServer.getLocation().getCity();
         String title;
@@ -566,7 +566,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = Repository.Companion.instance(this);
     }
 
     @Override

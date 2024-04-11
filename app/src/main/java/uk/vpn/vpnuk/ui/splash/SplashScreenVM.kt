@@ -23,6 +23,9 @@ import uk.vpn.vpnuk.api.ServerListVaultApi
 import uk.vpn.vpnuk.api.VpnUkInfoApi
 import uk.vpn.vpnuk.data.repository.ApplicationsInfoRepository
 import uk.vpn.vpnuk.data.repository.LocalRepository
+import uk.vpn.vpnuk.local.Credentials
+import uk.vpn.vpnuk.local.DefaultSettings
+import uk.vpn.vpnuk.local.Settings
 import uk.vpn.vpnuk.utils.asLiveData
 import javax.inject.Inject
 
@@ -42,9 +45,26 @@ class SplashScreenVM @Inject constructor(
 
 
     fun onCreate() = viewModelScope.launch {
+        createFirstSettings()
         checkVpnVersion()
         updateServersList()
         cacheInstalledApplications()
+    }
+
+    private fun createFirstSettings() {
+        val settings =localRepository.settings
+        if(
+            settings == null ||
+            settings.credentials == null ||
+            settings.port == null ||
+            settings.socket == null ||
+            settings.mtu == null ||
+            settings.port == "" ||
+            settings.socket == "" ||
+            settings.mtu == ""
+            ) {
+            localRepository.settings = Settings("udp", "1194", false, DefaultSettings.MTU_DEFAULT, Credentials("", ""))
+        }
     }
 
     private fun cacheInstalledApplications() = viewModelScope.launch {

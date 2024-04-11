@@ -106,10 +106,9 @@ class RegisterAccountActivity : AppCompatActivity(), View.OnClickListener {
         val login = localRepository.initialUserName
         val password = localRepository.initialPassword
 
-        val repository = Repository.instance(this)
-        val settings = repository.getSettings()
+        val settings = localRepository.settings
         val credentials = Credentials(login, password)
-        repository.updateSettings(settings.copy(credentials = credentials))
+        localRepository.settings = localRepository.settings?.copy(credentials = credentials)
     }
 
     private fun initListeners() {

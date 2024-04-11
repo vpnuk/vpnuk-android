@@ -37,7 +37,6 @@ class ServerListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bind = ActivityServerListBinding.inflate(layoutInflater)
         setContentView(bind.root)
-        repository = Repository.instance(this@ServerListActivity)
 
         vm.getServerList()
 
@@ -67,12 +66,7 @@ class ServerListActivity : BaseActivity() {
             localRepository.currentServer = it
             Log.d("kek", "ServerAdapter 1 Selected server = ${it}")
             Log.d("kek", "ServerAdapter 1 ______LocalRepo = ${localRepository.currentServer}")
-
-            repository.setServerId(it.address)
-                .doOnIoObserveOnMain()
-                .subscribe {
-                    finish()
-                }.addToDestroySubscriptions()
+            finish()
         }
         bind.rvList.layoutManager = LinearLayoutManager(this)
         bind.rvList.adapter = serversAdapter

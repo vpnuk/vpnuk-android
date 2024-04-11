@@ -136,7 +136,7 @@ public class VpnConnector implements VpnStatus.StateListener {
             activity.startActivity(intent);
             App.isStart = false;
         } catch (Exception e) {
-            Log.d("kek", e.getMessage());
+            Log.d("kek", "" + e.getCause());
         }
     }
 

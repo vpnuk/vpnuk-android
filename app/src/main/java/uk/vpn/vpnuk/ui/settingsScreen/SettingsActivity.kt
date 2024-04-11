@@ -249,9 +249,9 @@ class SettingsActivity : BaseActivity() {
 
     private fun selectNewServer() {
         val ip = localRepository.vpnIp
-        repository.setServerId(ip)
-            .doOnIoObserveOnMain()
-            .subscribe {}.addToDestroySubscriptions()
+        //repository.setServerId(ip)
+        //    .doOnIoObserveOnMain()
+        //    .subscribe {}.addToDestroySubscriptions()
     }
 
     private fun initViews() {
@@ -270,7 +270,7 @@ class SettingsActivity : BaseActivity() {
                 bind.vSettingsActivityFrameChooseDNS.background = resources.getDrawable(R.drawable.dropdown_gray)
             }
         }
-        settings = repository.getSettings()
+        settings = localRepository.settings!!
 
 
         bind.buttonManageApps.setOnClickListener { startActivity(Intent(this, ManageAppsActivity::class.java)) }
@@ -282,8 +282,8 @@ class SettingsActivity : BaseActivity() {
             bind.switchEnableMTU.setOnCheckedChangeListener { _, checked ->
                 if (checked) {
                     dialog = AlertDialog.Builder(this).setItems(DefaultSettings.MTU_LIST) { _, i ->
-                            repository.updateSettings(repository.getSettings().copy(mtu = DefaultSettings.MTU_LIST[i]))
-                        }
+                        localRepository.settings = localRepository.settings?.copy(mtu = DefaultSettings.MTU_LIST[i])
+                    }
                         .setTitle(getString(R.string.custom_mtu))
                         .setOnCancelListener {
                             bind.switchEnableMTU.isChecked = false
@@ -298,11 +298,7 @@ class SettingsActivity : BaseActivity() {
         }
 
         bind.switchKillSwitch.setOnCheckedChangeListener { _, checked ->
-            if (checked) {
-                repository.updateSettings(settings.copy(reconnect = true))
-            } else {
-                repository.updateSettings(settings.copy(reconnect = false))
-            }
+            localRepository.settings = localRepository.settings?.copy(reconnect = checked)
         }
 
         bind.switchUseObfuscation.isChecked = localRepository.useObfuscation
@@ -313,7 +309,7 @@ class SettingsActivity : BaseActivity() {
 
         bind.buttonDeleteAccount.visibility = if(localRepository.isAppDownloadedFromAmazon) View.GONE else View.VISIBLE
         bind.buttonDeleteAccount.setOnClickListener {
-            val login = repository.getSettings().credentials?.login
+            val login = localRepository.settings?.credentials?.login
             if(login != null && login != ""){
                 showDeletionDialog()
             }else{
@@ -354,7 +350,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun applySettings() {
-        settings = repository.getSettings()
+        settings = localRepository.settings!!
 
         val socketType = SocketType.byValue(settings.socket)!!
         val portIndex = socketType.ports.indexOf(settings.port)
@@ -371,19 +367,17 @@ class SettingsActivity : BaseActivity() {
 
             bind.tabsPort.setTabListener { _, _ ->
                 if (bind.tabsPort.selectedTab().text.toString() != "443" && !localRepository.useObfuscation)
-                    repository.updateSettings(
-                        settings.copy(
-                            socket = bind.tabsSocketType.selectedTab().text.toString(),
-                            port = bind.tabsPort.selectedTab().text.toString()
-                        )
+                    localRepository.settings = localRepository.settings?.copy(
+                        socket = bind.tabsSocketType.selectedTab().text.toString(),
+                        port = bind.tabsPort.selectedTab().text.toString()
                     )
             }
             bind.tabsSocketType.setTabListener { text, _ ->
                 bind.tabsPort.setTabs(SocketType.byValue(text)!!.ports)
-                repository.updateSettings(settings.copy(
+                localRepository.settings = localRepository.settings?.copy(
                     socket = bind.tabsSocketType.selectedTab().text.toString(),
                     port = bind.tabsPort.selectedTab().text.toString()
-                ))
+                )
             }
 
             bind.tabsSocketType.select(socketIndex)
@@ -417,7 +411,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun removeMtu() {
-        repository.updateSettings(repository.getSettings().copy(mtu = null))
+        localRepository.settings = localRepository.settings?.copy(mtu = null)
     }
 
     private fun showDeletionDialog(){
@@ -429,7 +423,7 @@ class SettingsActivity : BaseActivity() {
 
         clBind.buttonYes.setOnClickListener {
             sendEmail(
-                ("Username: " + Repository.instance(this).getSettings().credentials?.login)
+                ("Username: " + localRepository.settings?.credentials?.login)
             )
             alertDialog.dismiss()
         }

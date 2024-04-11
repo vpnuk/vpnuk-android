@@ -422,8 +422,9 @@ public class VpnProfile implements Serializable, Cloneable {
         mUseDefaultRoute = false;
 
         String routes = "";
-        if (mUseDefaultRoute) routes += "route 0.0.0.0 0.0.0.0 vpn_gateway\n";
-        else {
+        if (mUseDefaultRoute) {
+            routes += "route 0.0.0.0 0.0.0.0 vpn_gateway\n";
+        } else {
             for (String route : getCustomRoutes(mCustomRoutes)) {
                 routes += "route " + route + " vpn_gateway\n";
             }
@@ -431,11 +432,16 @@ public class VpnProfile implements Serializable, Cloneable {
                 routes += "route " + route + " net_gateway\n";
             }
         }
-        if (mUseDefaultRoutev6) cfg += "route-ipv6 ::/0\n";
-        else for (String route : getCustomRoutesv6(mCustomRoutesv6)) {
-            routes += "route-ipv6 " + route + "\n";
+        if (mUseDefaultRoutev6) {
+            cfg += "route-ipv6 ::/0\n";
+        } else {
+            for (String route : getCustomRoutesv6(mCustomRoutesv6)) {
+                routes += "route-ipv6 " + route + "\n";
+            }
         }
         cfg += routes;
+
+
         if (mOverrideDNS || !mUsePull) {
             if (!TextUtils.isEmpty(mDNS1)) {
                 if (mDNS1.contains(":")) cfg += "dhcp-option DNS6 " + mDNS1 + "\n";

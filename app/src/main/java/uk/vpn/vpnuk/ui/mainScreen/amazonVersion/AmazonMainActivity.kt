@@ -60,7 +60,6 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         supportActionBar?.show()
         supportActionBar?.title = ""
 
-        repository = Repository.instance(this)
         vpnConnector = VpnConnector(this)
 
         initViews()
@@ -144,18 +143,15 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun selectNewServer() {
         val ip = LocalRepository(this).vpnIp
-        repository.setServerId(ip)
-            .doOnIoObserveOnMain()
-            .subscribe {}.addToDestroySubscriptions()
     }
 
     private fun applySettings() {
-        val settings = repository.getSettings()
-        settings.credentials?.let {
+        val settings = localRepository.settings
+        settings?.credentials?.let {
             bind.etLogin.setText(it.login)
             bind.etPassword.setText(it.password)
         }
-        bind.cbSaveCredentials.isChecked = settings.credentials != null
+        bind.cbSaveCredentials.isChecked = settings?.credentials != null
     }
 
     private fun onUserCredsClick() {
@@ -217,34 +213,21 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             vpnConnector.stopVpn()
         }
 
-        repository.getCurrentServerObservable()
-            .observeOnMain()
-            .subscribe { server ->
-                Logger.e("subscribe", "$server")
-                server.server?.let {
-                    bind.tvAddress.text = it.dns
-                    bind.tvAddress.visibility = View.VISIBLE
-                    bind.tvCity.text = it.location?.city
-                    bind.ivCountry.setImageDrawable(it.getIsoDrawable(this))
-                } ?: run {
-                    bind.tvAddress.visibility = View.GONE
-                    bind.ivCountry.setImageResource(R.drawable.ic_country)
-                    bind.tvCity.setText(R.string.select_city)
-                }
-            }.addToDestroySubscriptions()
-
-        Observable.combineLatest(
-            bind.etPassword.textEmpty(),
-            bind.etLogin.textEmpty(),
-            repository.getCurrentServerObservable(),
-            Function3<Boolean, Boolean, Wrapper, Boolean> { passwordEmpty, loginEmpty, server ->
-                Logger.e("subscribe", "enabled $server")
-                !passwordEmpty && !loginEmpty && server.server != null
-            })
-            .observeOnMain()
-            .subscribe {
-                bind.btConnect.isEnabled = it
-            }.addToDestroySubscriptions()
+        val server = localRepository.currentServer
+        Log.d("kek", "GoogleMainActivity InitView server = ${server}")
+        if(server != null){
+            bind.tvAddress.text = server.dns
+            bind.tvAddress.visibility = View.VISIBLE
+            bind.tvCity.text = server.location?.city
+            bind.ivCountry.setImageDrawable(server.getIsoDrawable(this))
+        }else{
+            bind.tvAddress.visibility = View.GONE
+            bind.ivCountry.setImageResource(R.drawable.ic_country)
+            bind.tvCity.setText(R.string.select_city)
+        }
+        if(!bind.etPassword.text.isNullOrEmpty() && !bind.etLogin.text.isNullOrEmpty() && server != null){
+            bind.btConnect.isEnabled = true
+        }
     }
 
     private fun isFirstLoginAttempt(): Boolean {
@@ -298,12 +281,12 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
         //Check if checkbox checked...Removed because amazon iap flow
         val credentials = Credentials(login, password)
-        val address = repository.getSelectedServer()!!.address
-        val settings = repository.getSettings()
-        val socket = settings.socket
-        val port = settings.port
+        val address = localRepository.currentServer!!.address
+        val settings = localRepository.settings
+        val socket = settings?.socket
+        val port = settings?.port
 
-        repository.updateSettings(settings.copy(credentials = credentials))
+        localRepository.settings = localRepository.settings?.copy(credentials = credentials)
 
         val isLoginByUserCreds = localRepository.isLoginByUserCreds
         val vpnLogin = if(isLoginByUserCreds) localRepository.vpnUsername else login
@@ -315,7 +298,7 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             address,
             socket,
             port,
-            settings.mtu ?: DefaultSettings.MTU_DEFAULT,
+            settings?.mtu ?: DefaultSettings.MTU_DEFAULT,
             localRepository.customDns,
             localRepository.excludedApps,
             localRepository.excludedWebsites,
