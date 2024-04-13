@@ -1,7 +1,7 @@
 # Readme
 
 VPNUK for Android application for Android and Amazon Devices. 
-Latest version 1.4.2
+ Latest version 1.4.2
 
 ## Requirements
 
