@@ -5,8 +5,7 @@ VPNUK for Android application for Android and Amazon Devices.
 
 ## Requirements
 
-- Android
-- Developer options - Unknown sources enabled.
+- Android or Amazon Fire TV
 - VPNUK user account
 
 ## Download
