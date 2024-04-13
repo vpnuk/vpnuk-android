@@ -11,7 +11,7 @@ Latest version 1.4.2
 
 ## Download
 If you would like to download the Android app to your Android or Amazon device from here please ensure you have Developer options - Unknown sources enabled.
-You can download latest installer following [this link]
+You can download latest installer following [this link](https://github.com/vpnuk/vpnuk-android/releases/tag/v1.4.2)
 
 ## Website
 
