@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Background, Status Bar, Menu Bar -->
-    <!--<color name="colorPrimary">#303030</color> #039be5-->
 
     // background-color dark-blue #141526
     // text-sup white #ffffff
