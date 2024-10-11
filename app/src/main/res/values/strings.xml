@@ -202,4 +202,5 @@
     <string name="server_selected">Server selected!</string>
     <string name="ok">Ok</string>
     <string name="error_you_dont_have_active_vpn_account">You don\'t have active Vpn accounts</string>
+    <string name="notification_explanation">The application will not work correctly without notification. See <a href="https://www.vpnuk.net/vpnuk-android/">troubleshoot</a></string>
 </resources>

@@ -17,7 +17,10 @@ object Logger {
             Log.e(tag, message)
         }
         if(tag == "asdasd"){
-            vpnLogs.add(message)
+            vpnLogs.add("- " + message + "\n")
+        }
+        if(tag == "OpenVPN"){
+            vpnLogs.add("* " + message + "\n")
         }
     }
 }

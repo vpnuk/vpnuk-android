@@ -6,6 +6,7 @@
 
 package uk.vpn.vpnuk.ui.mainScreen.googleVersion
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -23,11 +24,18 @@ import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 import uk.vpn.vpnuk.utils.*
 import android.net.Uri
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
+import permissions.dispatcher.NeedsPermission
+import permissions.dispatcher.OnNeverAskAgain
+import permissions.dispatcher.PermissionUtils
+import permissions.dispatcher.RuntimePermissions
 import uk.vpn.vpnuk.databinding.ActivityGoogleMainBinding
 import uk.vpn.vpnuk.local.Settings
+import uk.vpn.vpnuk.ui.dialog.NotificationExplanationDialog
 import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 
 
+@RuntimePermissions
 class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
 
     lateinit var bind: ActivityGoogleMainBinding
@@ -56,6 +64,8 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
         localRepository.isLoginByUserCreds = false
 
         vm.updateServers()
+
+        requestPostNotificationPermissionWithPermissionCheck()
     }
 
     private fun observeLiveData() {
@@ -77,7 +87,11 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
 
     private fun initViews() {
         bind.vGoogleMainActivityButtonConnect.setOnClickListener {
-            startVpn()
+            if(PermissionUtils.hasSelfPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
+                startVpn()
+            }else{
+                requestPostNotificationPermissionWithPermissionCheck()
+            }
         }
         bind.vGoogleMainActivityLinkTrial.stripUnderlines()
         bind.vGoogleMainActivityLinkTrial.setOnClickListener {
@@ -192,6 +206,22 @@ class GoogleMainActivity : BaseActivity(), ConnectionStateListener {
             localRepository.excludedWebsites,
             localRepository.useObfuscation
         )
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionsResult(requestCode, grantResults)
+    }
+
+    @NeedsPermission(Manifest.permission.POST_NOTIFICATIONS)
+    fun requestPostNotificationPermission(){
+        Log.d("kek", "REQUESTING PERMISSIONS")
+    }
+
+    @OnNeverAskAgain(Manifest.permission.POST_NOTIFICATIONS)
+    fun onNotificationsNeverAskAgain() {
+        val dialog = NotificationExplanationDialog()
+        dialog.show(supportFragmentManager, "dummy")
     }
 
     override fun onStateChanged(state: ConnectionState) {

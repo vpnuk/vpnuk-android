@@ -311,6 +311,7 @@ public class VpnStatus {
         }
 
         Log.d("OpenVPN", logItem.getString(null));
+        Logger.INSTANCE.e("OpenVPN", logItem.getString(null));
 
         for (LogListener ll : logListener) {
             ll.newLog(logItem);

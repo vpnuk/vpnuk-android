@@ -10,23 +10,22 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.core.graphics.toColor
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import com.google.android.material.tabs.TabLayout.GRAVITY_FILL
-import com.google.android.material.tabs.TabLayout.MODE_AUTO
 import com.google.android.material.tabs.TabLayout.MODE_FIXED
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.GlobalScope
@@ -36,7 +35,6 @@ import uk.vpn.vpnuk.BaseActivity
 import uk.vpn.vpnuk.R
 import uk.vpn.vpnuk.databinding.ActivitySettingsBinding
 import uk.vpn.vpnuk.databinding.DialogAccountDeletePromptBinding
-import uk.vpn.vpnuk.databinding.DialogChooseVpnaccountBinding
 import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
 import uk.vpn.vpnuk.local.DefaultSettings
 import uk.vpn.vpnuk.local.Settings
@@ -44,13 +42,10 @@ import uk.vpn.vpnuk.model.DnsServer
 import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
-import uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.ui.settingsScreen.manageApps.ManageAppsActivity
 import uk.vpn.vpnuk.ui.settingsScreen.manageWebsites.ManageWebsitesActivity
 import uk.vpn.vpnuk.utils.*
-import java.util.HashSet
 import javax.mail.internet.InternetAddress
-import kotlin.math.log
 
 
 class SettingsActivity : BaseActivity() {
@@ -320,8 +315,28 @@ class SettingsActivity : BaseActivity() {
         if(Logger.vpnLogs.size > 300){
             Logger.vpnLogs.clear()
         }
+
+        var colorChangeFlag = false
         for(i in Logger.vpnLogs.indices){
-            bind.textViewLogs.append(Logger.vpnLogs[i] + "\n")
+            val word = SpannableString(Logger.vpnLogs[i])
+            var textColor = if(!colorChangeFlag) {
+                colorChangeFlag = true
+                Color.GRAY
+            } else{
+                colorChangeFlag = false
+                Color.BLACK
+            }
+            word.setSpan(ForegroundColorSpan(textColor), 0, word.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            bind.textViewLogs.append(word)
+        }
+
+        bind.buttonShareLogs.setOnClickListener {
+            val intent2 = Intent()
+            intent2.setAction(Intent.ACTION_SEND)
+            intent2.setType("text/plain")
+            intent2.putExtra(Intent.EXTRA_TEXT, Logger.vpnLogs.toString())
+            startActivity(Intent.createChooser(intent2, "Share via"))
         }
     }
 

@@ -6,26 +6,39 @@
 
 package uk.vpn.vpnuk.ui.quickLaunch
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.*
 import es.dmoral.toasty.Toasty
-import uk.vpn.vpnuk.local.DefaultSettings
-import uk.vpn.vpnuk.remote.Repository
+import permissions.dispatcher.NeedsPermission
+import permissions.dispatcher.OnNeverAskAgain
+import permissions.dispatcher.PermissionUtils
+import permissions.dispatcher.RuntimePermissions
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.data.repository.LocalRepository
 import uk.vpn.vpnuk.databinding.ActivityQuickLaunchBinding
 import uk.vpn.vpnuk.databinding.DialogSubscriptionExpiredBinding
-import uk.vpn.vpnuk.utils.*
+import uk.vpn.vpnuk.local.DefaultSettings
+import uk.vpn.vpnuk.remote.Repository
+import uk.vpn.vpnuk.ui.dialog.NotificationExplanationDialog
 import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity
 import uk.vpn.vpnuk.ui.mainScreen.googleVersion.GoogleMainActivity
-import java.util.HashSet
+import uk.vpn.vpnuk.utils.*
 
+
+@RuntimePermissions
 class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     lateinit var bind: ActivityQuickLaunchBinding
@@ -54,6 +67,8 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         observeLivaData()
         initView()
         initListeners()
+
+        requestPostNotificationPermissionWithPermissionCheck()
     }
 
     private fun initAmazonServices() {
@@ -84,7 +99,11 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
     private fun initListeners() {
         bind.switchConnect.setOnCheckedChangeListener { view, isChecked ->
             if(isChecked){
-                startVpn()
+                if(PermissionUtils.hasSelfPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
+                    startVpn()
+                }else{
+                    requestPostNotificationPermissionWithPermissionCheck()
+                }
             }else{
                 stopVpn()
             }
@@ -159,6 +178,23 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
         }
     }
 
+    @NeedsPermission(Manifest.permission.POST_NOTIFICATIONS)
+    fun requestPostNotificationPermission(){
+        Log.d("kek", "REQUESTING PERMISSIONS")
+    }
+
+    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    fun requestWriteFilesPermission(){
+        Log.d("kek", "REQUESTING PERMISSIONS")
+    }
+
+    @OnNeverAskAgain(Manifest.permission.POST_NOTIFICATIONS)
+    fun onNotificationsNeverAskAgain() {
+        val dialog = NotificationExplanationDialog()
+        dialog.show(supportFragmentManager, "dummy")
+    }
+
+
     private fun checkIfDataFilled() : Boolean {
         val settings = localRepository.settings
 
@@ -192,7 +228,6 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
 
     private fun showSubscriptionExpiredDialog(){
         val alertDialog = AlertDialog.Builder(this).create()
-        //val customLayout: View = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
         val clBind = DialogSubscriptionExpiredBinding.inflate(layoutInflater, null, false)
         alertDialog.setView(clBind.root)
         alertDialog.show()
@@ -209,6 +244,11 @@ class QuickLaunchActivity : BaseActivity(), ConnectionStateListener {
             PurchasingService.getUserData()
             PurchasingService.getProductData(hash)
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionsResult(requestCode, grantResults)
     }
 
     override fun showProgress() {

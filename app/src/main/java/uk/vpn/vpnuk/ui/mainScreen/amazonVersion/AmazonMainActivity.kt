@@ -6,9 +6,11 @@
 
 package uk.vpn.vpnuk.ui.mainScreen.amazonVersion
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Html
 import android.util.Log
 import android.view.Menu
@@ -20,6 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
+import permissions.dispatcher.NeedsPermission
+import permissions.dispatcher.OnNeverAskAgain
+import permissions.dispatcher.PermissionUtils
+import permissions.dispatcher.RuntimePermissions
 import uk.vpn.vpnuk.*
 import uk.vpn.vpnuk.ui.adapter.vpnAccountAdapter.VpnAccountAdapter
 import uk.vpn.vpnuk.data.repository.LocalRepository
@@ -32,12 +38,14 @@ import uk.vpn.vpnuk.model.subscriptionModel.SubscriptionsModel
 import uk.vpn.vpnuk.model.subscriptionModel.Vpnaccount
 import uk.vpn.vpnuk.remote.Repository
 import uk.vpn.vpnuk.remote.Wrapper
+import uk.vpn.vpnuk.ui.dialog.NotificationExplanationDialog
 import uk.vpn.vpnuk.utils.*
 import uk.vpn.vpnuk.ui.registerAccountScreen.RegisterAccountActivity
 import uk.vpn.vpnuk.ui.serverListScreen.ServerListActivity
 import uk.vpn.vpnuk.ui.settingsScreen.SettingsActivity
 
 
+@RuntimePermissions
 class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
 
     private lateinit var bind: ActivityAmazonMainBinding
@@ -68,6 +76,8 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
         observeLiveData()
 
         vm.updateServers()
+
+        requestPostNotificationPermissionWithPermissionCheck()
     }
 
     private fun observeLiveData() {
@@ -175,7 +185,11 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             val isLoginByUserCreds = localRepository.isLoginByUserCreds
 
             if(!isLoginByUserCreds){ //Login by VPN
-                startVpn()
+                if(PermissionUtils.hasSelfPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
+                    startVpn()
+                }else{
+                    requestPostNotificationPermissionWithPermissionCheck()
+                }
             }else{                  //Login by User Creds
                 if(localRepository.vpnUsername == ""){
                     vm.findActiveVpnAccount(login, password)
@@ -184,7 +198,11 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
                     vm.findActiveVpnAccount(login, password)
                     showProgressBar()
                 }else{
-                    startVpn()
+                    if(PermissionUtils.hasSelfPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
+                        startVpn()
+                    }else{
+                        requestPostNotificationPermissionWithPermissionCheck()
+                    }
                 }
             }
         }
@@ -319,6 +337,18 @@ class AmazonMainActivity : BaseActivity(), ConnectionStateListener {
             dialog.dismiss()
         }
         alertDialog.show()
+    }
+
+
+    @NeedsPermission(Manifest.permission.POST_NOTIFICATIONS)
+    fun requestPostNotificationPermission(){
+        Log.d("kek", "REQUESTING PERMISSIONS")
+    }
+
+    @OnNeverAskAgain(Manifest.permission.POST_NOTIFICATIONS)
+    fun onNotificationsNeverAskAgain() {
+        val dialog = NotificationExplanationDialog()
+        dialog.show(supportFragmentManager, "dummy")
     }
 
     override fun onStateChanged(state: ConnectionState) {
