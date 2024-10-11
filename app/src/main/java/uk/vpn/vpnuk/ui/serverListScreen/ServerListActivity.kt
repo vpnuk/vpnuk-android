@@ -62,7 +62,7 @@ class ServerListActivity : BaseActivity() {
         Log.d("kek", "serverList - ${localRepository.serversList.map { it.address }}, size - ${localRepository.serversList.size}")
 
 
-        serversAdapter = ServersAdapter(this) {
+        serversAdapter = ServersAdapter(this, localRepository.currentServer) {
             localRepository.currentServer = it
             Log.d("kek", "ServerAdapter 1 Selected server = ${it}")
             Log.d("kek", "ServerAdapter 1 ______LocalRepo = ${localRepository.currentServer}")
