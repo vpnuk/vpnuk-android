@@ -312,10 +312,6 @@ class SettingsActivity : BaseActivity() {
             }
         }
 
-        if(Logger.vpnLogs.size > 300){
-            Logger.vpnLogs.clear()
-        }
-
         var colorChangeFlag = false
         for(i in Logger.vpnLogs.indices){
             val word = SpannableString(Logger.vpnLogs[i])
