@@ -24,8 +24,8 @@ android {
         applicationId "uk.vpn.vpnuk"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 39
-        versionName "1.4.5"
+        versionCode 42
+        versionName "1.4.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
@@ -42,7 +42,7 @@ android {
             buildConfigField "boolean", "ALLOW_INVALID_CERTIFICATE", "true"
         }
         debug {
-            debuggable true
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug

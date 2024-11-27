@@ -313,7 +313,7 @@ class SettingsActivity : BaseActivity() {
         }
 
         var colorChangeFlag = false
-        for(i in Logger.vpnLogs.indices){
+        for(i in Logger.vpnLogs.size - 300 until Logger.vpnLogs.size){
             val word = SpannableString(Logger.vpnLogs[i])
             var textColor = if(!colorChangeFlag) {
                 colorChangeFlag = true

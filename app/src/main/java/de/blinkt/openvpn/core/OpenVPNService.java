@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -65,6 +66,7 @@ import uk.vpn.vpnuk.ui.mainScreen.amazonVersion.AmazonMainActivity;
 import uk.vpn.vpnuk.R;
 import uk.vpn.vpnuk.remote.Repository;
 import uk.vpn.vpnuk.remote.Server;
+import uk.vpn.vpnuk.ui.mainScreen.googleVersion.GoogleMainActivity;
 import uk.vpn.vpnuk.utils.Logger;
 import uk.vpn.vpnuk.utils.ModelUtilsKt;
 
@@ -281,7 +283,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 0, notificationIntent,  PendingIntent.FLAG_MUTABLE); //Changed from 0
 
         try {
-            startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            }else {
+                startForeground(App.NOTIFICATION_ID, getMyActivityNotification(getString(R.string.tap_to_open_app)));
+            }
         } catch (Exception e) {
 //            Bundle params = new Bundle();
 //            params.putString("device_id", App.device_id);
@@ -407,7 +413,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     // TODO
     @SuppressLint("NewApi")
     private Notification getMyActivityNotification(String description) {
-        Intent notificationIntent = new Intent(this, AmazonMainActivity.class);
+        Class activityFromNotification = null;
+        boolean isAppDownloadedFromAmazon = new LocalRepository(this).isAppDownloadedFromAmazon();
+        if(isAppDownloadedFromAmazon) {
+            activityFromNotification = AmazonMainActivity.class;
+        }else {
+            activityFromNotification = GoogleMainActivity.class;
+        }
+
+        Intent notificationIntent = new Intent(this, activityFromNotification);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
